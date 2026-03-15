@@ -154,27 +154,45 @@ impl App {
     }
 
     pub fn theme(&self) -> &Theme {
-        match self.theme_mode {
-            ThemeMode::Dark => &self.themes[self.theme_idx],
-            ThemeMode::Light => self
-                .themes
+        let target = self.effective_mode();
+        let candidate = &self.themes[self.theme_idx];
+        if candidate.mode == target {
+            candidate
+        } else {
+            self.themes
                 .iter()
-                .find(|t| t.mode == ThemeMode::Light)
-                .unwrap_or(&self.themes[self.theme_idx]),
+                .find(|t| t.mode == target)
+                .unwrap_or(candidate)
+        }
+    }
+
+    /// Returns the effective colour mode: `Dark` or `Light` (never `Auto`).
+    /// For `Auto`, resolves based on local hour (06:00–17:59 → Light).
+    fn effective_mode(&self) -> ThemeMode {
+        match self.theme_mode {
             ThemeMode::Auto => {
                 use chrono::Timelike;
                 let hour = chrono::Local::now().hour();
-                let is_day = hour >= 6 && hour < 18;
-                if is_day {
-                    self.themes
-                        .iter()
-                        .find(|t| t.mode == ThemeMode::Light)
-                        .unwrap_or(&self.themes[self.theme_idx])
+                if hour >= 6 && hour < 18 {
+                    ThemeMode::Light
                 } else {
-                    &self.themes[self.theme_idx]
+                    ThemeMode::Dark
                 }
             }
+            mode => mode,
         }
+    }
+
+    /// Indices into `self.themes` that the theme picker should display,
+    /// filtered to match the current effective mode.
+    pub fn picker_theme_indices(&self) -> Vec<usize> {
+        let target = self.effective_mode();
+        self.themes
+            .iter()
+            .enumerate()
+            .filter(|(_, t)| t.mode == target)
+            .map(|(i, _)| i)
+            .collect()
     }
 
     /// Build a serialisable snapshot of current config state for persistence.

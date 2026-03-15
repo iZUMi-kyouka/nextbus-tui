@@ -34,6 +34,11 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
             Style::default()
                 .fg(palette.highlight)
                 .add_modifier(Modifier::BOLD),
+        )
+        .style(
+            Style::default()
+                .bg(palette.background)
+                .fg(palette.foreground),
         );
     let inner = block.inner(popup);
     frame.render_widget(block, popup);

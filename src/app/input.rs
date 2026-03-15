@@ -53,7 +53,10 @@ impl App {
         match key.code {
             KeyCode::Esc | KeyCode::Char('X') => self.showing_theme_picker = false,
             KeyCode::Enter => {
-                self.theme_idx = self.theme_picker_cursor;
+                let indices = self.picker_theme_indices();
+                if let Some(&idx) = indices.get(self.theme_picker_cursor) {
+                    self.theme_idx = idx;
+                }
                 self.showing_theme_picker = false;
             }
             KeyCode::Up | KeyCode::Char('k') => {
@@ -62,7 +65,8 @@ impl App {
                 }
             }
             KeyCode::Down | KeyCode::Char('j') => {
-                if self.theme_picker_cursor + 1 < self.themes.len() {
+                let n = self.picker_theme_indices().len();
+                if self.theme_picker_cursor + 1 < n {
                     self.theme_picker_cursor += 1;
                 }
             }
@@ -125,11 +129,22 @@ impl App {
             }
             (KeyCode::Char('x'), _) => {
                 self.cancel_jump();
-                self.theme_idx = (self.theme_idx + 1) % self.themes.len();
+                let indices = self.picker_theme_indices();
+                if !indices.is_empty() {
+                    let pos = indices
+                        .iter()
+                        .position(|&i| i == self.theme_idx)
+                        .unwrap_or(0);
+                    self.theme_idx = indices[(pos + 1) % indices.len()];
+                }
             }
             (KeyCode::Char('X'), _) => {
                 self.cancel_jump();
-                self.theme_picker_cursor = self.theme_idx;
+                let indices = self.picker_theme_indices();
+                self.theme_picker_cursor = indices
+                    .iter()
+                    .position(|&i| i == self.theme_idx)
+                    .unwrap_or(0);
                 self.showing_theme_picker = true;
             }
             (KeyCode::Char('s'), _) | (KeyCode::Char('S'), _) => {
@@ -274,17 +289,22 @@ mod tests {
     #[test]
     fn x_cycles_theme() {
         let mut app = make_app();
+        let indices = app.picker_theme_indices();
         let initial = app.theme_idx;
+        let pos = indices.iter().position(|&i| i == initial).unwrap_or(0);
+        let expected = indices[(pos + 1) % indices.len()];
         app.handle_key(key(KeyCode::Char('x')));
-        assert_eq!(app.theme_idx, (initial + 1) % app.themes.len());
+        assert_eq!(app.theme_idx, expected);
     }
 
     #[test]
     fn x_wraps_theme_at_end() {
         let mut app = make_app();
-        app.theme_idx = app.themes.len() - 1;
+        let indices = app.picker_theme_indices();
+        // Set to the last theme in the filtered list so the next press wraps to first.
+        app.theme_idx = *indices.last().unwrap();
         app.handle_key(key(KeyCode::Char('x')));
-        assert_eq!(app.theme_idx, 0);
+        assert_eq!(app.theme_idx, indices[0]);
     }
 
     #[test]
@@ -411,8 +431,9 @@ mod tests {
     fn theme_picker_j_at_bottom_stays() {
         let mut app = make_app();
         app.showing_theme_picker = true;
-        app.theme_picker_cursor = app.themes.len() - 1;
+        let bottom = app.picker_theme_indices().len() - 1;
+        app.theme_picker_cursor = bottom;
         app.handle_key(key(KeyCode::Char('j')));
-        assert_eq!(app.theme_picker_cursor, app.themes.len() - 1);
+        assert_eq!(app.theme_picker_cursor, bottom);
     }
 }
