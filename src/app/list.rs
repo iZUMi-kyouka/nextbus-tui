@@ -101,7 +101,7 @@ impl App {
             return None;
         }
         let elapsed = self.cache.get(&name)?.fetched_at.elapsed().as_secs();
-        Some(super::AUTO_REFRESH_SECS.saturating_sub(elapsed))
+        Some(self.auto_refresh_secs.saturating_sub(elapsed))
     }
 
     /// How many visible stops are favourites (used by the list renderer for the separator).
@@ -122,6 +122,7 @@ mod tests {
         let (tx, _rx) = mpsc::channel();
         let mut app = App::new(tx);
         app.favourites.clear();
+        app.fav_view = false;
         app.rebuild_list();
         app
     }
@@ -173,6 +174,7 @@ mod tests {
             let (tx, _rx) = mpsc::channel();
             let mut a = App::new(tx);
             a.favourites.clear();
+            a.fav_view = false;
             a
         };
         let mut a1 = make();

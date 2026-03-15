@@ -21,6 +21,15 @@ pub(super) fn render_footer(frame: &mut Frame, area: Rect, app: &App) {
             format!("  {} ", msg),
             Style::default().fg(p.success).add_modifier(Modifier::BOLD),
         )
+    } else if app.showing_settings {
+        Span::styled(
+            if app.settings_edit_mode {
+                "  [0-9] Type   [\u{232B}] Delete   [\u{21B5}] Confirm   [Esc] Cancel"
+            } else {
+                "  [\u{2191}\u{2193}/j/k] Navigate   [\u{21B5}/Space] Edit/Toggle   [Esc/s] Close"
+            },
+            Style::default().fg(p.highlight),
+        )
     } else if app.searching {
         Span::styled(
             "  Type to filter   [\u{2191}\u{2193}] Navigate   [\u{21B5}] Confirm   [Esc] Cancel",
@@ -28,7 +37,7 @@ pub(super) fn render_footer(frame: &mut Frame, area: Rect, app: &App) {
         )
     } else {
         Span::styled(
-            "  [\u{2191}\u{2193}/j/k] Move   [f] Favourite   [r] Refresh   [/] Search   [g/G] \u{21B1}/\u{21B3}   [q] Quit",
+            "  [\u{2191}\u{2193}/j/k] Move   [f] Favourite   [r] Refresh   [/] Search   [s] Settings   [q] Quit",
             Style::default().fg(p.dim),
         )
     };

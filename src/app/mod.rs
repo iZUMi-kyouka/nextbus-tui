@@ -4,6 +4,7 @@ pub(crate) mod input;
 pub(crate) mod jump;
 pub(crate) mod list;
 pub(crate) mod mouse;
+pub(crate) mod settings;
 pub(crate) mod tick;
 
 use crate::theme::Theme;
@@ -16,7 +17,8 @@ use ratatui::widgets::ListState;
 
 use crate::models::{AppEvent, BusStop, Route, ShuttleServiceResult};
 
-pub const AUTO_REFRESH_SECS: u64 = 30;
+/// Number of rows in the settings overlay.
+pub const SETTINGS_ROW_COUNT: usize = 3;
 
 static STOPS_TOML: &str = include_str!("../../assets/stops.toml");
 static ROUTES_TOML: &str = include_str!("../../assets/routes.toml");
@@ -70,6 +72,18 @@ pub struct App {
     pub showing_theme_picker: bool,
     /// Cursor position inside the theme picker.
     pub theme_picker_cursor: usize,
+    /// Whether the settings overlay is open.
+    pub showing_settings: bool,
+    /// Which settings row is highlighted.
+    pub settings_cursor: usize,
+    /// True while the user is editing the refresh interval value.
+    pub settings_edit_mode: bool,
+    /// Digit buffer for the refresh interval being typed.
+    pub settings_edit_buf: String,
+    /// Auto-refresh interval in seconds (persisted in config).
+    pub auto_refresh_secs: u64,
+    /// Whether new sessions open in favourites-only view (persisted in config).
+    pub default_fav_view: bool,
     /// Set to true to exit the event loop.
     pub should_quit: bool,
     /// Transient status message (text, time it was set).
@@ -94,6 +108,8 @@ impl App {
 
         let config = crate::config::load();
         let favourites: HashSet<String> = config.favourites.into_iter().collect();
+        let auto_refresh_secs = config.refresh_interval_secs;
+        let default_fav_view = config.default_fav_view;
 
         let mut app = App {
             stops,
@@ -106,11 +122,17 @@ impl App {
             loading: HashSet::new(),
             search_query: String::new(),
             searching: false,
-            fav_view: false,
+            fav_view: default_fav_view,
             themes: crate::theme::load_themes(),
             theme_idx: 0,
             showing_theme_picker: false,
             theme_picker_cursor: 0,
+            showing_settings: false,
+            settings_cursor: 0,
+            settings_edit_mode: false,
+            settings_edit_buf: String::new(),
+            auto_refresh_secs,
+            default_fav_view,
             should_quit: false,
             status_msg: None,
             jump_buf: String::new(),
@@ -124,5 +146,16 @@ impl App {
 
     pub fn theme(&self) -> &Theme {
         &self.themes[self.theme_idx]
+    }
+
+    /// Build a serialisable snapshot of current config state for persistence.
+    pub fn config_snapshot(&self) -> crate::models::Config {
+        let mut favs: Vec<String> = self.favourites.iter().cloned().collect();
+        favs.sort();
+        crate::models::Config {
+            favourites: favs,
+            refresh_interval_secs: self.auto_refresh_secs,
+            default_fav_view: self.default_fav_view,
+        }
     }
 }

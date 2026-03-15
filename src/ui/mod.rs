@@ -2,6 +2,7 @@ pub(crate) mod detail;
 pub(crate) mod footer;
 pub(crate) mod helpers;
 pub(crate) mod search;
+pub(crate) mod settings;
 pub(crate) mod stop_list;
 pub(crate) mod theme_picker;
 pub(crate) mod title;
@@ -17,6 +18,7 @@ use crate::app::App;
 use detail::render_detail;
 use footer::render_footer;
 use search::render_search_overlay;
+use settings::render_settings;
 use stop_list::render_list;
 use theme_picker::render_theme_picker;
 use title::render_title;
@@ -51,6 +53,10 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     if app.showing_theme_picker {
         render_theme_picker(frame, app);
     }
+
+    if app.showing_settings {
+        render_settings(frame, app);
+    }
 }
 
 fn render_panels(frame: &mut Frame, area: ratatui::layout::Rect, app: &mut App) {
@@ -79,6 +85,7 @@ mod tests {
         let (tx, _rx) = mpsc::channel();
         let mut app = App::new(tx);
         app.favourites.clear();
+        app.fav_view = false;
         app.rebuild_list();
         app
     }

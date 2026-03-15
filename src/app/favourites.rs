@@ -13,7 +13,7 @@ impl App {
                 self.favourites.insert(name);
                 self.set_status("Added to favourites \u{2605}");
             }
-            crate::config::save(&self.favourites);
+            crate::config::save(&self.config_snapshot());
             self.rebuild_list();
         }
     }
@@ -33,6 +33,7 @@ mod tests {
         let (tx, _rx) = mpsc::channel();
         let mut app = App::new(tx);
         app.favourites.clear();
+        app.fav_view = false;
         app.rebuild_list();
         app
     }

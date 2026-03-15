@@ -5,7 +5,9 @@ use super::App;
 impl App {
     /// Dispatch a keyboard event to the appropriate mode handler.
     pub fn handle_key(&mut self, key: KeyEvent) {
-        if self.showing_theme_picker {
+        if self.showing_settings {
+            self.handle_settings_key(key);
+        } else if self.showing_theme_picker {
             self.handle_theme_picker_key(key);
         } else if self.searching {
             self.handle_search_key(key);
@@ -130,6 +132,13 @@ impl App {
                 self.theme_picker_cursor = self.theme_idx;
                 self.showing_theme_picker = true;
             }
+            (KeyCode::Char('s'), _) | (KeyCode::Char('S'), _) => {
+                self.cancel_jump();
+                self.settings_cursor = 0;
+                self.settings_edit_mode = false;
+                self.settings_edit_buf.clear();
+                self.showing_settings = true;
+            }
             (KeyCode::Char(c), _) if c.is_ascii_digit() => self.push_jump_digit(c),
             (KeyCode::Enter, _) if !self.jump_buf.is_empty() => self.commit_jump(),
             _ => self.cancel_jump(),
@@ -147,6 +156,7 @@ mod tests {
         let (tx, _rx) = mpsc::channel();
         let mut app = App::new(tx);
         app.favourites.clear();
+        app.fav_view = false;
         app.rebuild_list();
         app
     }

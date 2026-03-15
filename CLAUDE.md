@@ -58,8 +58,9 @@ Background threads (one per in-flight fetch) call `api::fetch_shuttle_service()`
 | `app/list.rs` | `rebuild_list()`: sorted/filtered `sorted_indices`; fav-view branch |
 | `app/jump.rs` | Number-jump buffer; immediate commit when list < 10 items |
 | `app/fetch.rs` | API fetch and cache management |
-| `app/tick.rs` | Auto-refresh (30 s) and status message expiry |
+| `app/tick.rs` | Auto-refresh (interval from `app.auto_refresh_secs`) and status message expiry |
 | `app/favourites.rs` | Favourite toggle and persistence |
+| `app/settings.rs` | Settings overlay key handling (interval edit, default-view toggle, language stub) |
 | `ui/mod.rs` | Root render function; background fill; layout split |
 | `ui/title.rs` | Title bar (theme-aware) |
 | `ui/stop_list.rs` | Stop list panel with fav highlight and ellipsis truncation |
@@ -67,6 +68,7 @@ Background threads (one per in-flight fetch) call `api::fetch_shuttle_service()`
 | `ui/footer.rs` | Footer hints (context-sensitive: jump / status / search / normal) |
 | `ui/search.rs` | Search overlay |
 | `ui/theme_picker.rs` | Theme picker popup with colour swatches |
+| `ui/settings.rs` | Settings overlay (auto-refresh interval, default view, language stub) |
 | `ui/helpers.rs` | Shared style/formatting utilities (`arrival_style`, `route_color`, `fmt_arrival`) |
 | `api.rs` | Single function: GETs `https://nnextbus.nusmods.com/ShuttleService?busstopname=<NAME>` |
 | `models.rs` | Serde structs (`BusStop`, `ApiResponse`, `ShuttleServiceResult`, `Shuttle`, `Config`) + `AppEvent` |
@@ -74,8 +76,9 @@ Background threads (one per in-flight fetch) call `api::fetch_shuttle_service()`
 
 ### Key design points
 
-- **Stop list** is stored as `Vec<BusStop>` (from `assets/stops.json`, embedded via `include_str!`). The rendered order is `sorted_indices: Vec<usize>` — indices into that vec, sorted favourites-first then alphabetically, filtered by `search_query`.
-- **Cache** is `HashMap<String, CachedData>` keyed by stop `name` (e.g. `"COM3"`). Stale entries (>30 s) trigger an auto-refresh on the next tick.
+- **Stop list** is stored as `Vec<BusStop>` (from `assets/stops.toml`, embedded via `include_str!`). The rendered order is `sorted_indices: Vec<usize>` — indices into that vec, sorted favourites-first then alphabetically, filtered by `search_query`.
+- **Cache** is `HashMap<String, CachedData>` keyed by stop `name` (e.g. `"COM3"`). Stale entries (> `app.auto_refresh_secs`) trigger an auto-refresh on the next tick.
+- **Config** (`~/.config/nextbus-tui/config.json`) persists favourites, `refresh_interval_secs`, and `default_fav_view`. Call `app.config_snapshot()` to build a `Config` from live state before calling `config::save()`.
 - **Loading state** is a `HashSet<String>` of stop names currently being fetched; prevents duplicate in-flight requests.
 - **Favourites** are persisted immediately on toggle via `config::save()`.
 - The UI layout is: 1-row title bar / main 33%–67% horizontal split / 1-row footer.
