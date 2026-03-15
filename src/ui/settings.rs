@@ -45,7 +45,10 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
 
     let lang_display = {
         let mut args = FluentArgs::new();
-        args.set("name", app.i18n.lang_meta.native_name.as_str());
+        let mapped_name = app
+            .i18n
+            .map_text_for_web(app.i18n.lang_meta.native_name.as_str());
+        args.set("name", mapped_name.as_str());
         app.i18n.t_args("settings-lang-value", &args)
     };
 

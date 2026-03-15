@@ -25,6 +25,9 @@ static FTL_TA: &str = include_str!("../assets/i18n/ta/main.ftl");
 static FTL_VI: &str = include_str!("../assets/i18n/vi/main.ftl");
 
 /// Language codes in selection order (used when cycling through languages).
+#[cfg(target_arch = "wasm32")]
+pub const LANGUAGES: &[&str] = &["en", "zh-CN", "zh-TW", "ja", "ms", "vi"];
+#[cfg(not(target_arch = "wasm32"))]
 pub const LANGUAGES: &[&str] = &["en", "zh-CN", "zh-TW", "ja", "ms", "ta", "vi"];
 
 /// Active i18n bundle: holds the Fluent message bundle for the current language.
@@ -49,6 +52,8 @@ impl I18n {
         } else {
             "en"
         };
+        #[cfg(target_arch = "wasm32")]
+        let lang = if lang == "ta" { "en" } else { lang };
         let lang_meta = all_meta
             .remove(lang)
             .expect("'en' must exist in i18n config");
@@ -106,8 +111,60 @@ impl I18n {
             None => return format!("[{id}]"),
         };
         let mut errors = Vec::new();
-        self.bundle
+        let rendered = self
+            .bundle
             .format_pattern(pattern, args, &mut errors)
-            .into_owned()
+            .into_owned();
+        map_for_web_atlas(&self.lang, &rendered)
     }
+
+    pub fn map_text_for_web(&self, s: &str) -> String {
+        map_for_web_atlas(&self.lang, s)
+    }
+}
+
+fn map_for_web_atlas(lang: &str, s: &str) -> String {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let _ = lang;
+        s.to_owned()
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        if !matches!(lang, "ja" | "zh-CN" | "zh-TW") {
+            return s.to_owned();
+        }
+        s.chars()
+            .map(|c| {
+                if c.is_ascii() || is_structural_symbol(c) {
+                    c
+                } else {
+                    char::from_u32(0xF0000 + c as u32).unwrap_or(c)
+                }
+            })
+            .collect()
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn is_structural_symbol(c: char) -> bool {
+    matches!(
+        c,
+        '─' | '│'
+            | '┌'
+            | '┐'
+            | '└'
+            | '┘'
+            | '├'
+            | '┤'
+            | '┬'
+            | '┴'
+            | '┼'
+            | '↑'
+            | '↓'
+            | '←'
+            | '→'
+            | '↵'
+            | '⌫'
+    )
 }
