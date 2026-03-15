@@ -1,9 +1,9 @@
-mod favourites;
-mod fetch;
-mod input;
-mod jump;
-mod list;
-mod tick;
+pub(crate) mod favourites;
+pub(crate) mod fetch;
+pub(crate) mod input;
+pub(crate) mod jump;
+pub(crate) mod list;
+pub(crate) mod tick;
 
 use std::collections::{HashMap, HashSet};
 use std::sync::mpsc;

@@ -1,9 +1,9 @@
-mod detail;
-mod footer;
-mod helpers;
-mod search;
-mod stop_list;
-mod title;
+pub(crate) mod detail;
+pub(crate) mod footer;
+pub(crate) mod helpers;
+pub(crate) mod search;
+pub(crate) mod stop_list;
+pub(crate) mod title;
 
 use ratatui::{
     layout::{Constraint, Direction, Layout},
