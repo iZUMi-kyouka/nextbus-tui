@@ -28,26 +28,57 @@ jobs:
             target: x86_64-unknown-linux-gnu
             binary: nextbus-tui
             artifact: nextbus-tui-linux-x86_64
+            # Use LLVM's LLD linker on Linux for smaller output and faster linking.
+            # -Wl,--gc-sections removes unreferenced input sections after LTO.
+            rustflags: "-C linker=clang -C link-arg=-fuse-ld=lld -C link-arg=-Wl,--gc-sections"
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             binary: nextbus-tui.exe
             artifact: nextbus-tui-windows-x86_64.exe
+            rustflags: ""
           - os: macos-latest
             target: aarch64-apple-darwin
             binary: nextbus-tui
             artifact: nextbus-tui-macos-aarch64
+            rustflags: ""
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
+          # llvm-tools-preview ships llvm-strip, which strips more aggressively
+          # than binutils strip; used in the post-build shrink step below.
+          components: llvm-tools-preview
+
       - uses: Swatinem/rust-cache@v2
+
+      # Install clang+lld on Linux so the RUSTFLAGS above can reference them.
+      - name: Install LLVM/LLD (Linux only)
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install -y clang lld
+
       - name: Build release binary
         run: cargo build --release --target ${{ matrix.target }}
+        env:
+          RUSTFLAGS: ${{ matrix.rustflags }}
+
+      # Run llvm-strip --strip-all as a second pass after Cargo's built-in strip.
+      # Cargo's `strip = true` removes most symbols; llvm-strip --strip-all also
+      # removes the .comment and .note sections that binutils strip leaves behind.
+      - name: Shrink binary with llvm-strip (Linux/macOS)
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          LLVM_STRIP=$(find ~/.rustup/toolchains -name 'llvm-strip' | head -1)
+          "$LLVM_STRIP" --strip-all \
+            target/${{ matrix.target }}/release/${{ matrix.binary }}
+
       - name: Stage binary
         shell: bash
         run: cp target/${{ matrix.target }}/release/${{ matrix.binary }} ${{ matrix.artifact }}
+
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
