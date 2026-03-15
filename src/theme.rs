@@ -1,4 +1,7 @@
+use include_dir::{Dir, include_dir};
 use ratatui::style::Color;
+
+static THEMES_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/assets/themes");
 
 // ── Public types ──────────────────────────────────────────────────────────────
 
@@ -150,18 +153,19 @@ fn default_theme() -> Theme {
 
 /// Returns all available themes.  Index 0 is always the built-in default
 /// (pitch-black background, standard terminal colours).
+/// All `.toml` files in `assets/themes/` are embedded at compile time and
+/// loaded in alphabetical order — no manual list to maintain.
 pub fn load_themes() -> Vec<Theme> {
     let mut themes = vec![default_theme()];
-    for src in [
-        include_str!("../assets/themes/catpuccin_mocha.toml"),
-        include_str!("../assets/themes/dracula.toml"),
-        include_str!("../assets/themes/gruvbox_dark.toml"),
-        include_str!("../assets/themes/nord.toml"),
-        include_str!("../assets/themes/solarized_dark.toml"),
-        include_str!("../assets/themes/solarized_light.toml"),
-        include_str!("../assets/themes/tokyonight.toml"),
-    ] {
-        themes.push(from_file(src));
+    let mut files: Vec<_> = THEMES_DIR
+        .files()
+        .filter(|f| f.path().extension().and_then(|e| e.to_str()) == Some("toml"))
+        .collect();
+    files.sort_by_key(|f| f.path());
+    for file in files {
+        if let Some(src) = file.contents_utf8() {
+            themes.push(from_file(src));
+        }
     }
     themes
 }

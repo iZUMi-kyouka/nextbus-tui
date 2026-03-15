@@ -1,7 +1,10 @@
 use fluent::FluentArgs;
 use ratatui::{
+    Frame,
+    layout::Rect,
     style::{Modifier, Style},
-    text::Span,
+    text::{Line, Span},
+    widgets::{Block, Borders, Paragraph},
 };
 use unicode_width::UnicodeWidthChar;
 use unicode_width::UnicodeWidthStr;
@@ -9,6 +12,53 @@ use unicode_width::UnicodeWidthStr;
 use crate::i18n::I18n;
 use crate::models::Route;
 use crate::theme::Palette;
+
+/// Center a popup of at most `max_w × max_h` within `area`, clamping to terminal edges.
+pub(super) fn centered_popup(area: Rect, max_w: u16, max_h: u16) -> Rect {
+    let w = max_w.min(area.width.saturating_sub(4));
+    let h = max_h.min(area.height.saturating_sub(2));
+    Rect {
+        x: area.x + (area.width.saturating_sub(w)) / 2,
+        y: area.y + (area.height.saturating_sub(h)) / 2,
+        width: w,
+        height: h,
+    }
+}
+
+/// Build the standard popup Block (highlighted bold border, theme background/foreground).
+/// The caller is responsible for `frame.render_widget(Clear, popup)` before rendering.
+pub(super) fn popup_block(title: String, palette: &Palette) -> Block<'_> {
+    Block::default()
+        .borders(Borders::ALL)
+        .title(title)
+        .border_style(
+            Style::default()
+                .fg(palette.highlight)
+                .add_modifier(Modifier::BOLD),
+        )
+        .style(
+            Style::default()
+                .bg(palette.background)
+                .fg(palette.foreground),
+        )
+}
+
+/// Render a dim hint line at the very last row of `inner`.
+pub(super) fn render_hint_row(frame: &mut Frame, inner: Rect, text: &str, palette: &Palette) {
+    let y = inner.y + inner.height.saturating_sub(1);
+    frame.render_widget(
+        Paragraph::new(Line::from(Span::styled(
+            format!(" {}", text),
+            Style::default().fg(palette.dim),
+        ))),
+        Rect {
+            x: inner.x,
+            y,
+            width: inner.width,
+            height: 1,
+        },
+    );
+}
 
 /// Pad `s` to exactly `display_width` terminal columns using spaces.
 /// Unlike `format!("{:<width$}", s)`, this counts Unicode display width

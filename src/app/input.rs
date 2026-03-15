@@ -282,13 +282,16 @@ mod tests {
     #[test]
     fn shift_x_preselects_current_theme() {
         let mut app = make_app();
-        app.settings.theme_idx = 3;
+        // Pick the 4th entry in the filtered picker list and set it as active.
+        let indices = app.picker_theme_indices();
+        let target_pos = 3.min(indices.len() - 1);
+        app.settings.theme_idx = indices[target_pos];
         if let Some(msg) =
             key_to_message(KeyEvent::new(KeyCode::Char('X'), KeyModifiers::NONE), &app)
         {
             app.update(msg);
         }
-        assert_eq!(app.overlay.theme_picker_cursor, 3);
+        assert_eq!(app.overlay.theme_picker_cursor, target_pos);
     }
 
     #[test]
@@ -378,10 +381,12 @@ mod tests {
         let mut app = make_app();
         app.overlay.showing_theme_picker = true;
         app.overlay.theme_picker_cursor = 2;
+        // Resolve which global theme index the picker cursor maps to.
+        let expected_idx = app.picker_theme_indices()[2];
         if let Some(msg) = key_to_message(key(KeyCode::Enter), &app) {
             app.update(msg);
         }
-        assert_eq!(app.settings.theme_idx, 2);
+        assert_eq!(app.settings.theme_idx, expected_idx);
         assert!(!app.overlay.showing_theme_picker);
     }
 
