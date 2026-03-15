@@ -49,6 +49,10 @@ settings-view-all         = [所有站點]
 settings-view-favs        = [最愛]
 settings-lang-label       = 語言:
 settings-lang-value       = [{ $name }]
+settings-theme-mode-label = 主題模式:
+settings-theme-mode-dark  = [深色]
+settings-theme-mode-light = [淺色]
+settings-theme-mode-auto  = [自動]
 settings-hint-nav         = [↑↓/j/k] 導覽   [↵/Space] 編輯/切換   [Esc/s] 關閉
 settings-hint-edit        = [0-9] 輸入   [⌫] 刪除   [↵] 確認   [Esc] 取消
 
@@ -61,3 +65,4 @@ status-view-set       = 預設檢視設定為: { $view }
 status-view-all       = 所有站點
 status-view-favs      = 最愛
 status-lang-set       = 語言: { $name }
+status-theme-mode-set = 主題模式: { $mode }

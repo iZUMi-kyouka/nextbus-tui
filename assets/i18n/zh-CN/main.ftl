@@ -49,6 +49,10 @@ settings-view-all         = [所有站点]
 settings-view-favs        = [收藏夹]
 settings-lang-label       = 语言:
 settings-lang-value       = [{ $name }]
+settings-theme-mode-label = 主题模式:
+settings-theme-mode-dark  = [深色]
+settings-theme-mode-light = [浅色]
+settings-theme-mode-auto  = [自动]
 settings-hint-nav         = [↑↓/j/k] 导航   [↵/Space] 编辑/切换   [Esc/s] 关闭
 settings-hint-edit        = [0-9] 输入   [⌫] 删除   [↵] 确认   [Esc] 取消
 
@@ -61,3 +65,4 @@ status-view-set       = 默认视图设为: { $view }
 status-view-all       = 所有站点
 status-view-favs      = 收藏夹
 status-lang-set       = 语言: { $name }
+status-theme-mode-set = 主题模式: { $mode }

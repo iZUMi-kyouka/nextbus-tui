@@ -1,4 +1,5 @@
 name = "Gruvbox Dark"
+mode = "dark"
 
 [colors.primary]
 background = "#282828"

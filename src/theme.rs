@@ -2,6 +2,16 @@ use ratatui::style::Color;
 
 // ── Public types ──────────────────────────────────────────────────────────────
 
+/// Whether a theme is designed for dark or light terminals.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum ThemeMode {
+    #[default]
+    Dark,
+    Light,
+    Auto,
+}
+
 /// Resolved ratatui `Color` values for every semantic UI role.
 pub struct Palette {
     pub background: Color,
@@ -26,6 +36,8 @@ pub struct Palette {
 
 pub struct Theme {
     pub name: String,
+    /// Whether this theme is designed for dark or light backgrounds.
+    pub mode: ThemeMode,
     pub palette: Palette,
 }
 
@@ -34,6 +46,9 @@ pub struct Theme {
 #[derive(serde::Deserialize)]
 struct ThemeFile {
     name: String,
+    /// "dark" or "light"; defaults to "dark" if absent.
+    #[serde(default)]
+    mode: String,
     colors: ThemeFileColors,
 }
 
@@ -76,10 +91,15 @@ fn hex(s: &str) -> Color {
 
 fn from_file(src: &str) -> Theme {
     let f: ThemeFile = toml::from_str(src).expect("invalid theme file");
+    let mode = match f.mode.to_lowercase().as_str() {
+        "light" => ThemeMode::Light,
+        _ => ThemeMode::Dark,
+    };
     let n = &f.colors.normal;
     let p = &f.colors.primary;
     Theme {
         name: f.name,
+        mode,
         palette: Palette {
             background: hex(&p.background),
             foreground: hex(&p.foreground),
@@ -104,6 +124,7 @@ fn from_file(src: &str) -> Theme {
 fn default_theme() -> Theme {
     Theme {
         name: "Default".to_string(),
+        mode: ThemeMode::Dark,
         palette: Palette {
             background: Color::Black,
             foreground: Color::White,
@@ -137,6 +158,7 @@ pub fn load_themes() -> Vec<Theme> {
         include_str!("../assets/themes/gruvbox_dark.toml"),
         include_str!("../assets/themes/nord.toml"),
         include_str!("../assets/themes/solarized_dark.toml"),
+        include_str!("../assets/themes/solarized_light.toml"),
         include_str!("../assets/themes/tokyonight.toml"),
     ] {
         themes.push(from_file(src));

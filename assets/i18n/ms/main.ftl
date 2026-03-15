@@ -49,6 +49,10 @@ settings-view-all         = [Semua hentian]
 settings-view-favs        = [Kegemaran]
 settings-lang-label       = Bahasa:
 settings-lang-value       = [{ $name }]
+settings-theme-mode-label = Mod tema:
+settings-theme-mode-dark  = [Gelap]
+settings-theme-mode-light = [Terang]
+settings-theme-mode-auto  = [Auto]
 settings-hint-nav         = [↑↓/j/k] Navigasi   [↵/Space] Edit/Togol   [Esc/s] Tutup
 settings-hint-edit        = [0-9] Taip   [⌫] Padam   [↵] Sahkan   [Esc] Batal
 
@@ -61,3 +65,4 @@ status-view-set       = Paparan lalai ditetapkan kepada: { $view }
 status-view-all       = Semua hentian
 status-view-favs      = Kegemaran
 status-lang-set       = Bahasa: { $name }
+status-theme-mode-set = Mod tema: { $mode }
