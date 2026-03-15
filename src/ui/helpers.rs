@@ -6,7 +6,7 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
     Frame,
 };
-use unicode_width::UnicodeWidthChar;
+use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;
 
 use crate::i18n::I18n;
@@ -139,13 +139,13 @@ pub(super) fn ellipsis(s: &str, max_cols: usize) -> String {
     let target = max_cols - 1; // reserve 1 col for '…'
     let mut w = 0usize;
     let mut result = String::new();
-    for c in s.chars() {
-        let cw = c.width().unwrap_or(0);
-        if w + cw > target {
+    for g in s.graphemes(true) {
+        let gw = g.width();
+        if w + gw > target {
             break;
         }
-        result.push(c);
-        w += cw;
+        result.push_str(g);
+        w += gw;
     }
     format!("{}\u{2026}", result)
 }
@@ -278,6 +278,17 @@ mod tests {
     fn ellipsis_cjk_tight_boundary() {
         // max_cols=4: target=3; "日"(2)≤3 fits, "日本"(4)>3 → only "日" fits → "日…"
         assert_eq!(ellipsis("日本語", 4), "日\u{2026}");
+    }
+
+    #[test]
+    fn ellipsis_tamil_graphemes() {
+        // Width-aware truncation should preserve the full string when it fits.
+        assert_eq!(ellipsis("தமிழ்", 4), "தமிழ்");
+    }
+
+    #[test]
+    fn ellipsis_tamil_tight_boundary() {
+        assert_eq!(ellipsis("தமிழ்", 3), "த\u{2026}");
     }
 
     // ── pad_right ──────────────────────────────────────────────────────────────
