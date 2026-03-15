@@ -123,20 +123,20 @@ fn handle_key(app: &mut App, key: event::KeyEvent) {
         // ── Normal mode ───────────────────────────────────────────────────────
         match (key.code, key.modifiers) {
             (KeyCode::Char('q'), _) | (KeyCode::Char('c'), KeyModifiers::CONTROL) => {
+                app.cancel_jump();
                 app.should_quit = true;
             }
-            (KeyCode::Up, _) | (KeyCode::Char('k'), _) => app.move_up(),
-            (KeyCode::Down, _) | (KeyCode::Char('j'), _) => app.move_down(),
-            (KeyCode::Char('g'), KeyModifiers::NONE) => app.go_first(),
-            (KeyCode::Char('G'), _) => app.go_last(),
-            (KeyCode::Home, _) => app.go_first(),
-            (KeyCode::End, _) => app.go_last(),
-            (KeyCode::Char('f'), _) => app.toggle_favourite(),
-            (KeyCode::Char('r'), _) => app.refresh_current(),
-            (KeyCode::Char('/'), _) => {
-                app.searching = true;
-            }
-            _ => {}
+            (KeyCode::Up, _) | (KeyCode::Char('k'), _) => { app.cancel_jump(); app.move_up(); }
+            (KeyCode::Down, _) | (KeyCode::Char('j'), _) => { app.cancel_jump(); app.move_down(); }
+            (KeyCode::Char('g'), KeyModifiers::NONE) => { app.cancel_jump(); app.go_first(); }
+            (KeyCode::Char('G'), _) => { app.cancel_jump(); app.go_last(); }
+            (KeyCode::Home, _) => { app.cancel_jump(); app.go_first(); }
+            (KeyCode::End, _) => { app.cancel_jump(); app.go_last(); }
+            (KeyCode::Char('f'), _) => { app.cancel_jump(); app.toggle_favourite(); }
+            (KeyCode::Char('r'), _) => { app.cancel_jump(); app.refresh_current(); }
+            (KeyCode::Char('/'), _) => { app.cancel_jump(); app.searching = true; }
+            (KeyCode::Char(c), _) if c.is_ascii_digit() => app.push_jump_digit(c),
+            _ => { app.cancel_jump(); }
         }
     }
 }

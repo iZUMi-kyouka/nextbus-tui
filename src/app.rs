@@ -55,6 +55,10 @@ pub struct App {
     pub should_quit: bool,
     /// Transient status message (text, time set)
     pub status_msg: Option<(String, Instant)>,
+    /// Digits typed so far for a number-jump (max 2)
+    pub jump_buf: String,
+    /// When the last jump digit was typed
+    pub jump_at: Option<Instant>,
     /// Sender for posting events from background threads
     tx: mpsc::Sender<AppEvent>,
 }
@@ -85,6 +89,8 @@ impl App {
             searching: false,
             should_quit: false,
             status_msg: None,
+            jump_buf: String::new(),
+            jump_at: None,
             tx,
         };
         app.rebuild_list();
@@ -219,6 +225,13 @@ impl App {
             }
         }
 
+        // Commit a pending single-digit jump after 1 s with no second digit
+        if !self.jump_buf.is_empty() {
+            if self.jump_at.map(|t| t.elapsed() >= Duration::from_secs(1)).unwrap_or(false) {
+                self.commit_jump();
+            }
+        }
+
         // Auto-refresh if stale
         if let Some(stop) = self.current_stop() {
             let name = stop.name.clone();
@@ -267,6 +280,35 @@ impl App {
                 },
             );
         }
+    }
+
+    // ── Number jump ────────────────────────────────────────────────────────────
+
+    /// Called when a digit key is pressed in normal mode.
+    pub fn push_jump_digit(&mut self, digit: char) {
+        self.jump_buf.push(digit);
+        self.jump_at = Some(Instant::now());
+        if self.jump_buf.len() == 2 {
+            self.commit_jump();
+        }
+    }
+
+    /// Cancel any in-progress jump without navigating.
+    pub fn cancel_jump(&mut self) {
+        self.jump_buf.clear();
+        self.jump_at = None;
+    }
+
+    fn commit_jump(&mut self) {
+        if let Ok(n) = self.jump_buf.parse::<usize>() {
+            if n > 0 && n <= self.sorted_indices.len() {
+                self.selected = n - 1;
+                self.list_state.select(Some(self.selected));
+                self.ensure_data();
+            }
+        }
+        self.jump_buf.clear();
+        self.jump_at = None;
     }
 
     // ── Favourites ─────────────────────────────────────────────────────────────
