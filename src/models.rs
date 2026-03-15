@@ -86,7 +86,7 @@ pub struct Route {
 }
 
 fn default_refresh_interval() -> u64 {
-    30
+    20
 }
 
 fn default_language() -> String {

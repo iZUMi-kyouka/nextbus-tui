@@ -25,7 +25,11 @@ impl App {
         }
 
         // Auto-refresh the current stop if its cache entry is stale.
-        if let Some(stop) = self.current_stop() {
+        // Skip when the terminal is in the background — no point making
+        // network requests that the user cannot see.
+        if self.focused
+            && let Some(stop) = self.current_stop()
+        {
             let name = stop.name.clone();
             let stale = self
                 .fetch
@@ -53,7 +57,7 @@ mod tests {
     fn make_app() -> App {
         let (tx, _rx) = mpsc::channel();
         let mut app = App::new_test(tx);
-        app.settings.auto_refresh_secs = 30;
+        app.settings.auto_refresh_secs = 20;
         app
     }
 
@@ -112,7 +116,7 @@ mod tests {
                     shuttles: vec![],
                     timestamp: None,
                 },
-                fetched_at: old_instant(31),
+                fetched_at: old_instant(21),
                 error: None,
             },
         );

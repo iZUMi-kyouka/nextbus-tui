@@ -108,7 +108,7 @@ impl Default for Settings {
     fn default() -> Self {
         Settings {
             favourites: HashSet::new(),
-            auto_refresh_secs: 30,
+            auto_refresh_secs: 20,
             default_fav_view: false,
             theme_mode: ThemeMode::Dark,
             theme_idx: 0,
@@ -173,6 +173,10 @@ pub struct App {
     pub fetch: FetchState,
     pub i18n: I18n,
     pub should_quit: bool,
+    /// `false` while the terminal window does not have focus.
+    /// Auto-refresh is suspended while unfocused to avoid pointless network
+    /// traffic and wake-ups when the app is running in the background.
+    pub focused: bool,
 }
 
 impl App {
@@ -193,6 +197,7 @@ impl App {
             fetch: FetchState::new(tx),
             i18n,
             should_quit: false,
+            focused: true,
         };
         app.rebuild_list();
         app.nav.list_state.select(Some(0));
@@ -209,6 +214,7 @@ impl App {
             fetch: FetchState::new(tx),
             i18n: I18n::new("en"),
             should_quit: false,
+            focused: true,
         };
         app.rebuild_list();
         app.nav.list_state.select(Some(0));
@@ -434,6 +440,17 @@ impl App {
             }
             Message::ScrollListUp => self.scroll_up(),
             Message::ScrollListDown => self.scroll_down(),
+
+            // Focus
+            Message::FocusGained => {
+                self.focused = true;
+                // Immediately refresh the current stop so the display is
+                // up-to-date after the window was in the background.
+                self.ensure_data();
+            }
+            Message::FocusLost => {
+                self.focused = false;
+            }
 
             // Control
             Message::RefreshCurrent => {
