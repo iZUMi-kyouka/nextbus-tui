@@ -136,6 +136,7 @@ fn handle_key(app: &mut App, key: event::KeyEvent) {
             (KeyCode::Char('r'), _) => { app.cancel_jump(); app.refresh_current(); }
             (KeyCode::Char('/'), _) => { app.cancel_jump(); app.searching = true; }
             (KeyCode::Char(c), _) if c.is_ascii_digit() => app.push_jump_digit(c),
+            (KeyCode::Enter, _) if !app.jump_buf.is_empty() => app.commit_jump(),
             _ => { app.cancel_jump(); }
         }
     }

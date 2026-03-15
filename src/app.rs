@@ -299,7 +299,7 @@ impl App {
         self.jump_at = None;
     }
 
-    fn commit_jump(&mut self) {
+    pub fn commit_jump(&mut self) {
         if let Ok(n) = self.jump_buf.parse::<usize>() {
             if n > 0 && n <= self.sorted_indices.len() {
                 self.selected = n - 1;
