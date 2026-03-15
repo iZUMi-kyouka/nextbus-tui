@@ -64,10 +64,8 @@ impl App {
                 let next = self.i18n.next_lang().to_owned();
                 self.i18n = crate::i18n::I18n::new(&next);
                 let name = self.i18n.lang_meta.native_name.clone();
-                let font = self.i18n.lang_meta.font.clone();
                 let mut args = FluentArgs::new();
                 args.set("name", name.as_str());
-                args.set("font", font.as_str());
                 let msg = self.i18n.t_args("status-lang-set", &args);
                 self.set_status(&msg);
                 crate::config::save(&self.config_snapshot());

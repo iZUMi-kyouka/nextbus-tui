@@ -49,8 +49,6 @@ settings-view-all         = [全バス停]
 settings-view-favs        = [お気に入り]
 settings-lang-label       = 言語:
 settings-lang-value       = [{ $name }]
-settings-font-label       = フォント:
-settings-font-value       = [{ $font }]
 settings-hint-nav         = [↑↓/j/k] 移動   [↵/Space] 編集/切替   [Esc/s] 閉じる
 settings-hint-edit        = [0-9] 入力   [⌫] 削除   [↵] 確定   [Esc] キャンセル
 
@@ -62,4 +60,4 @@ status-interval-set = 自動更新を { $seconds }秒に設定しました
 status-view-set     = デフォルト表示を変更しました: { $view }
 status-view-all     = 全バス停
 status-view-favs    = お気に入り
-status-lang-set     = 言語: { $name } — フォント: { $font }
+status-lang-set     = 言語: { $name }
