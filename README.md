@@ -46,20 +46,21 @@ curl -Lo nextbus-tui https://github.com/iZUMi-kyouka/nextbus-tui/releases/latest
 
 ### Option C — Run the install wizard (recommended)
 
-The installers fetch the latest GitHub Release asset for your OS/architecture,
-install the binary, and offer double-click launcher setup:
+Downloads the latest release for your OS and runs a guided install.
 
-- Linux: choose `~/.local/bin` or `/usr/local/bin`, optional `.desktop` launcher, optional `nnbus` terminal alias
-- macOS: choose `~/.local/bin` or `/usr/local/bin`, optional Finder `.command` launcher, optional `nnbus` terminal alias
-- Windows: choose `Program Files` (system) or per-user install, optional Desktop/Start menu shortcuts, optional `nnbus` terminal alias
+- Linux: choose install path, optional `.desktop`, optional `nnbus` command to start app
+- macOS: choose install path, optional `.command`, optional `nnbus` command to start app
+- Windows: choose Program Files or user install, optional shortcuts, optional `nnbus` command to start up
 
 ```bash
-# Linux / macOS
-bash ./install.sh
+# Linux / macOS (download script only, then run)
+curl -fsSL -o install.sh https://raw.githubusercontent.com/iZUMi-kyouka/nextbus-tui/master/install.sh
+bash install.sh
 ```
 
 ```powershell
-# Windows (PowerShell)
+# Windows (PowerShell, download script only, then run)
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/iZUMi-kyouka/nextbus-tui/master/install.ps1 -OutFile .\install.ps1
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
