@@ -13,26 +13,38 @@ impl App {
                 || s.name.to_lowercase().contains(&q)
         };
 
-        let mut favs: Vec<usize> = self
-            .stops
-            .iter()
-            .enumerate()
-            .filter(|(_, s)| self.favourites.contains(&s.name) && matches(s))
-            .map(|(i, _)| i)
-            .collect();
-        favs.sort_by(|&a, &b| self.stops[a].caption.cmp(&self.stops[b].caption));
+        if self.fav_view {
+            let mut favs: Vec<usize> = self
+                .stops
+                .iter()
+                .enumerate()
+                .filter(|(_, s)| self.favourites.contains(&s.name) && matches(s))
+                .map(|(i, _)| i)
+                .collect();
+            favs.sort_by(|&a, &b| self.stops[a].caption.cmp(&self.stops[b].caption));
+            self.sorted_indices = favs;
+        } else {
+            let mut favs: Vec<usize> = self
+                .stops
+                .iter()
+                .enumerate()
+                .filter(|(_, s)| self.favourites.contains(&s.name) && matches(s))
+                .map(|(i, _)| i)
+                .collect();
+            favs.sort_by(|&a, &b| self.stops[a].caption.cmp(&self.stops[b].caption));
 
-        let mut rest: Vec<usize> = self
-            .stops
-            .iter()
-            .enumerate()
-            .filter(|(_, s)| !self.favourites.contains(&s.name) && matches(s))
-            .map(|(i, _)| i)
-            .collect();
-        rest.sort_by(|&a, &b| self.stops[a].caption.cmp(&self.stops[b].caption));
+            let mut rest: Vec<usize> = self
+                .stops
+                .iter()
+                .enumerate()
+                .filter(|(_, s)| !self.favourites.contains(&s.name) && matches(s))
+                .map(|(i, _)| i)
+                .collect();
+            rest.sort_by(|&a, &b| self.stops[a].caption.cmp(&self.stops[b].caption));
 
-        favs.extend(rest);
-        self.sorted_indices = favs;
+            favs.extend(rest);
+            self.sorted_indices = favs;
+        }
 
         // Clamp selection so it stays in bounds after filtering.
         self.selected = if self.sorted_indices.is_empty() {

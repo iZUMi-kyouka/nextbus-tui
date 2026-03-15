@@ -58,6 +58,8 @@ pub struct App {
     pub search_query: String,
     /// Whether the search input overlay is active.
     pub searching: bool,
+    /// When true, the stop list shows only favourited stops.
+    pub fav_view: bool,
     /// Set to true to exit the event loop.
     pub should_quit: bool,
     /// Transient status message (text, time it was set).
@@ -94,6 +96,7 @@ impl App {
             loading: HashSet::new(),
             search_query: String::new(),
             searching: false,
+            fav_view: false,
             should_quit: false,
             status_msg: None,
             jump_buf: String::new(),

@@ -23,12 +23,12 @@ pub(super) fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
 
             let star = if is_fav { "\u{2605} " } else { "  " }; // ★ or spaces
             let spin = if is_loading { " ..." } else { "" };
-            // 2 borders + 2 highlight symbol + 3 position number + 2 star + spin length
-            let caption_width = (area.width as usize).saturating_sub(9 + spin.len());
+            // 2 borders + 3 highlight symbol (" > ") + 2 position + 1 space + 2 star + spin
+            let caption_width = (area.width as usize).saturating_sub(10 + spin.len());
             let caption = ellipsis(&stop.caption, caption_width);
             let label = format!("{:>2} {}{}{}", pos + 1, star, caption, spin);
 
-            let style = if is_fav {
+            let style = if is_fav && !app.fav_view {
                 Style::default().fg(Color::Yellow)
             } else {
                 Style::default()
@@ -41,7 +41,11 @@ pub(super) fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
         })
         .collect();
 
-    let title = format!(" Bus Stops ({}) ", app.sorted_indices.len());
+    let title = if app.fav_view {
+        format!(" \u{2605} Favourites ({}) ", app.sorted_indices.len())
+    } else {
+        format!(" Bus Stops ({}) ", app.sorted_indices.len())
+    };
 
     let block = Block::default()
         .borders(Borders::ALL)
@@ -55,7 +59,7 @@ pub(super) fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
                 .bg(Color::DarkGray)
                 .add_modifier(Modifier::BOLD),
         )
-        .highlight_symbol("> ");
+        .highlight_symbol(" > ");
 
     frame.render_stateful_widget(list, area, &mut app.list_state);
 }
