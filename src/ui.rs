@@ -47,13 +47,18 @@ fn render_title(frame: &mut Frame, area: Rect) {
 // ── Two-panel layout ──────────────────────────────────────────────────────────
 
 fn render_panels(frame: &mut Frame, area: Rect, app: &mut App) {
+    let narrow = area.width < 100;
     let cols = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(33), Constraint::Percentage(67)])
+        .constraints(if narrow {
+            [Constraint::Percentage(40), Constraint::Percentage(60)]
+        } else {
+            [Constraint::Percentage(33), Constraint::Percentage(67)]
+        })
         .split(area);
 
     render_list(frame, cols[0], app);
-    render_detail(frame, cols[1], app);
+    render_detail(frame, cols[1], app, !narrow);
 }
 
 // ── Stop list (left panel) ────────────────────────────────────────────────────
@@ -79,7 +84,11 @@ fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
 
             let star = if is_fav { "\u{2605} " } else { "  " }; // ★ or spaces
             let spin = if is_loading { " ..." } else { "" };
-            let label = format!("{}{}{}", star, stop.caption, spin);
+            // 2 borders + 2 highlight symbol + 2 star + spin length
+            let caption_width = (area.width as usize)
+                .saturating_sub(6 + spin.len());
+            let caption = ellipsis(&stop.caption, caption_width);
+            let label = format!("{}{}{}", star, caption, spin);
 
             let style = if is_fav {
                 Style::default().fg(Color::Yellow)
@@ -116,7 +125,7 @@ fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
 
 // ── Stop detail (right panel) ─────────────────────────────────────────────────
 
-fn render_detail(frame: &mut Frame, area: Rect, app: &App) {
+fn render_detail(frame: &mut Frame, area: Rect, app: &App, show_plate: bool) {
     let Some(stop) = app.current_stop() else {
         frame.render_widget(
             Paragraph::new("No stops to display.")
@@ -172,15 +181,17 @@ fn render_detail(frame: &mut Frame, area: Rect, app: &App) {
                 )));
             } else {
                 // ── Column header ──
-                lines.push(Line::from(vec![
-                    Span::raw("  "),
-                    col_header("Bus", 8),
+                let mut header = vec![
+                    col_header("Bus", 10),
                     col_header("Next", 12),
                     col_header("Following", 12),
-                    col_header("Plate", 12),
-                ]));
+                ];
+                if show_plate {
+                    header.push(col_header("Plate", 12));
+                }
+                lines.push(Line::from(header));
                 lines.push(Line::from(Span::styled(
-                    "\u{2500}".repeat(46), // ─────
+                    "\u{2500}".repeat(if show_plate { 46 } else { 34 }),
                     Style::default().fg(Color::DarkGray),
                 )));
 
@@ -204,14 +215,20 @@ fn render_detail(frame: &mut Frame, area: Rect, app: &App) {
                     let following_text = fmt_arrival(&s.next_arrival_time);
                     let plate = s.arrival_plate.as_deref().unwrap_or("-");
 
-                    let color_block = match route_color(&s.name, &app.routes) {
-                        Some(color) => Span::styled("\u{2588} ", Style::default().fg(color)),
-                        None => Span::raw("  "),
+                    let name_spans: [Span; 2] = match route_color(&s.name, &app.routes) {
+                        Some(color) => [
+                            Span::styled(
+                                format!("{:<5}", s.name),
+                                Style::default().bg(color).fg(Color::White).add_modifier(Modifier::BOLD),
+                            ),
+                            Span::raw("     "),
+                        ],
+                        None => [Span::raw(format!("{:<10}", s.name)), Span::raw("")],
                     };
 
-                    lines.push(Line::from(vec![
-                        color_block,
-                        Span::raw(format!("{:<8}", s.name)),
+                    let mut row = vec![
+                        name_spans[0].clone(),
+                        name_spans[1].clone(),
                         Span::styled(
                             format!("{:<12}", next_text),
                             arrival_style(&s.arrival_time),
@@ -220,11 +237,14 @@ fn render_detail(frame: &mut Frame, area: Rect, app: &App) {
                             format!("{:<12}", following_text),
                             arrival_style(&s.next_arrival_time),
                         ),
-                        Span::styled(
+                    ];
+                    if show_plate {
+                        row.push(Span::styled(
                             format!("{:<12}", plate),
                             Style::default().fg(Color::DarkGray),
-                        ),
-                    ]));
+                        ));
+                    }
+                    lines.push(Line::from(row));
                 }
             }
 
@@ -307,6 +327,16 @@ fn route_color(name: &str, routes: &[crate::models::Route]) -> Option<Color> {
     let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
     let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
     Some(Color::Rgb(r, g, b))
+}
+
+fn ellipsis(s: &str, max_width: usize) -> String {
+    if s.chars().count() <= max_width {
+        s.to_string()
+    } else if max_width <= 1 {
+        "…".to_string()
+    } else {
+        format!("{}…", s.chars().take(max_width - 1).collect::<String>())
+    }
 }
 
 fn arrival_style(t: &str) -> Style {
