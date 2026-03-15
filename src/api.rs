@@ -1,9 +1,12 @@
 use crate::models::{ApiResponse, ShuttleServiceResult};
 
-const API_BASE: &str = "https://nnextbus.nusmods.com/ShuttleService";
+fn api_base() -> String {
+    std::env::var("API_BASE")
+        .unwrap_or_else(|_| "https://nnextbus.nusmods.com/ShuttleService".to_string())
+}
 
 pub fn fetch_shuttle_service(stop_name: &str) -> Result<ShuttleServiceResult, String> {
-    let url = format!("{}?busstopname={}", API_BASE, stop_name);
+    let url = format!("{}?busstopname={}", api_base(), stop_name);
     let response = ureq::get(&url)
         .call()
         .map_err(|e| format!("Network error: {e}"))?;

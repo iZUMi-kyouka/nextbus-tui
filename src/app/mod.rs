@@ -127,6 +127,9 @@ pub struct NavState {
     pub fav_view: bool,
     pub jump_buf: String,
     pub jump_at: Option<Instant>,
+    /// Inner height of the rendered list panel (rows available for items).
+    /// Set by `render_list` each frame; used to clamp scroll when near the bottom.
+    pub list_height: u16,
 }
 
 /// Transient UI overlay state. Never persisted.
@@ -134,6 +137,8 @@ pub struct NavState {
 pub struct OverlayState {
     pub showing_theme_picker: bool,
     pub theme_picker_cursor: usize,
+    /// Theme index active when the picker was opened; restored if user cancels.
+    pub original_theme_idx: usize,
     pub showing_settings: bool,
     pub settings_cursor: usize,
     pub settings_edit_mode: bool,
@@ -339,20 +344,33 @@ impl App {
                     .iter()
                     .position(|&i| i == self.settings.theme_idx)
                     .unwrap_or(0);
+                self.overlay.original_theme_idx = self.settings.theme_idx;
                 self.overlay.showing_theme_picker = true;
             }
             Message::CloseThemePicker => {
+                // User cancelled — restore the theme that was active before opening.
+                self.settings.theme_idx = self.overlay.original_theme_idx;
                 self.overlay.showing_theme_picker = false;
             }
             Message::ThemePickerUp => {
                 if self.overlay.theme_picker_cursor > 0 {
                     self.overlay.theme_picker_cursor -= 1;
                 }
+                // Live preview: apply hovered theme immediately.
+                let indices = self.picker_theme_indices();
+                if let Some(&idx) = indices.get(self.overlay.theme_picker_cursor) {
+                    self.settings.theme_idx = idx;
+                }
             }
             Message::ThemePickerDown => {
                 let n = self.picker_theme_indices().len();
                 if self.overlay.theme_picker_cursor + 1 < n {
                     self.overlay.theme_picker_cursor += 1;
+                }
+                // Live preview: apply hovered theme immediately.
+                let indices = self.picker_theme_indices();
+                if let Some(&idx) = indices.get(self.overlay.theme_picker_cursor) {
+                    self.settings.theme_idx = idx;
                 }
             }
             Message::ThemePickerApply => {
@@ -414,6 +432,8 @@ impl App {
                     self.ensure_data();
                 }
             }
+            Message::ScrollListUp => self.scroll_up(),
+            Message::ScrollListDown => self.scroll_down(),
 
             // Control
             Message::RefreshCurrent => {

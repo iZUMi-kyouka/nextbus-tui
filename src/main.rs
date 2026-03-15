@@ -26,6 +26,9 @@ use message::Message;
 use models::AppEvent;
 
 fn main() -> io::Result<()> {
+    // Load .env if present; silently ignore if it doesn't exist.
+    let _ = dotenvy::dotenv();
+
     let mut terminal = setup_terminal()?;
 
     let (tx, rx) = mpsc::channel::<AppEvent>();

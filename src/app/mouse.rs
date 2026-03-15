@@ -42,14 +42,14 @@ pub fn mouse_to_message(event: MouseEvent, app: &App, term_w: u16, term_h: u16) 
     match event.kind {
         MouseEventKind::ScrollUp => {
             if event.column < crate::layout::list_x_end(term_w) {
-                Some(Message::MoveUp)
+                Some(Message::ScrollListUp)
             } else {
                 None
             }
         }
         MouseEventKind::ScrollDown => {
             if event.column < crate::layout::list_x_end(term_w) {
-                Some(Message::MoveDown)
+                Some(Message::ScrollListDown)
             } else {
                 None
             }

@@ -102,6 +102,43 @@ impl App {
         }
     }
 
+    /// Scroll the viewport up by 3 rows without changing the selection.
+    /// If the selection would fall below the new viewport bottom, it is clamped
+    /// to the last visible row.
+    pub fn scroll_up(&mut self) {
+        let off = self.nav.list_state.offset();
+        let new_off = off.saturating_sub(3);
+        *self.nav.list_state.offset_mut() = new_off;
+        self.nav.list_state.select(Some(self.nav.selected));
+
+        let h = self.nav.list_height as usize;
+        if h > 0 && self.nav.selected >= new_off + h {
+            let last_visible =
+                (new_off + h - 1).min(self.nav.sorted_indices.len().saturating_sub(1));
+            self.nav.selected = last_visible;
+            self.nav.list_state.select(Some(last_visible));
+            self.ensure_data();
+        }
+    }
+
+    /// Scroll the viewport down by 3 rows without changing the selection.
+    /// If the selection would fall above the new viewport top, it is clamped
+    /// to the first visible row.
+    pub fn scroll_down(&mut self) {
+        let len = self.nav.sorted_indices.len();
+        let off = self.nav.list_state.offset();
+        let new_off = (off + 3).min(len.saturating_sub(1));
+        *self.nav.list_state.offset_mut() = new_off;
+
+        if self.nav.selected < new_off {
+            self.nav.selected = new_off;
+            self.nav.list_state.select(Some(new_off));
+            self.ensure_data();
+        } else {
+            self.nav.list_state.select(Some(self.nav.selected));
+        }
+    }
+
     pub fn go_last(&mut self) {
         if !self.nav.sorted_indices.is_empty() {
             self.nav.selected = self.nav.sorted_indices.len() - 1;
