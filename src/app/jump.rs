@@ -17,12 +17,13 @@ impl App {
 
     /// Execute the jump to the position stored in `jump_buf`, then clear it.
     pub fn commit_jump(&mut self) {
-        if let Ok(n) = self.jump_buf.parse::<usize>() {
-            if n > 0 && n <= self.sorted_indices.len() {
-                self.selected = n - 1;
-                self.list_state.select(Some(self.selected));
-                self.ensure_data();
-            }
+        if let Ok(n) = self.jump_buf.parse::<usize>()
+            && n > 0
+            && n <= self.sorted_indices.len()
+        {
+            self.selected = n - 1;
+            self.list_state.select(Some(self.selected));
+            self.ensure_data();
         }
         self.jump_buf.clear();
         self.jump_at = None;
@@ -46,6 +47,7 @@ mod tests {
         let mut app = App::new(tx);
         app.favourites.clear();
         app.fav_view = false;
+        app.i18n = crate::i18n::I18n::new("en");
         app.rebuild_list();
         app
     }

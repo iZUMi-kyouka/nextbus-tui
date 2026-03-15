@@ -22,7 +22,8 @@ impl App {
             let name = stop.name.clone();
             if !self.loading.contains(&name) {
                 self.start_fetch(name);
-                self.set_status("Refreshing...");
+                let msg = self.i18n.t("status-refreshing");
+                self.set_status(&msg);
             }
         }
     }
@@ -91,6 +92,7 @@ mod tests {
         let mut app = App::new(tx);
         app.favourites.clear();
         app.fav_view = false;
+        app.i18n = crate::i18n::I18n::new("en");
         app.rebuild_list();
         app
     }

@@ -125,6 +125,7 @@ mod tests {
         let mut app = App::new(tx);
         app.favourites.clear();
         app.fav_view = false;
+        app.i18n = crate::i18n::I18n::new("en");
         app.rebuild_list();
         app
     }
@@ -177,6 +178,7 @@ mod tests {
             let mut a = App::new(tx);
             a.favourites.clear();
             a.fav_view = false;
+            a.i18n = crate::i18n::I18n::new("en");
             a
         };
         let mut a1 = make();

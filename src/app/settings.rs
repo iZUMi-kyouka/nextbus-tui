@@ -1,4 +1,5 @@
 use crossterm::event::{KeyCode, KeyEvent};
+use fluent::FluentArgs;
 
 use super::App;
 
@@ -46,15 +47,31 @@ impl App {
             1 => {
                 // Toggle the default view and persist immediately.
                 self.default_fav_view = !self.default_fav_view;
-                crate::config::save(&self.config_snapshot());
-                let label = if self.default_fav_view {
-                    "Favourites"
+                let view_key = if self.default_fav_view {
+                    "status-view-favs"
                 } else {
-                    "All stops"
+                    "status-view-all"
                 };
-                self.set_status(&format!("Default view set to: {label}"));
+                let view_str = self.i18n.t(view_key);
+                let mut args = FluentArgs::new();
+                args.set("view", view_str.as_str());
+                let msg = self.i18n.t_args("status-view-set", &args);
+                self.set_status(&msg);
+                crate::config::save(&self.config_snapshot());
             }
-            // Row 2 (Language) is a stub — no action.
+            2 => {
+                // Cycle to the next language and reinitialise the i18n bundle.
+                let next = self.i18n.next_lang().to_owned();
+                self.i18n = crate::i18n::I18n::new(&next);
+                let name = self.i18n.lang_meta.native_name.clone();
+                let font = self.i18n.lang_meta.font.clone();
+                let mut args = FluentArgs::new();
+                args.set("name", name.as_str());
+                args.set("font", font.as_str());
+                let msg = self.i18n.t_args("status-lang-set", &args);
+                self.set_status(&msg);
+                crate::config::save(&self.config_snapshot());
+            }
             _ => {}
         }
     }
@@ -91,7 +108,10 @@ impl App {
         self.settings_edit_mode = false;
         self.settings_edit_buf.clear();
         crate::config::save(&self.config_snapshot());
-        self.set_status(&format!("Auto-refresh set to {}s", self.auto_refresh_secs));
+        let mut args = FluentArgs::new();
+        args.set("seconds", self.auto_refresh_secs as i64);
+        let msg = self.i18n.t_args("status-interval-set", &args);
+        self.set_status(&msg);
     }
 }
 
@@ -107,6 +127,7 @@ mod tests {
         app.favourites.clear();
         app.fav_view = false;
         app.default_fav_view = false;
+        app.i18n = crate::i18n::I18n::new("en");
         app.rebuild_list();
         app
     }
@@ -254,5 +275,18 @@ mod tests {
         app.settings_edit_buf.clear();
         app.handle_settings_key(key(KeyCode::Enter));
         assert_eq!(app.auto_refresh_secs, original);
+    }
+
+    #[test]
+    fn enter_on_language_row_cycles_language() {
+        let mut app = make_app();
+        app.showing_settings = true;
+        app.settings_cursor = 2;
+        assert_eq!(app.i18n.lang, "en");
+        app.handle_settings_key(key(KeyCode::Enter));
+        assert_eq!(app.i18n.lang, "ja");
+        // Second press wraps back to English.
+        app.handle_settings_key(key(KeyCode::Enter));
+        assert_eq!(app.i18n.lang, "en");
     }
 }

@@ -7,21 +7,20 @@ impl App {
     /// Handles status message expiry, jump timeout, and auto-refresh.
     pub fn handle_tick(&mut self) {
         // Expire transient status messages after 3 s.
-        if let Some((_, at)) = &self.status_msg {
-            if at.elapsed() > Duration::from_secs(3) {
-                self.status_msg = None;
-            }
+        if let Some((_, at)) = &self.status_msg
+            && at.elapsed() > Duration::from_secs(3)
+        {
+            self.status_msg = None;
         }
 
         // Commit a pending single-digit jump after 1 s with no second digit.
-        if !self.jump_buf.is_empty() {
-            if self
+        if !self.jump_buf.is_empty()
+            && self
                 .jump_at
                 .map(|t| t.elapsed() >= Duration::from_secs(1))
                 .unwrap_or(false)
-            {
-                self.commit_jump();
-            }
+        {
+            self.commit_jump();
         }
 
         // Auto-refresh the current stop if its cache entry is stale.
@@ -53,6 +52,7 @@ mod tests {
         app.favourites.clear();
         app.fav_view = false;
         app.auto_refresh_secs = 30; // reset to known value; config may differ
+        app.i18n = crate::i18n::I18n::new("en");
         app.rebuild_list();
         app
     }

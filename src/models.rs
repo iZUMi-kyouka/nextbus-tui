@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-/// A bus stop as defined in stops.json
+/// A bus stop as defined in stops.toml
 #[derive(Debug, Clone, Deserialize)]
 pub struct BusStop {
     pub caption: String,
@@ -87,6 +87,10 @@ fn default_refresh_interval() -> u64 {
     30
 }
 
+fn default_language() -> String {
+    "en".to_owned()
+}
+
 /// Persisted user configuration
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
@@ -98,6 +102,9 @@ pub struct Config {
     /// Whether the app opens in favourites-only view by default.
     #[serde(default)]
     pub default_fav_view: bool,
+    /// UI language code, e.g. "en" or "ja".
+    #[serde(default = "default_language")]
+    pub language: String,
 }
 
 impl Default for Config {
@@ -106,6 +113,7 @@ impl Default for Config {
             favourites: Vec::new(),
             refresh_interval_secs: default_refresh_interval(),
             default_fav_view: false,
+            language: default_language(),
         }
     }
 }

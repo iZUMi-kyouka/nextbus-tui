@@ -1,3 +1,4 @@
+use fluent::FluentArgs;
 use ratatui::{
     Frame,
     layout::Rect,
@@ -36,17 +37,20 @@ pub(super) fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
                 Style::default()
             };
 
-            // Suppress unused-variable warning from the intentionally empty separator block.
             let _ = fav_count;
-
             ListItem::new(label).style(style)
         })
         .collect();
 
+    let count = app.sorted_indices.len();
     let title = if app.fav_view {
-        format!(" \u{2605} Favourites ({}) ", app.sorted_indices.len())
+        let mut args = FluentArgs::new();
+        args.set("count", count as i64);
+        format!(" {} ", app.i18n.t_args("panel-favourites", &args))
     } else {
-        format!(" Bus Stops ({}) ", app.sorted_indices.len())
+        let mut args = FluentArgs::new();
+        args.set("count", count as i64);
+        format!(" {} ", app.i18n.t_args("panel-bus-stops", &args))
     };
 
     let block = Block::default()

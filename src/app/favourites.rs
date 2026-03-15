@@ -8,10 +8,12 @@ impl App {
             let name = stop.name.clone();
             if self.favourites.contains(&name) {
                 self.favourites.remove(&name);
-                self.set_status("Removed from favourites");
+                let msg = self.i18n.t("status-fav-removed");
+                self.set_status(&msg);
             } else {
                 self.favourites.insert(name);
-                self.set_status("Added to favourites \u{2605}");
+                let msg = self.i18n.t("status-fav-added");
+                self.set_status(&msg);
             }
             crate::config::save(&self.config_snapshot());
             self.rebuild_list();
@@ -34,6 +36,7 @@ mod tests {
         let mut app = App::new(tx);
         app.favourites.clear();
         app.fav_view = false;
+        app.i18n = crate::i18n::I18n::new("en");
         app.rebuild_list();
         app
     }

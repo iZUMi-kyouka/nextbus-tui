@@ -27,7 +27,7 @@ pub(super) fn render_theme_picker(frame: &mut Frame, app: &App) {
 
     let block = Block::default()
         .borders(Borders::ALL)
-        .title(" \u{1F3A8} Themes ")
+        .title(format!(" {} ", app.i18n.t("theme-title")))
         .border_style(
             Style::default()
                 .fg(palette.highlight)
@@ -98,7 +98,7 @@ pub(super) fn render_theme_picker(frame: &mut Frame, app: &App) {
     };
     frame.render_widget(
         Paragraph::new(Line::from(Span::styled(
-            " [\u{2191}\u{2193}/j/k] Navigate   [\u{21B5}] Apply   [Esc] Close",
+            format!(" {}", app.i18n.t("footer-theme-picker")),
             Style::default().fg(palette.dim),
         ))),
         hint_area,

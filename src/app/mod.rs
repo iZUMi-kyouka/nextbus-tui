@@ -7,6 +7,7 @@ pub(crate) mod mouse;
 pub(crate) mod settings;
 pub(crate) mod tick;
 
+use crate::i18n::I18n;
 use crate::theme::Theme;
 
 use std::collections::{HashMap, HashSet};
@@ -17,7 +18,7 @@ use ratatui::widgets::ListState;
 
 use crate::models::{AppEvent, BusStop, Route, ShuttleServiceResult};
 
-/// Number of rows in the settings overlay.
+/// Number of interactive rows in the settings overlay (interval / view / language).
 pub const SETTINGS_ROW_COUNT: usize = 3;
 
 static STOPS_TOML: &str = include_str!("../../assets/stops.toml");
@@ -84,6 +85,8 @@ pub struct App {
     pub auto_refresh_secs: u64,
     /// Whether new sessions open in favourites-only view (persisted in config).
     pub default_fav_view: bool,
+    /// Active i18n bundle — drives all user-visible strings.
+    pub i18n: I18n,
     /// Set to true to exit the event loop.
     pub should_quit: bool,
     /// Transient status message (text, time it was set).
@@ -110,6 +113,7 @@ impl App {
         let favourites: HashSet<String> = config.favourites.into_iter().collect();
         let auto_refresh_secs = config.refresh_interval_secs;
         let default_fav_view = config.default_fav_view;
+        let i18n = I18n::new(&config.language);
 
         let mut app = App {
             stops,
@@ -133,6 +137,7 @@ impl App {
             settings_edit_buf: String::new(),
             auto_refresh_secs,
             default_fav_view,
+            i18n,
             should_quit: false,
             status_msg: None,
             jump_buf: String::new(),
@@ -156,6 +161,7 @@ impl App {
             favourites: favs,
             refresh_interval_secs: self.auto_refresh_secs,
             default_fav_view: self.default_fav_view,
+            language: self.i18n.lang.clone(),
         }
     }
 }
