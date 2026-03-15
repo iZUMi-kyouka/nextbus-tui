@@ -6,6 +6,8 @@ pub(crate) mod list;
 pub(crate) mod mouse;
 pub(crate) mod tick;
 
+use crate::theme::Theme;
+
 use std::collections::{HashMap, HashSet};
 use std::sync::mpsc;
 use std::time::Instant;
@@ -60,6 +62,14 @@ pub struct App {
     pub searching: bool,
     /// When true, the stop list shows only favourited stops.
     pub fav_view: bool,
+    /// Loaded themes (index 0 = built-in default).
+    pub themes: Vec<Theme>,
+    /// Index of the active theme in `themes`.
+    pub theme_idx: usize,
+    /// Whether the theme picker popup is open.
+    pub showing_theme_picker: bool,
+    /// Cursor position inside the theme picker.
+    pub theme_picker_cursor: usize,
     /// Set to true to exit the event loop.
     pub should_quit: bool,
     /// Transient status message (text, time it was set).
@@ -97,6 +107,10 @@ impl App {
             search_query: String::new(),
             searching: false,
             fav_view: false,
+            themes: crate::theme::load_themes(),
+            theme_idx: 0,
+            showing_theme_picker: false,
+            theme_picker_cursor: 0,
             should_quit: false,
             status_msg: None,
             jump_buf: String::new(),
@@ -106,5 +120,9 @@ impl App {
         app.rebuild_list();
         app.list_state.select(Some(0));
         app
+    }
+
+    pub fn theme(&self) -> &Theme {
+        &self.themes[self.theme_idx]
     }
 }

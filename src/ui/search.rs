@@ -1,6 +1,6 @@
 use ratatui::{
     layout::Rect,
-    style::{Color, Modifier, Style},
+    style::{Modifier, Style},
     text::{Line, Span},
     widgets::{Block, Borders, Clear, Paragraph},
     Frame,
@@ -9,6 +9,7 @@ use ratatui::{
 use crate::app::App;
 
 pub(super) fn render_search_overlay(frame: &mut Frame, app: &App) {
+    let p = &app.theme().palette;
     let area = frame.area();
     let width = (area.width * 50 / 100).max(40).min(area.width.saturating_sub(4));
     let popup = Rect {
@@ -25,13 +26,13 @@ pub(super) fn render_search_overlay(frame: &mut Frame, app: &App) {
         .title(" \u{1F50D} Search ")
         .border_style(
             Style::default()
-                .fg(Color::Yellow)
+                .fg(p.highlight)
                 .add_modifier(Modifier::BOLD),
         );
 
     let input = Paragraph::new(Line::from(vec![
         Span::raw(&app.search_query[..]),
-        Span::styled("\u{2588}", Style::default().fg(Color::Yellow)),
+        Span::styled("\u{2588}", Style::default().fg(p.highlight)),
     ]))
     .block(block);
 

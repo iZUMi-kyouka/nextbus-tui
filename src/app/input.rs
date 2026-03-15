@@ -5,7 +5,9 @@ use super::App;
 impl App {
     /// Dispatch a keyboard event to the appropriate mode handler.
     pub fn handle_key(&mut self, key: KeyEvent) {
-        if self.searching {
+        if self.showing_theme_picker {
+            self.handle_theme_picker_key(key);
+        } else if self.searching {
             self.handle_search_key(key);
         } else {
             self.handle_normal_key(key);
@@ -39,6 +41,29 @@ impl App {
             // Allow navigation while the overlay is open.
             KeyCode::Up => self.move_up(),
             KeyCode::Down => self.move_down(),
+            _ => {}
+        }
+    }
+
+    // ── Theme picker mode ─────────────────────────────────────────────────────
+
+    fn handle_theme_picker_key(&mut self, key: KeyEvent) {
+        match key.code {
+            KeyCode::Esc | KeyCode::Char('X') => self.showing_theme_picker = false,
+            KeyCode::Enter => {
+                self.theme_idx = self.theme_picker_cursor;
+                self.showing_theme_picker = false;
+            }
+            KeyCode::Up | KeyCode::Char('k') => {
+                if self.theme_picker_cursor > 0 {
+                    self.theme_picker_cursor -= 1;
+                }
+            }
+            KeyCode::Down | KeyCode::Char('j') => {
+                if self.theme_picker_cursor + 1 < self.themes.len() {
+                    self.theme_picker_cursor += 1;
+                }
+            }
             _ => {}
         }
     }
@@ -95,6 +120,15 @@ impl App {
                 self.search_query.clear();
                 self.rebuild_list();
                 self.searching = true;
+            }
+            (KeyCode::Char('x'), _) => {
+                self.cancel_jump();
+                self.theme_idx = (self.theme_idx + 1) % self.themes.len();
+            }
+            (KeyCode::Char('X'), _) => {
+                self.cancel_jump();
+                self.theme_picker_cursor = self.theme_idx;
+                self.showing_theme_picker = true;
             }
             (KeyCode::Char(c), _) if c.is_ascii_digit() => self.push_jump_digit(c),
             (KeyCode::Enter, _) if !self.jump_buf.is_empty() => self.commit_jump(),
