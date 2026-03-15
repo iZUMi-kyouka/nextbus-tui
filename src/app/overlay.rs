@@ -31,7 +31,9 @@ impl App {
             2 => {
                 let next = self.i18n.next_lang().to_owned();
                 self.i18n = crate::i18n::I18n::new(&next);
-                let name = self.i18n.lang_meta.native_name.clone();
+                let name = self
+                    .i18n
+                    .map_text_for_web(self.i18n.lang_meta.native_name.as_str());
                 let mut args = FluentArgs::new();
                 args.set("name", name.as_str());
                 let msg = self.i18n.t_args("status-lang-set", &args);

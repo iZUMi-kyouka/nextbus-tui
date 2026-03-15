@@ -80,7 +80,8 @@ fn bootstrap_runtime() {
         .add_event_listener_with_callback("keydown", prevent_slash.as_ref().unchecked_ref());
     prevent_slash.forget();
 
-    let backend = match web_atlas::create_backend() {
+    let cfg = crate::config::load();
+    let backend = match web_atlas::create_backend_for_lang(&cfg.language) {
         Ok(b) => b,
         Err(e) => {
             eprintln!("{e}");
@@ -110,8 +111,13 @@ fn bootstrap_runtime() {
                 key_to_message(key, &app_view)
             };
             if let Some(msg) = msg {
+                let before_lang = app_ref.borrow().i18n.lang.clone();
                 app_ref.borrow_mut().update(msg);
+                let after_lang = app_ref.borrow().i18n.lang.clone();
                 apply_web_font_css();
+                if before_lang != after_lang {
+                    reload_page();
+                }
             }
         }
     });
@@ -196,6 +202,13 @@ fn ensure_web_fonts_loaded(document: &web_sys::Document) {
     if let Some(body) = document.body() {
         let _ = body.append_child(&link);
     }
+}
+
+fn reload_page() {
+    let Some(window) = web_sys::window() else {
+        return;
+    };
+    let _ = window.location().reload();
 }
 
 fn key_to_message(key: KeyEvent, app: &App) -> Option<Message> {

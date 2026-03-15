@@ -3,15 +3,17 @@
 use ratzilla::backend::webgl2::{FontAtlasData, WebGl2BackendOptions};
 use ratzilla::WebGl2Backend;
 
-// This file is generated/replaced by atlas tooling.
-const CUSTOM_ATLAS_BYTES: &[u8] = include_bytes!("../assets/atlas/multilang.atlas");
+const ATLAS_JA: &[u8] = include_bytes!("../assets/atlas/atlas.ja.atlas");
+const ATLAS_ZH_CN: &[u8] = include_bytes!("../assets/atlas/atlas.zh-CN.atlas");
+const ATLAS_ZH_TW: &[u8] = include_bytes!("../assets/atlas/atlas.zh-TW.atlas");
+const ATLAS_VI: &[u8] = include_bytes!("../assets/atlas/atlas.vi.atlas");
 
-pub(crate) fn create_backend() -> Result<WebGl2Backend, String> {
-    if CUSTOM_ATLAS_BYTES.is_empty() {
+pub(crate) fn create_backend_for_lang(lang: &str) -> Result<WebGl2Backend, String> {
+    let Some(bytes) = atlas_bytes_for_lang(lang) else {
         return WebGl2Backend::new().map_err(|e| format!("webgl backend init failed: {e}"));
-    }
+    };
 
-    match FontAtlasData::from_binary(CUSTOM_ATLAS_BYTES) {
+    match FontAtlasData::from_binary(bytes) {
         Ok(atlas) => {
             let opts = WebGl2BackendOptions::new().font_atlas(atlas);
             WebGl2Backend::new_with_options(opts)
@@ -21,5 +23,16 @@ pub(crate) fn create_backend() -> Result<WebGl2Backend, String> {
             eprintln!("custom atlas parse failed, falling back to default atlas: {e:?}");
             WebGl2Backend::new().map_err(|err| format!("webgl backend init failed: {err}"))
         }
+    }
+}
+
+fn atlas_bytes_for_lang(lang: &str) -> Option<&'static [u8]> {
+    match lang {
+        "ja" => Some(ATLAS_JA),
+        "zh-CN" => Some(ATLAS_ZH_CN),
+        "zh-TW" => Some(ATLAS_ZH_TW),
+        "vi" => Some(ATLAS_VI),
+        // Latin-focused locales use ratzilla's built-in default atlas for stable metrics.
+        _ => None,
     }
 }

@@ -88,7 +88,9 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 - The shared `ratatui` UI is rendered onto an HTML `<canvas>` in wasm test mode.
 - Native desktop runtime remains the default, full-featured target.
 - For wasm builds, the default API base is `https://nusbus.flovt.net/ShuttleService` (same query param format: `?busstopname=<NAME>`).
-- WASM runs on ratzilla WebGL backend; multilingual rendering depends on the loaded atlas (`assets/atlas/multilang.atlas`).
+- WASM runs on ratzilla WebGL backend.
+- English/Malay use ratzilla's default atlas for stable Latin metrics.
+- Japanese/Chinese use custom per-language atlases in `assets/atlas/atlas.<lang>.atlas`.
 
 ### Local testing
 
@@ -110,13 +112,13 @@ bash scripts/atlas-workflow.sh
 What this does:
 
 - Extracts required characters from `assets/i18n/**/*.ftl` and `assets/**/*.toml`
-- Writes a starter atlas to `assets/atlas/multilang.atlas`
+- Writes/updates custom atlases for Japanese/Chinese (`assets/atlas/atlas.<lang>.atlas`)
 - Builds real glyph bitmaps from local Noto fonts when available
 - Falls back to symbol alias compose mode when Noto fonts are missing
-- Verifies atlas coverage against `assets/atlas/required_chars.txt`
+- Verifies CJK atlas coverage against `assets/atlas/required_chars.<lang>.txt`
 
-If verification reports missing characters, replace `assets/atlas/multilang.atlas` with your
-custom generated atlas and rerun the script.
+If verification reports missing characters, replace the affected `assets/atlas/atlas.<lang>.atlas`
+with your custom generated atlas and rerun the script.
 
 Note: fallback compose mode ensures deterministic rendering for missing symbols, but proper glyph
 shapes require the Noto-based atlas build step.

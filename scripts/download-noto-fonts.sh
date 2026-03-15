@@ -12,14 +12,14 @@ curl -fL -o "$FONT_DIR/NotoSansMono-Regular.ttf" \
 curl -fL -o "$FONT_DIR/NotoSansMono-Bold.ttf" \
   "https://raw.githubusercontent.com/notofonts/noto-fonts/main/hinted/ttf/NotoSansMono/NotoSansMono-Bold.ttf"
 
-curl -fL -o "$FONT_DIR/NotoSansSC-Regular.ttf" \
-  "https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf"
+curl -fL -o "$FONT_DIR/NotoSansSC-VF.ttf" \
+  "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf"
 
-curl -fL -o "$FONT_DIR/NotoSansTC-Regular.ttf" \
-  "https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/TraditionalChineseHK/NotoSansCJKhk-Regular.otf"
+curl -fL -o "$FONT_DIR/NotoSansTC-VF.ttf" \
+  "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanstc/NotoSansTC%5Bwght%5D.ttf"
 
-curl -fL -o "$FONT_DIR/NotoSansJP-Regular.ttf" \
-  "https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/Japanese/NotoSansCJKjp-Regular.otf"
+curl -fL -o "$FONT_DIR/NotoSansJP-VF.ttf" \
+  "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansjp/NotoSansJP%5Bwght%5D.ttf"
 
 curl -fL -o "$FONT_DIR/NotoSansTamil-Regular.ttf" \
   "https://raw.githubusercontent.com/notofonts/noto-fonts/main/hinted/ttf/NotoSansTamil/NotoSansTamil-Regular.ttf"
