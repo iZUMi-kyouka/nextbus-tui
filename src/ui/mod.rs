@@ -67,3 +67,127 @@ fn render_panels(frame: &mut Frame, area: ratatui::layout::Rect, app: &mut App) 
     render_list(frame, cols[0], app);
     render_detail(frame, cols[1], app, !narrow);
 }
+
+#[cfg(test)]
+mod tests {
+    use super::render;
+    use crate::app::App;
+    use ratatui::{backend::TestBackend, Terminal};
+    use std::sync::mpsc;
+
+    fn make_app() -> App {
+        let (tx, _rx) = mpsc::channel();
+        let mut app = App::new(tx);
+        app.favourites.clear();
+        app.rebuild_list();
+        app
+    }
+
+    fn make_terminal(w: u16, h: u16) -> Terminal<TestBackend> {
+        Terminal::new(TestBackend::new(w, h)).unwrap()
+    }
+
+    /// Concatenate all cell symbols in the buffer into a single string.
+    fn buf_text(terminal: &Terminal<TestBackend>) -> String {
+        let buf = terminal.backend().buffer();
+        let area = buf.area;
+        (area.top()..area.bottom())
+            .flat_map(|y| (area.left()..area.right()).map(move |x| (x, y)))
+            .map(|(x, y)| buf[(x, y)].symbol().to_string())
+            .collect()
+    }
+
+    #[test]
+    fn render_does_not_panic() {
+        let mut terminal = make_terminal(120, 30);
+        let mut app = make_app();
+        terminal.draw(|f| render(f, &mut app)).unwrap();
+    }
+
+    #[test]
+    fn render_narrow_does_not_panic() {
+        let mut terminal = make_terminal(60, 20);
+        let mut app = make_app();
+        terminal.draw(|f| render(f, &mut app)).unwrap();
+    }
+
+    #[test]
+    fn render_contains_app_title() {
+        let mut terminal = make_terminal(120, 30);
+        let mut app = make_app();
+        terminal.draw(|f| render(f, &mut app)).unwrap();
+        let text = buf_text(&terminal);
+        assert!(text.contains("NUS NextBus"), "Title should contain 'NUS NextBus'");
+    }
+
+    #[test]
+    fn render_contains_bus_stops_header() {
+        let mut terminal = make_terminal(120, 30);
+        let mut app = make_app();
+        terminal.draw(|f| render(f, &mut app)).unwrap();
+        let text = buf_text(&terminal);
+        assert!(text.contains("Bus Stops"), "Should contain 'Bus Stops' header");
+    }
+
+    #[test]
+    fn render_search_overlay_when_searching() {
+        let mut terminal = make_terminal(120, 30);
+        let mut app = make_app();
+        app.searching = true;
+        terminal.draw(|f| render(f, &mut app)).unwrap();
+        let text = buf_text(&terminal);
+        assert!(text.contains("Search"), "Search overlay should be visible");
+    }
+
+    #[test]
+    fn render_theme_picker_shows_default_theme() {
+        let mut terminal = make_terminal(120, 30);
+        let mut app = make_app();
+        app.showing_theme_picker = true;
+        terminal.draw(|f| render(f, &mut app)).unwrap();
+        let text = buf_text(&terminal);
+        assert!(text.contains("Default"), "Theme picker should list 'Default' theme");
+    }
+
+    #[test]
+    fn render_fav_view_shows_favourites_title() {
+        let mut terminal = make_terminal(120, 30);
+        let mut app = make_app();
+        app.fav_view = true;
+        app.rebuild_list();
+        terminal.draw(|f| render(f, &mut app)).unwrap();
+        let text = buf_text(&terminal);
+        assert!(text.contains("Favourites"), "Fav view should show 'Favourites' title");
+    }
+
+    #[test]
+    fn render_footer_quit_hint() {
+        let mut terminal = make_terminal(120, 30);
+        let mut app = make_app();
+        terminal.draw(|f| render(f, &mut app)).unwrap();
+        let text = buf_text(&terminal);
+        assert!(text.contains("Quit"), "Footer should show 'Quit' hint");
+    }
+
+    #[test]
+    fn render_footer_search_mode_cancel_hint() {
+        let mut terminal = make_terminal(120, 30);
+        let mut app = make_app();
+        app.searching = true;
+        terminal.draw(|f| render(f, &mut app)).unwrap();
+        let text = buf_text(&terminal);
+        assert!(text.contains("Cancel"), "Search footer should show 'Cancel'");
+    }
+
+    #[test]
+    fn render_all_themes_without_panic() {
+        let (tx, _rx) = mpsc::channel();
+        let mut app = App::new(tx);
+        let n = app.themes.len();
+        for i in 0..n {
+            app.theme_idx = i;
+            let mut terminal = make_terminal(120, 30);
+            terminal.draw(|f| render(f, &mut app)).unwrap();
+        }
+    }
+}

@@ -50,11 +50,26 @@ Background threads (one per in-flight fetch) call `api::fetch_shuttle_service()`
 
 | File | Role |
 |------|------|
-| `main.rs` | Terminal setup/teardown, event loop, keyboard dispatch |
-| `app.rs` | All mutable application state (`App`), list management, fetch orchestration, event handlers |
-| `ui.rs` | Pure rendering: title bar, left stop list, right detail panel, footer |
-| `api.rs` | Single function that GETs `https://nnextbus.nusmods.com/ShuttleService?busstopname=<NAME>` |
-| `models.rs` | All serde structs (`BusStop`, `ApiResponse`, `ShuttleServiceResult`, `Shuttle`, `Config`) plus `AppEvent` enum |
+| `main.rs` | Terminal setup/teardown, event loop, mouse/keyboard dispatch |
+| `theme.rs` | `Palette`/`Theme` types; `load_themes()` embeds TOML files from `assets/themes/` |
+| `app/mod.rs` | `App` struct, constructor, `theme()` accessor |
+| `app/input.rs` | Keyboard event dispatch; modal priority: theme picker → search → normal |
+| `app/mouse.rs` | Mouse event dispatch (scroll, click on list, footer buttons) |
+| `app/list.rs` | `rebuild_list()`: sorted/filtered `sorted_indices`; fav-view branch |
+| `app/jump.rs` | Number-jump buffer; immediate commit when list < 10 items |
+| `app/fetch.rs` | API fetch and cache management |
+| `app/tick.rs` | Auto-refresh (30 s) and status message expiry |
+| `app/favourites.rs` | Favourite toggle and persistence |
+| `ui/mod.rs` | Root render function; background fill; layout split |
+| `ui/title.rs` | Title bar (theme-aware) |
+| `ui/stop_list.rs` | Stop list panel with fav highlight and ellipsis truncation |
+| `ui/detail.rs` | Bus arrival detail panel with shuttle table |
+| `ui/footer.rs` | Footer hints (context-sensitive: jump / status / search / normal) |
+| `ui/search.rs` | Search overlay |
+| `ui/theme_picker.rs` | Theme picker popup with colour swatches |
+| `ui/helpers.rs` | Shared style/formatting utilities (`arrival_style`, `route_color`, `fmt_arrival`) |
+| `api.rs` | Single function: GETs `https://nnextbus.nusmods.com/ShuttleService?busstopname=<NAME>` |
+| `models.rs` | Serde structs (`BusStop`, `ApiResponse`, `ShuttleServiceResult`, `Shuttle`, `Config`) + `AppEvent` |
 | `config.rs` | Load/save favourites to `~/.config/nextbus-tui/config.json` |
 
 ### Key design points
@@ -68,4 +83,16 @@ Background threads (one per in-flight fetch) call `api::fetch_shuttle_service()`
 ### Assets
 
 - `assets/stops.json` — static list of all NUS bus stops (embedded at compile time).
-- `assets/routes.json` — route data (present but not yet used by the app).
+- `assets/routes.json` — route colour data (embedded; used by `ui/helpers.rs` for bus name badge colours).
+- `assets/themes/*.toml` — one TOML file per colour scheme, embedded via `include_str!` in `theme.rs`.
+
+## Keeping README.md up to date
+
+**README.md is user-facing documentation. Keep it in sync whenever you:**
+
+- Add, remove, or rename a key binding
+- Add or remove a feature (Features section)
+- Add, remove, or rename a theme
+- Change the `src/` module layout (Architecture section)
+
+The architecture tree in README.md mirrors the actual `src/` directory structure. Update it whenever a source file is added, removed, or its role changes significantly.
