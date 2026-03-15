@@ -49,8 +49,6 @@ settings-view-all         = [All stops]
 settings-view-favs        = [Favourites]
 settings-lang-label       = Language:
 settings-lang-value       = [{ $name }]
-settings-font-label       = Font:
-settings-font-value       = [{ $font }]
 settings-hint-nav         = [↑↓/j/k] Navigate   [↵/Space] Edit/Toggle   [Esc/s] Close
 settings-hint-edit        = [0-9] Type   [⌫] Delete   [↵] Confirm   [Esc] Cancel
 
@@ -62,4 +60,4 @@ status-interval-set   = Auto-refresh set to { $seconds }s
 status-view-set       = Default view set to: { $view }
 status-view-all       = All stops
 status-view-favs      = Favourites
-status-lang-set       = Language: { $name } — Font: { $font }
+status-lang-set       = Language: { $name }

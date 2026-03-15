@@ -13,9 +13,9 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
     let area = frame.area();
     let palette = &app.theme().palette;
 
-    // 4 content rows (interval / view / language / font) + 1 hint + 2 borders = 7.
-    // Add 1 blank row between content and hint → popup_h = 8.
-    let popup_h = 8u16.min(area.height.saturating_sub(2));
+    // 3 content rows (interval / view / language) + 1 hint + 2 borders = 6.
+    // Add 1 blank row between content and hint → popup_h = 7.
+    let popup_h = 7u16.min(area.height.saturating_sub(2));
     let popup_w = 64u16.min(area.width.saturating_sub(4));
     let popup = Rect {
         x: area.x + (area.width.saturating_sub(popup_w)) / 2,
@@ -61,24 +61,15 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
         app.i18n.t_args("settings-lang-value", &args)
     };
 
-    let font_display = {
-        let mut args = FluentArgs::new();
-        args.set("font", app.i18n.lang_meta.font.as_str());
-        app.i18n.t_args("settings-font-value", &args)
-    };
-
     let interval_label = app.i18n.t("settings-interval-label");
     let view_label = app.i18n.t("settings-view-label");
     let lang_label = app.i18n.t("settings-lang-label");
-    let font_label = app.i18n.t("settings-font-label");
 
     // (label, value, is_interactive)
-    // The font row is display-only (is_interactive = false, always dim).
     let rows: &[(&str, &str, bool)] = &[
         (&interval_label, &interval_display, true),
         (&view_label, &view_display, true),
         (&lang_label, &lang_display, true),
-        (&font_label, &font_display, false), // display-only
     ];
 
     // ── Render rows ───────────────────────────────────────────────────────────

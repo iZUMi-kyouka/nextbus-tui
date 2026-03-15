@@ -2,6 +2,7 @@
 
 A terminal UI (TUI) desktop client for NUS internal shuttle bus (ISB) arrival times, built with Rust and [ratatui](https://github.com/ratatui-org/ratatui).
 
+[![CI](https://github.com/iZUMi-kyouka/nextbus-tui/actions/workflows/ci.yml/badge.svg)](https://github.com/iZUMi-kyouka/nextbus-tui/actions/workflows/ci.yml)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-blue)
 ![Language](https://img.shields.io/badge/language-Rust-orange)
 

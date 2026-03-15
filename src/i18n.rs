@@ -4,18 +4,10 @@ use fluent::{FluentArgs, FluentBundle, FluentResource};
 use unic_langid::LanguageIdentifier;
 
 /// Per-language metadata loaded from `assets/i18n/config.toml`.
-/// All fields are preserved as config surface even if not all are accessed at runtime.
 #[derive(Debug, Clone, serde::Deserialize)]
-#[allow(dead_code)]
 pub struct LangMeta {
-    /// English name, e.g. "Japanese"
-    pub name: String,
     /// Name in the language itself, e.g. "日本語"
     pub native_name: String,
-    /// Recommended terminal font for correct rendering
-    pub font: String,
-    /// Download URL for the recommended font
-    pub font_url: String,
 }
 
 #[derive(serde::Deserialize)]
