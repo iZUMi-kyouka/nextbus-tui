@@ -44,17 +44,17 @@ pub(super) fn render_theme_picker(frame: &mut Frame, app: &App) {
 
     // Scrollable entry list — keep cursor visible.
     let entry_rows = (inner.height as usize).saturating_sub(2); // reserve blank + hint
-    let offset = if app.theme_picker_cursor >= entry_rows {
-        app.theme_picker_cursor - entry_rows + 1
+    let offset = if app.overlay.theme_picker_cursor >= entry_rows {
+        app.overlay.theme_picker_cursor - entry_rows + 1
     } else {
         0
     };
 
     for (list_pos, &theme_global_idx) in filtered.iter().enumerate().skip(offset).take(entry_rows) {
-        let theme = &app.themes[theme_global_idx];
+        let theme = &app.domain.themes[theme_global_idx];
         let row_y = inner.y + (list_pos - offset) as u16;
 
-        let is_selected = list_pos == app.theme_picker_cursor;
+        let is_selected = list_pos == app.overlay.theme_picker_cursor;
         let cursor_str = if is_selected { " > " } else { "   " };
 
         let mut spans = vec![Span::styled(

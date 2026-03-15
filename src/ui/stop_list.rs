@@ -15,23 +15,22 @@ pub(super) fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
     let fav_count = app.fav_count_in_list();
 
     let items: Vec<ListItem> = app
+        .nav
         .sorted_indices
         .iter()
         .enumerate()
         .map(|(pos, &idx)| {
-            let stop = &app.stops[idx];
-            let is_fav = app.favourites.contains(&stop.name);
-            let is_loading = app.loading.contains(&stop.name);
+            let stop = &app.domain.stops[idx];
+            let is_fav = app.settings.favourites.contains(&stop.name);
+            let is_loading = app.fetch.loading.contains(&stop.name);
 
-            let star = if is_fav { "\u{2605} " } else { "  " }; // ★ or spaces
+            let star = if is_fav { "\u{2605} " } else { "  " };
             let spin = if is_loading { " ..." } else { "" };
-            // 2 borders + 3 highlight symbol (" > ") + 2 position + 1 space + 2 star + spin
             let caption_width = (area.width as usize).saturating_sub(10 + spin.len());
             let caption = ellipsis(&stop.caption, caption_width);
             let label = format!("{:>2} {}{}{}", pos + 1, star, caption, spin);
 
-            // In fav view every entry IS a favourite, so no yellow distinction needed.
-            let style = if is_fav && !app.fav_view {
+            let style = if is_fav && !app.nav.fav_view {
                 Style::default().fg(palette.highlight)
             } else {
                 Style::default()
@@ -42,8 +41,8 @@ pub(super) fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
         })
         .collect();
 
-    let count = app.sorted_indices.len();
-    let title = if app.fav_view {
+    let count = app.nav.sorted_indices.len();
+    let title = if app.nav.fav_view {
         let mut args = FluentArgs::new();
         args.set("count", count as i64);
         format!(" {} ", app.i18n.t_args("panel-favourites", &args))
@@ -67,5 +66,5 @@ pub(super) fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
         )
         .highlight_symbol(" > ");
 
-    frame.render_stateful_widget(list, area, &mut app.list_state);
+    frame.render_stateful_widget(list, area, &mut app.nav.list_state);
 }

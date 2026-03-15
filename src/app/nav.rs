@@ -6,90 +6,106 @@ impl App {
     /// Rebuild `sorted_indices` applying the current search filter.
     /// Favourites come first (alphabetical within each group).
     pub fn rebuild_list(&mut self) {
-        let q = self.search_query.to_lowercase();
+        let q = self.nav.search_query.to_lowercase();
         let matches = |s: &BusStop| -> bool {
             q.is_empty()
                 || s.caption.to_lowercase().contains(&q)
                 || s.name.to_lowercase().contains(&q)
         };
 
-        if self.fav_view {
+        if self.nav.fav_view {
             let mut favs: Vec<usize> = self
+                .domain
                 .stops
                 .iter()
                 .enumerate()
-                .filter(|(_, s)| self.favourites.contains(&s.name) && matches(s))
+                .filter(|(_, s)| self.settings.favourites.contains(&s.name) && matches(s))
                 .map(|(i, _)| i)
                 .collect();
-            favs.sort_by(|&a, &b| self.stops[a].caption.cmp(&self.stops[b].caption));
-            self.sorted_indices = favs;
+            favs.sort_by(|&a, &b| {
+                self.domain.stops[a]
+                    .caption
+                    .cmp(&self.domain.stops[b].caption)
+            });
+            self.nav.sorted_indices = favs;
         } else {
             let mut favs: Vec<usize> = self
+                .domain
                 .stops
                 .iter()
                 .enumerate()
-                .filter(|(_, s)| self.favourites.contains(&s.name) && matches(s))
+                .filter(|(_, s)| self.settings.favourites.contains(&s.name) && matches(s))
                 .map(|(i, _)| i)
                 .collect();
-            favs.sort_by(|&a, &b| self.stops[a].caption.cmp(&self.stops[b].caption));
+            favs.sort_by(|&a, &b| {
+                self.domain.stops[a]
+                    .caption
+                    .cmp(&self.domain.stops[b].caption)
+            });
 
             let mut rest: Vec<usize> = self
+                .domain
                 .stops
                 .iter()
                 .enumerate()
-                .filter(|(_, s)| !self.favourites.contains(&s.name) && matches(s))
+                .filter(|(_, s)| !self.settings.favourites.contains(&s.name) && matches(s))
                 .map(|(i, _)| i)
                 .collect();
-            rest.sort_by(|&a, &b| self.stops[a].caption.cmp(&self.stops[b].caption));
+            rest.sort_by(|&a, &b| {
+                self.domain.stops[a]
+                    .caption
+                    .cmp(&self.domain.stops[b].caption)
+            });
 
             favs.extend(rest);
-            self.sorted_indices = favs;
+            self.nav.sorted_indices = favs;
         }
 
         // Clamp selection so it stays in bounds after filtering.
-        self.selected = if self.sorted_indices.is_empty() {
+        self.nav.selected = if self.nav.sorted_indices.is_empty() {
             0
         } else {
-            self.selected.min(self.sorted_indices.len() - 1)
+            self.nav.selected.min(self.nav.sorted_indices.len() - 1)
         };
-        self.list_state.select(Some(self.selected));
+        self.nav.list_state.select(Some(self.nav.selected));
     }
 
     /// The currently highlighted bus stop, if any.
     pub fn current_stop(&self) -> Option<&BusStop> {
-        self.sorted_indices
-            .get(self.selected)
-            .map(|&i| &self.stops[i])
+        self.nav
+            .sorted_indices
+            .get(self.nav.selected)
+            .map(|&i| &self.domain.stops[i])
     }
 
     pub fn move_up(&mut self) {
-        if self.selected > 0 {
-            self.selected -= 1;
-            self.list_state.select(Some(self.selected));
+        if self.nav.selected > 0 {
+            self.nav.selected -= 1;
+            self.nav.list_state.select(Some(self.nav.selected));
             self.ensure_data();
         }
     }
 
     pub fn move_down(&mut self) {
-        if self.selected + 1 < self.sorted_indices.len() {
-            self.selected += 1;
-            self.list_state.select(Some(self.selected));
+        if self.nav.selected + 1 < self.nav.sorted_indices.len() {
+            self.nav.selected += 1;
+            self.nav.list_state.select(Some(self.nav.selected));
             self.ensure_data();
         }
     }
 
     pub fn go_first(&mut self) {
-        if !self.sorted_indices.is_empty() {
-            self.selected = 0;
-            self.list_state.select(Some(0));
+        if !self.nav.sorted_indices.is_empty() {
+            self.nav.selected = 0;
+            self.nav.list_state.select(Some(0));
             self.ensure_data();
         }
     }
 
     pub fn go_last(&mut self) {
-        if !self.sorted_indices.is_empty() {
-            self.selected = self.sorted_indices.len() - 1;
-            self.list_state.select(Some(self.selected));
+        if !self.nav.sorted_indices.is_empty() {
+            self.nav.selected = self.nav.sorted_indices.len() - 1;
+            self.nav.list_state.select(Some(self.nav.selected));
             self.ensure_data();
         }
     }
@@ -99,18 +115,23 @@ impl App {
     /// Seconds until the auto-refresh fires for the current stop, or `None` if loading.
     pub fn seconds_until_refresh(&self) -> Option<u64> {
         let name = self.current_stop()?.name.clone();
-        if self.loading.contains(&name) {
+        if self.fetch.loading.contains(&name) {
             return None;
         }
-        let elapsed = self.cache.get(&name)?.fetched_at.elapsed().as_secs();
-        Some(self.auto_refresh_secs.saturating_sub(elapsed))
+        let elapsed = self.fetch.cache.get(&name)?.fetched_at.elapsed().as_secs();
+        Some(self.settings.auto_refresh_secs.saturating_sub(elapsed))
     }
 
     /// How many visible stops are favourites (used by the list renderer for the separator).
     pub fn fav_count_in_list(&self) -> usize {
-        self.sorted_indices
+        self.nav
+            .sorted_indices
             .iter()
-            .filter(|&&i| self.favourites.contains(&self.stops[i].name))
+            .filter(|&&i| {
+                self.settings
+                    .favourites
+                    .contains(&self.domain.stops[i].name)
+            })
             .count()
     }
 }
@@ -122,47 +143,42 @@ mod tests {
 
     fn make_app() -> App {
         let (tx, _rx) = mpsc::channel();
-        let mut app = App::new(tx);
-        app.favourites.clear();
-        app.fav_view = false;
-        app.i18n = crate::i18n::I18n::new("en");
-        app.rebuild_list();
-        app
+        App::new_test(tx)
     }
 
     #[test]
     fn rebuild_list_all_stops_in_normal_mode() {
         let app = make_app();
-        assert_eq!(app.sorted_indices.len(), 33);
+        assert_eq!(app.nav.sorted_indices.len(), 33);
     }
 
     #[test]
     fn rebuild_list_fav_view_empty_when_no_favs() {
         let mut app = make_app();
-        app.fav_view = true;
+        app.nav.fav_view = true;
         app.rebuild_list();
-        assert!(app.sorted_indices.is_empty());
+        assert!(app.nav.sorted_indices.is_empty());
     }
 
     #[test]
     fn rebuild_list_fav_view_shows_only_favourites() {
         let mut app = make_app();
-        let name = app.stops[0].name.clone();
-        app.favourites.insert(name.clone());
-        app.fav_view = true;
+        let name = app.domain.stops[0].name.clone();
+        app.settings.favourites.insert(name.clone());
+        app.nav.fav_view = true;
         app.rebuild_list();
-        assert_eq!(app.sorted_indices.len(), 1);
-        assert_eq!(app.stops[app.sorted_indices[0]].name, name);
+        assert_eq!(app.nav.sorted_indices.len(), 1);
+        assert_eq!(app.domain.stops[app.nav.sorted_indices[0]].name, name);
     }
 
     #[test]
     fn rebuild_list_search_filter_reduces_results() {
         let mut app = make_app();
-        app.search_query = "COM".to_string();
+        app.nav.search_query = "COM".to_string();
         app.rebuild_list();
-        assert!(app.sorted_indices.len() < 33);
-        for &i in &app.sorted_indices {
-            let s = &app.stops[i];
+        assert!(app.nav.sorted_indices.len() < 33);
+        for &i in &app.nav.sorted_indices {
+            let s = &app.domain.stops[i];
             assert!(
                 s.caption.to_lowercase().contains("com") || s.name.to_lowercase().contains("com"),
                 "stop {} doesn't match filter 'COM'",
@@ -173,72 +189,66 @@ mod tests {
 
     #[test]
     fn rebuild_list_search_case_insensitive() {
-        let make = || {
-            let (tx, _rx) = mpsc::channel();
-            let mut a = App::new(tx);
-            a.favourites.clear();
-            a.fav_view = false;
-            a.i18n = crate::i18n::I18n::new("en");
-            a
-        };
-        let mut a1 = make();
-        a1.search_query = "com".to_string();
+        let (tx1, _) = mpsc::channel();
+        let (tx2, _) = mpsc::channel();
+        let mut a1 = App::new_test(tx1);
+        a1.nav.search_query = "com".to_string();
         a1.rebuild_list();
-        let mut a2 = make();
-        a2.search_query = "COM".to_string();
+        let mut a2 = App::new_test(tx2);
+        a2.nav.search_query = "COM".to_string();
         a2.rebuild_list();
-        assert_eq!(a1.sorted_indices, a2.sorted_indices);
+        assert_eq!(a1.nav.sorted_indices, a2.nav.sorted_indices);
     }
 
     #[test]
     fn rebuild_list_clamps_selection_after_narrow_filter() {
         let mut app = make_app();
-        app.selected = 30;
-        app.search_query = "COM3".to_string();
+        app.nav.selected = 30;
+        app.nav.search_query = "COM3".to_string();
         app.rebuild_list();
-        let len = app.sorted_indices.len();
-        assert!(app.selected < len.max(1));
+        let len = app.nav.sorted_indices.len();
+        assert!(app.nav.selected < len.max(1));
     }
 
     #[test]
     fn move_up_at_top_is_no_op() {
         let mut app = make_app();
-        assert_eq!(app.selected, 0);
+        assert_eq!(app.nav.selected, 0);
         app.move_up();
-        assert_eq!(app.selected, 0);
+        assert_eq!(app.nav.selected, 0);
     }
 
     #[test]
     fn move_down_increments_selection() {
         let mut app = make_app();
         app.move_down();
-        assert_eq!(app.selected, 1);
+        assert_eq!(app.nav.selected, 1);
     }
 
     #[test]
     fn move_down_at_bottom_is_no_op() {
         let mut app = make_app();
-        let last = app.sorted_indices.len() - 1;
-        app.selected = last;
-        app.list_state.select(Some(last));
+        let last = app.nav.sorted_indices.len() - 1;
+        app.nav.selected = last;
+        app.nav.list_state.select(Some(last));
         app.move_down();
-        assert_eq!(app.selected, last);
+        assert_eq!(app.nav.selected, last);
     }
 
     #[test]
     fn go_first_sets_selection_to_zero() {
         let mut app = make_app();
-        app.selected = 10;
+        app.nav.selected = 10;
         app.go_first();
-        assert_eq!(app.selected, 0);
+        assert_eq!(app.nav.selected, 0);
     }
 
     #[test]
     fn go_last_sets_selection_to_end() {
         let mut app = make_app();
-        let expected = app.sorted_indices.len() - 1;
+        let expected = app.nav.sorted_indices.len() - 1;
         app.go_last();
-        assert_eq!(app.selected, expected);
+        assert_eq!(app.nav.selected, expected);
     }
 
     #[test]
@@ -256,8 +266,8 @@ mod tests {
     #[test]
     fn fav_count_with_one_favourite() {
         let mut app = make_app();
-        let name = app.stops[0].name.clone();
-        app.favourites.insert(name);
+        let name = app.domain.stops[0].name.clone();
+        app.settings.favourites.insert(name);
         app.rebuild_list();
         assert_eq!(app.fav_count_in_list(), 1);
     }
@@ -265,11 +275,11 @@ mod tests {
     #[test]
     fn favourites_sorted_first_in_normal_view() {
         let mut app = make_app();
-        let last_idx = *app.sorted_indices.last().unwrap();
-        let fav_name = app.stops[last_idx].name.clone();
-        app.favourites.insert(fav_name.clone());
+        let last_idx = *app.nav.sorted_indices.last().unwrap();
+        let fav_name = app.domain.stops[last_idx].name.clone();
+        app.settings.favourites.insert(fav_name.clone());
         app.rebuild_list();
-        let first_stop = &app.stops[app.sorted_indices[0]];
+        let first_stop = &app.domain.stops[app.nav.sorted_indices[0]];
         assert_eq!(first_stop.name, fav_name);
     }
 }

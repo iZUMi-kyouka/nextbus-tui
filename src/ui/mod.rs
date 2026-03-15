@@ -46,15 +46,15 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     render_panels(frame, root[1], app);
     render_footer(frame, root[2], app);
 
-    if app.searching {
+    if app.nav.searching {
         render_search_overlay(frame, app);
     }
 
-    if app.showing_theme_picker {
+    if app.overlay.showing_theme_picker {
         render_theme_picker(frame, app);
     }
 
-    if app.showing_settings {
+    if app.overlay.showing_settings {
         render_settings(frame, app);
     }
 }
@@ -86,14 +86,7 @@ mod tests {
 
     fn make_app() -> App {
         let (tx, _rx) = mpsc::channel();
-        let mut app = App::new(tx);
-        app.favourites.clear();
-        app.fav_view = false;
-        app.theme_mode = crate::theme::ThemeMode::Dark;
-        app.theme_idx = 0;
-        app.i18n = crate::i18n::I18n::new("en");
-        app.rebuild_list();
-        app
+        App::new_test(tx)
     }
 
     fn make_terminal(w: u16, h: u16) -> Terminal<TestBackend> {
@@ -152,7 +145,7 @@ mod tests {
     fn render_search_overlay_when_searching() {
         let mut terminal = make_terminal(120, 30);
         let mut app = make_app();
-        app.searching = true;
+        app.nav.searching = true;
         terminal.draw(|f| render(f, &mut app)).unwrap();
         let text = buf_text(&terminal);
         assert!(text.contains("Search"), "Search overlay should be visible");
@@ -162,7 +155,7 @@ mod tests {
     fn render_theme_picker_shows_default_theme() {
         let mut terminal = make_terminal(120, 30);
         let mut app = make_app();
-        app.showing_theme_picker = true;
+        app.overlay.showing_theme_picker = true;
         terminal.draw(|f| render(f, &mut app)).unwrap();
         let text = buf_text(&terminal);
         assert!(
@@ -175,7 +168,7 @@ mod tests {
     fn render_fav_view_shows_favourites_title() {
         let mut terminal = make_terminal(120, 30);
         let mut app = make_app();
-        app.fav_view = true;
+        app.nav.fav_view = true;
         app.rebuild_list();
         terminal.draw(|f| render(f, &mut app)).unwrap();
         let text = buf_text(&terminal);
@@ -198,7 +191,7 @@ mod tests {
     fn render_footer_search_mode_cancel_hint() {
         let mut terminal = make_terminal(120, 30);
         let mut app = make_app();
-        app.searching = true;
+        app.nav.searching = true;
         terminal.draw(|f| render(f, &mut app)).unwrap();
         let text = buf_text(&terminal);
         assert!(
@@ -210,10 +203,10 @@ mod tests {
     #[test]
     fn render_all_themes_without_panic() {
         let (tx, _rx) = mpsc::channel();
-        let mut app = App::new(tx);
-        let n = app.themes.len();
+        let mut app = App::new_test(tx);
+        let n = app.domain.themes.len();
         for i in 0..n {
-            app.theme_idx = i;
+            app.settings.theme_idx = i;
             let mut terminal = make_terminal(120, 30);
             terminal.draw(|f| render(f, &mut app)).unwrap();
         }
