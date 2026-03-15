@@ -83,8 +83,29 @@ pub struct Route {
     pub stops: Vec<RouteStop>,
 }
 
+fn default_refresh_interval() -> u64 {
+    30
+}
+
 /// Persisted user configuration
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
+    #[serde(default)]
     pub favourites: Vec<String>,
+    /// Auto-refresh interval in seconds (5–300).
+    #[serde(default = "default_refresh_interval")]
+    pub refresh_interval_secs: u64,
+    /// Whether the app opens in favourites-only view by default.
+    #[serde(default)]
+    pub default_fav_view: bool,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            favourites: Vec::new(),
+            refresh_interval_secs: default_refresh_interval(),
+            default_fav_view: false,
+        }
+    }
 }

@@ -48,12 +48,13 @@ curl -Lo nextbus-tui https://github.com/iZUMi-kyouka/nextbus-tui/releases/latest
 ## Features
 
 - **33 NUS bus stops** with live arrival times from the NUS shuttle service API
-- **Auto-refresh** every 30 seconds
+- **Auto-refresh** every 30 seconds (configurable 5–300 s)
 - **Favourites** — star stops for quick access; a dedicated favourites view shows only your starred stops
 - **Search / filter** — spotlight-style overlay to filter stops by name
 - **Number jump** — type a stop number to jump directly to it
 - **Mouse support** — scroll, click to select stops, click footer buttons
 - **Themes** — 6 built-in colour schemes with a live theme picker
+- **Settings** — configure auto-refresh interval, default view, and more
 
 ---
 
@@ -77,6 +78,7 @@ curl -Lo nextbus-tui https://github.com/iZUMi-kyouka/nextbus-tui/releases/latest
 | `F` | Toggle favourites-only view |
 | `r` | Force-refresh the current stop |
 | `/` | Open search overlay |
+| `s` / `S` | Open settings |
 | `q` / `Ctrl-C` | Quit |
 
 ### Themes
@@ -103,6 +105,18 @@ curl -Lo nextbus-tui https://github.com/iZUMi-kyouka/nextbus-tui/releases/latest
 | `↵` | Apply the selected theme |
 | `Esc` / `X` | Close without applying |
 
+### Settings
+
+| Key | Action |
+|-----|--------|
+| `↑` / `k`, `↓` / `j` | Navigate settings rows |
+| `↵` / `Space` | Edit / toggle the selected setting |
+| `0`–`9` | Type a new refresh interval (edit mode) |
+| `⌫` | Delete last digit (edit mode) |
+| `↵` | Confirm new value (edit mode) |
+| `Esc` | Cancel edit / close settings |
+| `s` / `S` | Close settings |
+
 ---
 
 ## Themes
@@ -128,14 +142,15 @@ src/
 ├── main.rs          — Terminal setup and event loop
 ├── theme.rs         — Theme/palette types and theme loader
 ├── app/
-│   ├── mod.rs       — App struct and constructor
+│   ├── mod.rs       — App struct, constructor, config snapshot
 │   ├── input.rs     — Keyboard event dispatch
 │   ├── mouse.rs     — Mouse event dispatch
 │   ├── list.rs      — Stop list navigation and filtering
 │   ├── jump.rs      — Number-jump logic
 │   ├── fetch.rs     — API fetch and cache management
 │   ├── tick.rs      — Auto-refresh and timer logic
-│   └── favourites.rs — Favourite management and persistence
+│   ├── favourites.rs — Favourite management and persistence
+│   └── settings.rs  — Settings overlay key handling
 └── ui/
     ├── mod.rs        — Root render function and layout
     ├── title.rs      — Title bar
@@ -144,5 +159,6 @@ src/
     ├── footer.rs     — Footer hints
     ├── search.rs     — Search overlay
     ├── theme_picker.rs — Theme picker popup
+    ├── settings.rs   — Settings overlay rendering
     └── helpers.rs    — Shared style/formatting utilities
 ```

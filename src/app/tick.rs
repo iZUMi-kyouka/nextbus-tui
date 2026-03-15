@@ -26,7 +26,7 @@ impl App {
             let stale = self
                 .cache
                 .get(&name)
-                .map(|c| c.fetched_at.elapsed() >= Duration::from_secs(super::AUTO_REFRESH_SECS))
+                .map(|c| c.fetched_at.elapsed() >= Duration::from_secs(self.auto_refresh_secs))
                 .unwrap_or(false);
             if stale && !self.loading.contains(&name) {
                 self.start_fetch(name);
@@ -47,6 +47,8 @@ mod tests {
         let (tx, _rx) = mpsc::channel();
         let mut app = App::new(tx);
         app.favourites.clear();
+        app.fav_view = false;
+        app.auto_refresh_secs = 30; // reset to known value; config may differ
         app.rebuild_list();
         app
     }

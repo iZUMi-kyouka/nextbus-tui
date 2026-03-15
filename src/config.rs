@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use std::path::PathBuf;
 
 use crate::models::Config;
@@ -10,15 +9,12 @@ pub fn load() -> Config {
         .unwrap_or_default()
 }
 
-pub fn save(favourites: &HashSet<String>) {
+pub fn save(config: &Config) {
     let Some(path) = config_path() else { return };
     if let Some(parent) = path.parent() {
         let _ = std::fs::create_dir_all(parent);
     }
-    let mut favs: Vec<String> = favourites.iter().cloned().collect();
-    favs.sort();
-    let config = Config { favourites: favs };
-    if let Ok(json) = serde_json::to_string_pretty(&config) {
+    if let Ok(json) = serde_json::to_string_pretty(config) {
         let _ = std::fs::write(path, json);
     }
 }

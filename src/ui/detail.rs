@@ -6,7 +6,7 @@ use ratatui::{
     Frame,
 };
 
-use crate::app::{App, AUTO_REFRESH_SECS};
+use crate::app::App;
 use crate::models::Shuttle;
 use crate::theme::Palette;
 
@@ -79,7 +79,7 @@ pub(super) fn render_detail(frame: &mut Frame, area: Rect, app: &App, show_plate
             } else if let Some(secs) = app.seconds_until_refresh() {
                 format!(
                     "  Last: {}s ago   Auto-refresh in: {}s / {}s",
-                    elapsed, secs, AUTO_REFRESH_SECS
+                    elapsed, secs, app.auto_refresh_secs
                 )
             } else {
                 format!("  Last fetched: {}s ago", elapsed)

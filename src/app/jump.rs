@@ -45,6 +45,7 @@ mod tests {
         let (tx, _rx) = mpsc::channel();
         let mut app = App::new(tx);
         app.favourites.clear();
+        app.fav_view = false;
         app.rebuild_list();
         app
     }
