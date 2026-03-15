@@ -60,6 +60,10 @@ pub enum Message {
     // ── Mouse ────────────────────────────────────────────────────────────────
     /// Click on an item at visual position `target` in the list.
     ListClick(usize),
+    /// Scroll the list viewport up without moving the selection.
+    ScrollListUp,
+    /// Scroll the list viewport down without moving the selection.
+    ScrollListDown,
 
     // ── Control ──────────────────────────────────────────────────────────────
     RefreshCurrent,

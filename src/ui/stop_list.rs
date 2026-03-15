@@ -11,6 +11,9 @@ use crate::app::App;
 use super::helpers::ellipsis;
 
 pub(super) fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
+    // Track inner height so scroll logic can clamp the selection correctly.
+    app.nav.list_height = area.height.saturating_sub(2); // subtract top+bottom borders
+
     let palette = &app.theme().palette;
     let fav_count = app.fav_count_in_list();
 
