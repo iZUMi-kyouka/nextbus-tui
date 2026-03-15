@@ -2,7 +2,7 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Line, Span, Text},
-    widgets::{Block, Borders, List, ListItem, Paragraph, Wrap},
+    widgets::{Block, Borders, Clear, List, ListItem, Paragraph, Wrap},
     Frame,
 };
 
@@ -23,6 +23,9 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     render_title(frame, root[0]);
     render_panels(frame, root[1], app);
     render_footer(frame, root[2], app);
+    if app.searching {
+        render_search_overlay(frame, app);
+    }
 }
 
 // ── Title bar ─────────────────────────────────────────────────────────────────
@@ -100,11 +103,7 @@ fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
         })
         .collect();
 
-    let title = if app.searching {
-        format!(" Filter: {}_ ", app.search_query)
-    } else {
-        format!(" Bus Stops ({}) ", app.sorted_indices.len())
-    };
+    let title = format!(" Bus Stops ({}) ", app.sorted_indices.len());
 
     let block = Block::default()
         .borders(Borders::ALL)
@@ -272,6 +271,30 @@ fn render_detail(frame: &mut Frame, area: Rect, app: &App, show_plate: bool) {
         Paragraph::new(Text::from(lines)).wrap(Wrap { trim: false }),
         inner,
     );
+}
+
+// ── Search overlay (Spotlight-style) ─────────────────────────────────────────
+
+fn render_search_overlay(frame: &mut Frame, app: &App) {
+    let area = frame.area();
+    let width = (area.width * 50 / 100).max(40).min(area.width.saturating_sub(4));
+    let popup = Rect {
+        x: (area.width - width) / 2,
+        y: area.height / 4,
+        width,
+        height: 3,
+    };
+    frame.render_widget(Clear, popup);
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .title(" 🔍 Search ")
+        .border_style(Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD));
+    let input = Paragraph::new(Line::from(vec![
+        Span::raw(&app.search_query[..]),
+        Span::styled("█", Style::default().fg(Color::Yellow)),
+    ]))
+    .block(block);
+    frame.render_widget(input, popup);
 }
 
 // ── Status / key-hint bar ─────────────────────────────────────────────────────
