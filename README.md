@@ -44,6 +44,27 @@ curl -Lo nextbus-tui https://github.com/iZUMi-kyouka/nextbus-tui/releases/latest
 # Windows — download from the Releases page and run the .exe directly
 ```
 
+### Option C — Run the install wizard (recommended)
+
+The installers fetch the latest GitHub Release asset for your OS/architecture,
+install the binary, and offer double-click launcher setup:
+
+- Linux: choose `~/.local/bin` or `/usr/local/bin`, optional `.desktop` launcher, optional `nnbus` terminal alias
+- macOS: choose `~/.local/bin` or `/usr/local/bin`, optional Finder `.command` launcher, optional `nnbus` terminal alias
+- Windows: choose `Program Files` (system) or per-user install, optional Desktop/Start menu shortcuts, optional `nnbus` terminal alias
+
+```bash
+# Linux / macOS
+bash ./install.sh
+```
+
+```powershell
+# Windows (PowerShell)
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+> Note: `nextbus-tui` is a terminal UI app. Launchers created by the wizard open it in a terminal-compatible context.
+
 ---
 
 ## Features
