@@ -2,6 +2,7 @@ mod api;
 mod app;
 mod config;
 mod i18n;
+mod message;
 mod models;
 mod theme;
 mod ui;
@@ -18,6 +19,9 @@ use crossterm::{
 use ratatui::{Terminal, backend::CrosstermBackend};
 
 use app::App;
+use app::input::key_to_message;
+use app::mouse::mouse_to_message;
+use message::Message;
 use models::AppEvent;
 
 fn main() -> io::Result<()> {
@@ -75,10 +79,16 @@ fn run_loop(
         // Poll for keyboard / mouse events (50 ms timeout keeps the UI responsive).
         if event::poll(Duration::from_millis(50))? {
             match event::read()? {
-                Event::Key(key) => app.handle_key(key),
+                Event::Key(key) => {
+                    if let Some(msg) = key_to_message(key, app) {
+                        app.update(msg);
+                    }
+                }
                 Event::Mouse(mouse) => {
                     let size = terminal.size()?;
-                    app.handle_mouse(mouse, size.width, size.height);
+                    if let Some(msg) = mouse_to_message(mouse, app, size.width, size.height) {
+                        app.update(msg);
+                    }
                 }
                 _ => {}
             }
@@ -86,11 +96,7 @@ fn run_loop(
 
         // Drain all pending background events.
         while let Ok(ev) = rx.try_recv() {
-            match ev {
-                AppEvent::Tick => app.handle_tick(),
-                AppEvent::DataReceived { stop_name, data } => app.handle_data(stop_name, data),
-                AppEvent::FetchError { stop_name, error } => app.handle_error(stop_name, error),
-            }
+            app.update(Message::from(ev));
         }
 
         if app.should_quit {

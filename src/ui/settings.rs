@@ -45,17 +45,18 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
 
     // ── Build all value strings before borrowing them as &str ─────────────────
 
-    let interval_display: String = if app.settings_edit_mode && app.settings_cursor == 0 {
-        let mut args = FluentArgs::new();
-        args.set("value", app.settings_edit_buf.as_str());
-        app.i18n.t_args("settings-interval-editing", &args)
-    } else {
-        let mut args = FluentArgs::new();
-        args.set("seconds", app.auto_refresh_secs as i64);
-        app.i18n.t_args("settings-interval-value", &args)
-    };
+    let interval_display: String =
+        if app.overlay.settings_edit_mode && app.overlay.settings_cursor == 0 {
+            let mut args = FluentArgs::new();
+            args.set("value", app.overlay.settings_edit_buf.as_str());
+            app.i18n.t_args("settings-interval-editing", &args)
+        } else {
+            let mut args = FluentArgs::new();
+            args.set("seconds", app.settings.auto_refresh_secs as i64);
+            app.i18n.t_args("settings-interval-value", &args)
+        };
 
-    let view_display = if app.default_fav_view {
+    let view_display = if app.settings.default_fav_view {
         app.i18n.t("settings-view-favs")
     } else {
         app.i18n.t("settings-view-all")
@@ -67,7 +68,7 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
         app.i18n.t_args("settings-lang-value", &args)
     };
 
-    let theme_mode_display = match app.theme_mode {
+    let theme_mode_display = match app.settings.theme_mode {
         ThemeMode::Dark => app.i18n.t("settings-theme-mode-dark"),
         ThemeMode::Light => app.i18n.t("settings-theme-mode-light"),
         ThemeMode::Auto => app.i18n.t("settings-theme-mode-auto"),
@@ -95,7 +96,7 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
         }
 
         // Only interactive rows (0–2) can be selected by the cursor.
-        let is_selected = *is_interactive && i == app.settings_cursor;
+        let is_selected = *is_interactive && i == app.overlay.settings_cursor;
         let cursor_str = if is_selected { " > " } else { "   " };
 
         let cursor_span = Span::styled(
@@ -151,7 +152,7 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
 
     // ── Hint row ──────────────────────────────────────────────────────────────
 
-    let hint_key = if app.settings_edit_mode {
+    let hint_key = if app.overlay.settings_edit_mode {
         "settings-hint-edit"
     } else {
         "settings-hint-nav"

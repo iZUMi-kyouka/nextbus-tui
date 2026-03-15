@@ -31,8 +31,8 @@ pub(super) fn render_detail(frame: &mut Frame, area: Rect, app: &App, show_plate
 
     let stop_name = stop.name.clone();
     let caption = stop.caption.clone();
-    let is_loading = app.loading.contains(&stop_name);
-    let cached = app.cache.get(&stop_name);
+    let is_loading = app.fetch.loading.contains(&stop_name);
+    let cached = app.fetch.cache.get(&stop_name);
 
     let spinner = if is_loading { " ..." } else { "" };
     let block = Block::default()
@@ -93,7 +93,7 @@ pub(super) fn render_detail(frame: &mut Frame, area: Rect, app: &App, show_plate
                 let mut args = FluentArgs::new();
                 args.set("elapsed", elapsed as i64);
                 args.set("remaining", secs as i64);
-                args.set("total", app.auto_refresh_secs as i64);
+                args.set("total", app.settings.auto_refresh_secs as i64);
                 format!("  {}", app.i18n.t_args("detail-last-refreshed", &args))
             } else {
                 let mut args = FluentArgs::new();
@@ -183,7 +183,7 @@ fn shuttle_row(
     let plate = s.arrival_plate.as_deref().unwrap_or("-");
     let display_name = s.name.strip_prefix("PUB:").unwrap_or(&s.name);
 
-    let name_spans: [Span; 2] = match route_color(&s.name, &app.routes) {
+    let name_spans: [Span; 2] = match route_color(&s.name, &app.domain.routes) {
         Some(color) => [
             Span::styled(
                 format!("{:<5}", display_name),
