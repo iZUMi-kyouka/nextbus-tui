@@ -87,11 +87,11 @@ fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
 
             let star = if is_fav { "\u{2605} " } else { "  " }; // ★ or spaces
             let spin = if is_loading { " ..." } else { "" };
-            // 2 borders + 2 highlight symbol + 2 star + spin length
+            // 2 borders + 2 highlight symbol + 3 position number + 2 star + spin length
             let caption_width = (area.width as usize)
-                .saturating_sub(6 + spin.len());
+                .saturating_sub(9 + spin.len());
             let caption = ellipsis(&stop.caption, caption_width);
-            let label = format!("{}{}{}", star, caption, spin);
+            let label = format!("{:>2} {}{}{}", pos + 1, star, caption, spin);
 
             let style = if is_fav {
                 Style::default().fg(Color::Yellow)
@@ -305,7 +305,12 @@ fn render_search_overlay(frame: &mut Frame, app: &App) {
 // ── Status / key-hint bar ─────────────────────────────────────────────────────
 
 fn render_footer(frame: &mut Frame, area: Rect, app: &App) {
-    let span = if let Some((msg, _)) = &app.status_msg {
+    let span = if !app.jump_buf.is_empty() {
+        Span::styled(
+            format!("  Jump: {}_", app.jump_buf),
+            Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+        )
+    } else if let Some((msg, _)) = &app.status_msg {
         Span::styled(
             format!("  {} ", msg),
             Style::default().fg(Color::Green).add_modifier(Modifier::BOLD),
