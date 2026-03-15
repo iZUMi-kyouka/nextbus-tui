@@ -1,0 +1,16 @@
+# i18n configuration: per-language metadata and font recommendations.
+# The `font` field names the terminal font best suited for that language.
+# HackGen (https://github.com/yuru7/HackGen) is a Hack + GenJyuuGothic hybrid
+# that renders both ASCII and Japanese kana/kanji at correct column widths.
+
+[languages.en]
+name        = "English"
+native_name = "English"
+font        = "Hack"
+font_url    = "https://github.com/source-foundry/Hack"
+
+[languages.ja]
+name        = "Japanese"
+native_name = "日本語"
+font        = "HackGen"
+font_url    = "https://github.com/yuru7/HackGen"
