@@ -40,6 +40,7 @@ search-title   = 🔍 Search
 theme-title    = 🎨 Themes
 settings-title = ⚙ Settings
 
+lang-picker-title = 🌐 Language
 # ── Settings rows ───────────────────────────────────────────────────────────────
 settings-interval-label   = Auto-refresh interval:
 settings-interval-value   = [{ $seconds }s]

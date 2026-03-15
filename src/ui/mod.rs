@@ -1,6 +1,7 @@
 pub(crate) mod detail;
 pub(crate) mod footer;
 pub(crate) mod helpers;
+pub(crate) mod lang_picker;
 pub(crate) mod search;
 pub(crate) mod settings;
 pub(crate) mod stop_list;
@@ -17,6 +18,7 @@ use crate::app::App;
 
 use detail::render_detail;
 use footer::render_footer;
+use lang_picker::render_lang_picker;
 use search::render_search_overlay;
 use settings::render_settings;
 use stop_list::render_list;
@@ -56,6 +58,10 @@ pub fn render(frame: &mut Frame, app: &mut App) {
 
     if app.overlay.showing_settings {
         render_settings(frame, app);
+    }
+
+    if app.overlay.showing_lang_picker {
+        render_lang_picker(frame, app);
     }
 }
 

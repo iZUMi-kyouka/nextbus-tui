@@ -29,16 +29,13 @@ impl App {
                 self.settings.persist(&self.i18n.lang);
             }
             2 => {
-                let next = self.i18n.next_lang().to_owned();
-                self.i18n = crate::i18n::I18n::new(&next);
-                let name = self
-                    .i18n
-                    .map_text_for_web(self.i18n.lang_meta.native_name.as_str());
-                let mut args = FluentArgs::new();
-                args.set("name", name.as_str());
-                let msg = self.i18n.t_args("status-lang-set", &args);
-                self.set_status(&msg);
-                self.settings.persist(&self.i18n.lang);
+                // Open the language picker popup; apply only on Enter.
+                let pos = crate::i18n::LANGUAGES
+                    .iter()
+                    .position(|&l| l == self.i18n.lang)
+                    .unwrap_or(0);
+                self.overlay.lang_picker_cursor = pos;
+                self.overlay.showing_lang_picker = true;
             }
             3 => {
                 self.settings.theme_mode = match self.settings.theme_mode {
@@ -60,6 +57,22 @@ impl App {
             }
             _ => {}
         }
+    }
+
+    /// Called from `update(Message::LangPickerApply)`.
+    pub(super) fn apply_lang_picker(&mut self) {
+        if let Some(&code) = crate::i18n::LANGUAGES.get(self.overlay.lang_picker_cursor) {
+            self.i18n = crate::i18n::I18n::new(code);
+            let name = self
+                .i18n
+                .map_text_for_web(self.i18n.lang_meta.native_name.as_str());
+            let mut args = FluentArgs::new();
+            args.set("name", name.as_str());
+            let msg = self.i18n.t_args("status-lang-set", &args);
+            self.set_status(&msg);
+            self.settings.persist(&self.i18n.lang);
+        }
+        self.overlay.showing_lang_picker = false;
     }
 
     /// Called from `update(Message::SettingsEditCommit)`.
@@ -239,14 +252,19 @@ mod tests {
     }
 
     #[test]
-    fn enter_on_language_row_cycles_language() {
+    fn enter_on_language_row_opens_lang_picker() {
         let mut app = make_app();
         app.overlay.showing_settings = true;
         app.overlay.settings_cursor = 2;
         assert_eq!(app.i18n.lang, "en");
         app.update(Message::SettingsActivateRow);
+        // Language must not change yet — picker is open, waiting for Enter.
+        assert_eq!(app.i18n.lang, "en");
+        assert!(app.overlay.showing_lang_picker);
+        // LangPickerApply should now commit the selection.
+        app.overlay.lang_picker_cursor = 1;
+        app.update(Message::LangPickerApply);
         assert_eq!(app.i18n.lang, crate::i18n::LANGUAGES[1]);
-        app.update(Message::SettingsActivateRow);
-        assert_eq!(app.i18n.lang, crate::i18n::LANGUAGES[2]);
+        assert!(!app.overlay.showing_lang_picker);
     }
 }

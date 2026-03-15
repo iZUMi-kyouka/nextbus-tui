@@ -40,6 +40,7 @@ search-title   = 🔍 Tìm kiếm
 theme-title    = 🎨 Chủ đề
 settings-title = ⚙ Cài đặt
 
+lang-picker-title = 🌐 Ngôn ngữ
 # ── Settings rows ───────────────────────────────────────────────────────────────
 settings-interval-label   = Khoảng thời gian tự động làm mới:
 settings-interval-value   = [{ $seconds } giây]

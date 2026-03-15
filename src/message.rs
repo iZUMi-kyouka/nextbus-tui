@@ -35,6 +35,13 @@ pub enum Message {
     ThemePickerDown,
     ThemePickerApply,
 
+    // ── Language picker ──────────────────────────────────────────────────────
+    OpenLangPicker,
+    CloseLangPicker,
+    LangPickerUp,
+    LangPickerDown,
+    LangPickerApply,
+
     // ── Settings overlay ─────────────────────────────────────────────────────
     OpenSettings,
     CloseSettings,
