@@ -3,6 +3,7 @@ pub(crate) mod fetch;
 pub(crate) mod input;
 pub(crate) mod jump;
 pub(crate) mod list;
+pub(crate) mod mouse;
 pub(crate) mod tick;
 
 use std::collections::{HashMap, HashSet};
