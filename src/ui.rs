@@ -217,16 +217,17 @@ fn render_detail(frame: &mut Frame, area: Rect, app: &App, show_plate: bool) {
                     let next_text = fmt_arrival(&s.arrival_time);
                     let following_text = fmt_arrival(&s.next_arrival_time);
                     let plate = s.arrival_plate.as_deref().unwrap_or("-");
+                    let display_name = s.name.strip_prefix("PUB:").unwrap_or(&s.name);
 
                     let name_spans: [Span; 2] = match route_color(&s.name, &app.routes) {
                         Some(color) => [
                             Span::styled(
-                                format!("{:<5}", s.name),
+                                format!("{:<5}", display_name),
                                 Style::default().bg(color).fg(Color::White).add_modifier(Modifier::BOLD),
                             ),
                             Span::raw("     "),
                         ],
-                        None => [Span::raw(format!("{:<10}", s.name)), Span::raw("")],
+                        None => [Span::raw(format!("{:<10}", display_name)), Span::raw("")],
                     };
 
                     let mut row = vec![
