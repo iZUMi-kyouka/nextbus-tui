@@ -180,17 +180,21 @@ fn render_detail(frame: &mut Frame, area: Rect, app: &App, show_plate: bool) {
                 )));
             } else {
                 // ── Column header ──
+                // Compact widths (narrow): Next = 9 ("Arriving"+1), Following = 10 ("Following"+1)
+                // Full widths (wide):      Next = 12, Following = 12, Plate = 12
+                let (next_w, foll_w) = if show_plate { (12, 12) } else { (9, 10) };
+                let sep_len = 10 + next_w + foll_w + if show_plate { 12 } else { 0 };
                 let mut header = vec![
                     col_header("Bus", 10),
-                    col_header("Next", 12),
-                    col_header("Following", 12),
+                    col_header("Next", next_w),
+                    col_header("Following", foll_w),
                 ];
                 if show_plate {
                     header.push(col_header("Plate", 12));
                 }
                 lines.push(Line::from(header));
                 lines.push(Line::from(Span::styled(
-                    "\u{2500}".repeat(if show_plate { 46 } else { 34 }),
+                    "\u{2500}".repeat(sep_len),
                     Style::default().fg(Color::DarkGray),
                 )));
 
@@ -229,11 +233,11 @@ fn render_detail(frame: &mut Frame, area: Rect, app: &App, show_plate: bool) {
                         name_spans[0].clone(),
                         name_spans[1].clone(),
                         Span::styled(
-                            format!("{:<12}", next_text),
+                            format!("{:<next_w$}", next_text),
                             arrival_style(&s.arrival_time),
                         ),
                         Span::styled(
-                            format!("{:<12}", following_text),
+                            format!("{:<foll_w$}", following_text),
                             arrival_style(&s.next_arrival_time),
                         ),
                     ];
