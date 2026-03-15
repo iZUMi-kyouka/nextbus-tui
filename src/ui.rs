@@ -307,12 +307,12 @@ fn render_footer(frame: &mut Frame, area: Rect, app: &App) {
         )
     } else if app.searching {
         Span::styled(
-            "  [Type] filter   [Up/Down] navigate   [Enter] confirm   [Esc] cancel",
+            "  Type to filter   [↑↓] Navigate   [↵] Confirm   [Esc] Cancel",
             Style::default().fg(Color::Yellow),
         )
     } else {
         Span::styled(
-            "  [j/k] Move   [f] Favourite   [r] Refresh   [/] Search   [g/G] Top/Bot   [q] Quit",
+            "  [↑↓/j/k] Move   [f] Favourite   [r] Refresh   [/] Search   [g/G] ⇱/⇲   [q] Quit",
             Style::default().fg(Color::DarkGray),
         )
     };
