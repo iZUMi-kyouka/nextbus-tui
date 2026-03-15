@@ -1,3 +1,4 @@
+use fluent::FluentArgs;
 use ratatui::{
     Frame,
     layout::Rect,
@@ -7,18 +8,22 @@ use ratatui::{
 };
 
 use crate::app::App;
+use crate::i18n::I18n;
 use crate::models::Shuttle;
 use crate::theme::Palette;
 
-use super::helpers::{arrival_style, col_header, fmt_arrival, route_color};
+use super::helpers::{arrival_style, col_header, fmt_arrival, pad_right, route_color};
 
 pub(super) fn render_detail(frame: &mut Frame, area: Rect, app: &App, show_plate: bool) {
     let palette = &app.theme().palette;
 
     let Some(stop) = app.current_stop() else {
         frame.render_widget(
-            Paragraph::new("No stops to display.")
-                .block(Block::default().borders(Borders::ALL).title(" Details ")),
+            Paragraph::new(app.i18n.t("detail-no-stops")).block(
+                Block::default()
+                    .borders(Borders::ALL)
+                    .title(format!(" {} ", app.i18n.t("detail-title"))),
+            ),
             area,
         );
         return;
@@ -43,20 +48,22 @@ pub(super) fn render_detail(frame: &mut Frame, area: Rect, app: &App, show_plate
     match cached {
         None if is_loading => {
             lines.push(Line::from(Span::styled(
-                "  Loading...",
+                format!("  {}", app.i18n.t("detail-loading")),
                 Style::default().fg(palette.highlight),
             )));
         }
         None => {
             lines.push(Line::from(Span::styled(
-                "  No data yet.  Press [r] to fetch.",
+                format!("  {}", app.i18n.t("detail-no-data")),
                 Style::default().fg(palette.dim),
             )));
         }
         Some(cached) => {
             if let Some(err) = &cached.error {
+                let mut args = FluentArgs::new();
+                args.set("message", err.as_str());
                 lines.push(Line::from(Span::styled(
-                    format!("  ! {}", err),
+                    format!("  {}", app.i18n.t_args("detail-error", &args)),
                     Style::default().fg(palette.error),
                 )));
                 lines.push(Line::from(""));
@@ -64,7 +71,7 @@ pub(super) fn render_detail(frame: &mut Frame, area: Rect, app: &App, show_plate
 
             if cached.result.shuttles.is_empty() {
                 lines.push(Line::from(Span::styled(
-                    "  No buses currently in service.",
+                    format!("  {}", app.i18n.t("detail-no-buses")),
                     Style::default().fg(palette.dim),
                 )));
             } else {
@@ -81,14 +88,17 @@ pub(super) fn render_detail(frame: &mut Frame, area: Rect, app: &App, show_plate
             lines.push(Line::from(""));
             let elapsed = cached.fetched_at.elapsed().as_secs();
             let footer_text = if is_loading {
-                "  Refreshing...".to_string()
+                format!("  {}", app.i18n.t("detail-refreshing"))
             } else if let Some(secs) = app.seconds_until_refresh() {
-                format!(
-                    "  Last: {}s ago   Auto-refresh in: {}s / {}s",
-                    elapsed, secs, app.auto_refresh_secs
-                )
+                let mut args = FluentArgs::new();
+                args.set("elapsed", elapsed as i64);
+                args.set("remaining", secs as i64);
+                args.set("total", app.auto_refresh_secs as i64);
+                format!("  {}", app.i18n.t_args("detail-last-refreshed", &args))
             } else {
-                format!("  Last fetched: {}s ago", elapsed)
+                let mut args = FluentArgs::new();
+                args.set("elapsed", elapsed as i64);
+                format!("  {}", app.i18n.t_args("detail-last-fetched", &args))
             };
             lines.push(Line::from(Span::styled(
                 footer_text,
@@ -122,12 +132,12 @@ fn render_shuttle_table(
 
     // Column header row.
     let mut header = vec![
-        col_header("Bus", 10),
-        col_header("Next", next_w),
-        col_header("Following", foll_w),
+        col_header(&app.i18n.t("col-bus"), 10),
+        col_header(&app.i18n.t("col-next"), next_w),
+        col_header(&app.i18n.t("col-following"), foll_w),
     ];
     if show_plate {
-        header.push(col_header("Plate", 12));
+        header.push(col_header(&app.i18n.t("col-plate"), 12));
     }
     lines.push(Line::from(header));
     lines.push(Line::from(Span::styled(
@@ -167,8 +177,9 @@ fn shuttle_row(
     foll_w: usize,
     palette: &Palette,
 ) -> Line<'static> {
-    let next_text = fmt_arrival(&s.arrival_time);
-    let following_text = fmt_arrival(&s.next_arrival_time);
+    let i18n: &I18n = &app.i18n;
+    let next_text = fmt_arrival(&s.arrival_time, i18n);
+    let following_text = fmt_arrival(&s.next_arrival_time, i18n);
     let plate = s.arrival_plate.as_deref().unwrap_or("-");
     let display_name = s.name.strip_prefix("PUB:").unwrap_or(&s.name);
 
@@ -190,11 +201,11 @@ fn shuttle_row(
         name_spans[0].clone(),
         name_spans[1].clone(),
         Span::styled(
-            format!("{:<next_w$}", next_text),
+            pad_right(&next_text, next_w),
             arrival_style(&s.arrival_time, palette),
         ),
         Span::styled(
-            format!("{:<foll_w$}", following_text),
+            pad_right(&following_text, foll_w),
             arrival_style(&s.next_arrival_time, palette),
         ),
     ];

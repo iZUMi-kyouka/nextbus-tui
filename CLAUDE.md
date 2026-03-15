@@ -93,9 +93,21 @@ Background threads (one per in-flight fetch) call `api::fetch_shuttle_service()`
 
 ### Assets
 
-- `assets/stops.json` — static list of all NUS bus stops (embedded at compile time).
-- `assets/routes.json` — route colour data (embedded; used by `ui/helpers.rs` for bus name badge colours).
+- `assets/stops.toml` — static list of all NUS bus stops (embedded at compile time).
+- `assets/routes.toml` — route colour data (embedded; used by `ui/helpers.rs` for bus name badge colours).
 - `assets/themes/*.toml` — one TOML file per colour scheme, embedded via `include_str!` in `theme.rs`.
+- `assets/i18n/config.toml` — per-language metadata (name, native name, font, font URL).
+- `assets/i18n/{en,ja}/main.ftl` — Fluent translation files for English and Japanese.
+
+## End-of-task summary
+
+After completing any task or group of related changes, always output a concise summary. Use whichever format best fits the scope:
+
+- **Single change** → one sentence.
+- **Multiple files touched** → a markdown table with columns `File | Change` (one row per file, action verb in past tense).
+- **Feature / multi-step task** → a short bullet list grouped by concern (e.g. "Files added", "Files modified", "Tests").
+
+Include the final test count if tests were run (e.g. `121 tests, all passing`). Keep the summary short enough to scan in under 10 seconds.
 
 ## Keeping README.md up to date
 

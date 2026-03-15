@@ -1,6 +1,6 @@
 # nextbus-tui
 
-A terminal UI for NUS shuttle bus arrival times, built with Rust and [ratatui](https://github.com/ratatui-org/ratatui).
+A terminal UI (TUI) desktop client for NUS internal shuttle bus (ISB) arrival times, built with Rust and [ratatui](https://github.com/ratatui-org/ratatui).
 
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-blue)
 ![Language](https://img.shields.io/badge/language-Rust-orange)
@@ -162,3 +162,11 @@ src/
     ├── settings.rs   — Settings overlay rendering
     └── helpers.rs    — Shared style/formatting utilities
 ```
+
+---
+
+## Disclaimer
+
+This application is an unofficial client and is **not** endorsed by, affiliated with, or supported by the National University of Singapore (NUS).
+
+The software is provided "as is", without warranty of any kind. Users assume full responsibility for any damage or liability arising from the use of this software.

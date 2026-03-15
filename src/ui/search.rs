@@ -25,7 +25,7 @@ pub(super) fn render_search_overlay(frame: &mut Frame, app: &App) {
 
     let block = Block::default()
         .borders(Borders::ALL)
-        .title(" \u{1F50D} Search ")
+        .title(format!(" {} ", app.i18n.t("search-title")))
         .border_style(
             Style::default()
                 .fg(p.highlight)

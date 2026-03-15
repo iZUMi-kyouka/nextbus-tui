@@ -1,25 +1,47 @@
+use fluent::FluentArgs;
 use ratatui::{
     style::{Modifier, Style},
     text::Span,
 };
+use unicode_width::UnicodeWidthChar;
+use unicode_width::UnicodeWidthStr;
 
+use crate::i18n::I18n;
 use crate::models::Route;
 use crate::theme::Palette;
 
+/// Pad `s` to exactly `display_width` terminal columns using spaces.
+/// Unlike `format!("{:<width$}", s)`, this counts Unicode display width
+/// rather than codepoint count, so CJK double-width characters are handled
+/// correctly.
+pub(super) fn pad_right(s: &str, display_width: usize) -> String {
+    let w = s.width();
+    if w >= display_width {
+        s.to_string()
+    } else {
+        format!("{}{}", s, " ".repeat(display_width - w))
+    }
+}
+
 pub(super) fn col_header(label: &str, width: usize) -> Span<'static> {
     Span::styled(
-        format!("{:<width$}", label),
+        pad_right(label, width),
         Style::default().add_modifier(Modifier::BOLD | Modifier::UNDERLINED),
     )
 }
 
-pub(super) fn fmt_arrival(t: &str) -> String {
+/// Format an arrival time string for display, translating special values.
+pub(super) fn fmt_arrival(t: &str, i18n: &I18n) -> String {
     match t {
-        "Arr" => "Arriving".into(),
+        "Arr" => i18n.t("arrival-arriving"),
         "-" | "N.A." | "" => "-".into(),
         t => t
             .parse::<u32>()
-            .map(|n| format!("{n} min"))
+            .map(|n| {
+                let mut args = FluentArgs::new();
+                args.set("minutes", n as i64);
+                i18n.t_args("arrival-minutes", &args)
+            })
             .unwrap_or_else(|_| t.into()),
     }
 }
@@ -55,25 +77,40 @@ pub(super) fn route_color(name: &str, routes: &[Route]) -> Option<ratatui::style
     Some(Color::Rgb(r, g, b))
 }
 
-pub(super) fn ellipsis(s: &str, max_width: usize) -> String {
-    if s.chars().count() <= max_width {
-        s.to_string()
-    } else if max_width <= 1 {
-        "\u{2026}".to_string()
-    } else {
-        format!(
-            "{}\u{2026}",
-            s.chars().take(max_width - 1).collect::<String>()
-        )
+/// Truncate `s` to at most `max_cols` terminal columns, appending `…` if cut.
+/// Uses Unicode display width, so CJK double-width characters count as 2.
+pub(super) fn ellipsis(s: &str, max_cols: usize) -> String {
+    if s.width() <= max_cols {
+        return s.to_string();
     }
+    if max_cols <= 1 {
+        return "\u{2026}".to_string();
+    }
+    let target = max_cols - 1; // reserve 1 col for '…'
+    let mut w = 0usize;
+    let mut result = String::new();
+    for c in s.chars() {
+        let cw = c.width().unwrap_or(0);
+        if w + cw > target {
+            break;
+        }
+        result.push(c);
+        w += cw;
+    }
+    format!("{}\u{2026}", result)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::i18n::I18n;
     use crate::models::Route;
     use crate::theme::Palette;
     use ratatui::style::{Color, Modifier};
+
+    fn en() -> I18n {
+        I18n::new("en")
+    }
 
     fn test_palette() -> Palette {
         Palette {
@@ -108,32 +145,44 @@ mod tests {
 
     #[test]
     fn fmt_arrival_arr() {
-        assert_eq!(fmt_arrival("Arr"), "Arriving");
+        assert_eq!(fmt_arrival("Arr", &en()), "Arriving");
     }
 
     #[test]
     fn fmt_arrival_dash() {
-        assert_eq!(fmt_arrival("-"), "-");
+        assert_eq!(fmt_arrival("-", &en()), "-");
     }
 
     #[test]
     fn fmt_arrival_na() {
-        assert_eq!(fmt_arrival("N.A."), "-");
+        assert_eq!(fmt_arrival("N.A.", &en()), "-");
     }
 
     #[test]
     fn fmt_arrival_empty() {
-        assert_eq!(fmt_arrival(""), "-");
+        assert_eq!(fmt_arrival("", &en()), "-");
     }
 
     #[test]
     fn fmt_arrival_numeric() {
-        assert_eq!(fmt_arrival("5"), "5 min");
+        assert_eq!(fmt_arrival("5", &en()), "5 min");
     }
 
     #[test]
     fn fmt_arrival_unknown_string() {
-        assert_eq!(fmt_arrival("soon"), "soon");
+        assert_eq!(fmt_arrival("soon", &en()), "soon");
+    }
+
+    #[test]
+    fn fmt_arrival_japanese_arr() {
+        let ja = I18n::new("ja");
+        assert_eq!(fmt_arrival("Arr", &ja), "まもなく");
+    }
+
+    #[test]
+    fn fmt_arrival_japanese_minutes() {
+        let ja = I18n::new("ja");
+        assert_eq!(fmt_arrival("5", &ja), "5分");
     }
 
     // ── ellipsis ───────────────────────────────────────────────────────────────
@@ -166,6 +215,38 @@ mod tests {
     #[test]
     fn ellipsis_empty_input() {
         assert_eq!(ellipsis("", 5), "");
+    }
+
+    #[test]
+    fn ellipsis_cjk_double_width() {
+        // Each kanji = 2 display cols; "日本語" = 6 cols.
+        // max_cols=5: target=4, "日"(2)+"本"(2)=4 fits, "語" would exceed → "日本…"
+        assert_eq!(ellipsis("日本語", 5), "日本\u{2026}");
+    }
+
+    #[test]
+    fn ellipsis_cjk_tight_boundary() {
+        // max_cols=4: target=3; "日"(2)≤3 fits, "日本"(4)>3 → only "日" fits → "日…"
+        assert_eq!(ellipsis("日本語", 4), "日\u{2026}");
+    }
+
+    // ── pad_right ──────────────────────────────────────────────────────────────
+
+    #[test]
+    fn pad_right_ascii() {
+        assert_eq!(pad_right("Bus", 10), "Bus       ");
+    }
+
+    #[test]
+    fn pad_right_cjk() {
+        // "バス" = 4 display cols → pad to 10 → 6 spaces appended
+        let result = pad_right("バス", 10);
+        assert_eq!(result.width(), 10);
+    }
+
+    #[test]
+    fn pad_right_already_wide() {
+        assert_eq!(pad_right("hello", 3), "hello");
     }
 
     // ── route_color ────────────────────────────────────────────────────────────
