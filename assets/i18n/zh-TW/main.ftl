@@ -1,0 +1,63 @@
+# ── Title bar ──────────────────────────────────────────────────────────────────
+title-app-name = NUS NextBus TUI
+title-subtitle = NUS 內部接駁車服務
+
+# ── Stop list panel ────────────────────────────────────────────────────────────
+panel-bus-stops = 公車站 ({ $count })
+panel-favourites = ★ 最愛 ({ $count })
+
+# ── Detail panel ───────────────────────────────────────────────────────────────
+detail-title       = 詳細資訊
+detail-no-stops    = 無站點可顯示。
+detail-loading     = 載入中...
+detail-no-data     = 尚無資料。按 [r] 重新整理。
+detail-no-buses    = 目前無公車服務。
+detail-refreshing  = 重新整理中...
+detail-last-refreshed = 上次: { $elapsed }秒前   自動重新整理於: { $remaining }秒 / { $total }秒
+detail-last-fetched   = 上次擷取: { $elapsed }秒前
+detail-error          = ! { $message }
+
+# ── Table column headers ────────────────────────────────────────────────────────
+col-bus       = 公車
+col-next      = 下一班
+col-following = 再下一班
+col-plate     = 車牌
+
+# ── Arrival time values ─────────────────────────────────────────────────────────
+arrival-arriving = 即將抵達
+arrival-minutes  = { $minutes } 分鐘
+
+# ── Footer hints ────────────────────────────────────────────────────────────────
+footer-normal        = [↑↓/j/k] 移動   [f] 加入最愛   [r] 重新整理   [/] 搜尋   [s] 設定   [q] 離開
+footer-jump          = 跳至: { $digits }_
+footer-search        = 輸入以篩選   [↑↓] 導覽   [↵] 確認   [Esc] 取消
+footer-settings-nav  = [↑↓/j/k] 導覽   [↵/Space] 編輯/切換   [Esc/s] 關閉
+footer-settings-edit = [0-9] 輸入   [⌫] 刪除   [↵] 確認   [Esc] 取消
+footer-theme-picker  = [↑↓/j/k] 導覽   [↵] 套用   [Esc] 關閉
+
+# ── Overlay titles ──────────────────────────────────────────────────────────────
+search-title   = 🔍 搜尋
+theme-title    = 🎨 主題
+settings-title = ⚙ 設定
+
+# ── Settings rows ───────────────────────────────────────────────────────────────
+settings-interval-label   = 自動重新整理間隔:
+settings-interval-value   = [{ $seconds }秒]
+settings-interval-editing = [{ $value }█]
+settings-view-label       = 預設檢視:
+settings-view-all         = [所有站點]
+settings-view-favs        = [最愛]
+settings-lang-label       = 語言:
+settings-lang-value       = [{ $name }]
+settings-hint-nav         = [↑↓/j/k] 導覽   [↵/Space] 編輯/切換   [Esc/s] 關閉
+settings-hint-edit        = [0-9] 輸入   [⌫] 刪除   [↵] 確認   [Esc] 取消
+
+# ── Status messages ─────────────────────────────────────────────────────────────
+status-fav-added      = 已新增至最愛 ★
+status-fav-removed    = 已從最愛移除
+status-refreshing     = 重新整理中...
+status-interval-set   = 自動重新整理設定為 { $seconds }秒
+status-view-set       = 預設檢視設定為: { $view }
+status-view-all       = 所有站點
+status-view-favs      = 最愛
+status-lang-set       = 語言: { $name }
