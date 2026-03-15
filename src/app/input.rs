@@ -79,6 +79,12 @@ impl App {
                 self.cancel_jump();
                 self.toggle_favourite();
             }
+            (KeyCode::Char('F'), _) => {
+                self.cancel_jump();
+                self.fav_view = !self.fav_view;
+                self.rebuild_list();
+                self.ensure_data();
+            }
             (KeyCode::Char('r'), _) => {
                 self.cancel_jump();
                 self.refresh_current();
