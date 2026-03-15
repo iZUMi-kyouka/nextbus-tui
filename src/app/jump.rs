@@ -65,9 +65,16 @@ mod tests {
         app.search_query = "COM".to_string();
         app.rebuild_list();
         let count = app.sorted_indices.len();
-        assert!(count < 10, "COM filter gives {} results, expected < 10", count);
+        assert!(
+            count < 10,
+            "COM filter gives {} results, expected < 10",
+            count
+        );
         app.push_jump_digit('1');
-        assert!(app.jump_buf.is_empty(), "should commit immediately in small list");
+        assert!(
+            app.jump_buf.is_empty(),
+            "should commit immediately in small list"
+        );
         assert_eq!(app.selected, 0);
     }
 

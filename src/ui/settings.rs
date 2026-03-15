@@ -1,9 +1,9 @@
 use ratatui::{
+    Frame,
     layout::Rect,
     style::{Modifier, Style},
     text::{Line, Span},
     widgets::{Block, Borders, Clear, Paragraph},
-    Frame,
 };
 
 use crate::app::App;
@@ -43,7 +43,11 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
         format!("[{}s]", app.auto_refresh_secs)
     };
 
-    let view_display: &str = if app.default_fav_view { "[Favourites]" } else { "[All stops]" };
+    let view_display: &str = if app.default_fav_view {
+        "[Favourites]"
+    } else {
+        "[All stops]"
+    };
 
     // (label, value, is_stub)
     let rows: &[(&str, &str, bool)] = &[
@@ -66,7 +70,9 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
         let cursor_span = Span::styled(
             cursor_str,
             if is_selected {
-                Style::default().fg(palette.highlight).add_modifier(Modifier::BOLD)
+                Style::default()
+                    .fg(palette.highlight)
+                    .add_modifier(Modifier::BOLD)
             } else {
                 Style::default()
             },
@@ -81,7 +87,9 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
         let value_style = if *is_stub {
             Style::default().fg(palette.dim)
         } else if is_selected {
-            Style::default().fg(palette.highlight).add_modifier(Modifier::BOLD)
+            Style::default()
+                .fg(palette.highlight)
+                .add_modifier(Modifier::BOLD)
         } else {
             Style::default()
         };
@@ -93,7 +101,10 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
         ];
 
         if *is_stub {
-            spans.push(Span::styled("  (coming soon)", Style::default().fg(palette.dim)));
+            spans.push(Span::styled(
+                "  (coming soon)",
+                Style::default().fg(palette.dim),
+            ));
         }
 
         let row_bg = if is_selected {
@@ -104,7 +115,12 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
 
         frame.render_widget(
             Paragraph::new(Line::from(spans)).style(row_bg),
-            Rect { x: inner.x, y: row_y, width: inner.width, height: 1 },
+            Rect {
+                x: inner.x,
+                y: row_y,
+                width: inner.width,
+                height: 1,
+            },
         );
     }
 
@@ -122,6 +138,11 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
             hint_text,
             Style::default().fg(palette.dim),
         ))),
-        Rect { x: inner.x, y: hint_y, width: inner.width, height: 1 },
+        Rect {
+            x: inner.x,
+            y: hint_y,
+            width: inner.width,
+            height: 1,
+        },
     );
 }

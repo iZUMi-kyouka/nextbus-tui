@@ -12,9 +12,9 @@ use std::time::Duration;
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event},
     execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
-use ratatui::{backend::CrosstermBackend, Terminal};
+use ratatui::{Terminal, backend::CrosstermBackend};
 
 use app::App;
 use models::AppEvent;
@@ -27,10 +27,12 @@ fn main() -> io::Result<()> {
 
     // Background tick thread — drives auto-refresh countdown and status expiry.
     let tick_tx = tx.clone();
-    std::thread::spawn(move || loop {
-        std::thread::sleep(Duration::from_millis(500));
-        if tick_tx.send(AppEvent::Tick).is_err() {
-            break;
+    std::thread::spawn(move || {
+        loop {
+            std::thread::sleep(Duration::from_millis(500));
+            if tick_tx.send(AppEvent::Tick).is_err() {
+                break;
+            }
         }
     });
 

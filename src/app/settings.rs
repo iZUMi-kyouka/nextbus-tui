@@ -47,7 +47,11 @@ impl App {
                 // Toggle the default view and persist immediately.
                 self.default_fav_view = !self.default_fav_view;
                 crate::config::save(&self.config_snapshot());
-                let label = if self.default_fav_view { "Favourites" } else { "All stops" };
+                let label = if self.default_fav_view {
+                    "Favourites"
+                } else {
+                    "All stops"
+                };
                 self.set_status(&format!("Default view set to: {label}"));
             }
             // Row 2 (Language) is a stub — no action.

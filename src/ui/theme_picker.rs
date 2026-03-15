@@ -1,9 +1,9 @@
 use ratatui::{
+    Frame,
     layout::Rect,
     style::{Modifier, Style},
     text::{Line, Span},
     widgets::{Block, Borders, Clear, Paragraph},
-    Frame,
 };
 
 use crate::app::App;
@@ -85,10 +85,7 @@ pub(super) fn render_theme_picker(frame: &mut Frame, app: &App) {
             width: inner.width,
             height: 1,
         };
-        frame.render_widget(
-            Paragraph::new(Line::from(spans)).style(row_style),
-            row_area,
-        );
+        frame.render_widget(Paragraph::new(Line::from(spans)).style(row_style), row_area);
     }
 
     // Hint row at the bottom of the inner area.

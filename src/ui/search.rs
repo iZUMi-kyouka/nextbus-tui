@@ -1,9 +1,9 @@
 use ratatui::{
+    Frame,
     layout::Rect,
     style::{Modifier, Style},
     text::{Line, Span},
     widgets::{Block, Borders, Clear, Paragraph},
-    Frame,
 };
 
 use crate::app::App;
@@ -11,7 +11,9 @@ use crate::app::App;
 pub(super) fn render_search_overlay(frame: &mut Frame, app: &App) {
     let p = &app.theme().palette;
     let area = frame.area();
-    let width = (area.width * 50 / 100).max(40).min(area.width.saturating_sub(4));
+    let width = (area.width * 50 / 100)
+        .max(40)
+        .min(area.width.saturating_sub(4));
     let popup = Rect {
         x: (area.width - width) / 2,
         y: area.height / 4,

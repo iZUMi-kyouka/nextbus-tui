@@ -15,7 +15,11 @@ impl App {
 
         // Commit a pending single-digit jump after 1 s with no second digit.
         if !self.jump_buf.is_empty() {
-            if self.jump_at.map(|t| t.elapsed() >= Duration::from_secs(1)).unwrap_or(false) {
+            if self
+                .jump_at
+                .map(|t| t.elapsed() >= Duration::from_secs(1))
+                .unwrap_or(false)
+            {
                 self.commit_jump();
             }
         }
@@ -37,9 +41,9 @@ impl App {
 
 #[cfg(test)]
 mod tests {
+    use super::App;
     use crate::app::CachedData;
     use crate::models::ShuttleServiceResult;
-    use super::App;
     use std::sync::mpsc;
     use std::time::{Duration, Instant};
 
@@ -54,7 +58,9 @@ mod tests {
     }
 
     fn old_instant(secs: u64) -> Instant {
-        Instant::now().checked_sub(Duration::from_secs(secs)).unwrap_or_else(Instant::now)
+        Instant::now()
+            .checked_sub(Duration::from_secs(secs))
+            .unwrap_or_else(Instant::now)
     }
 
     #[test]
@@ -97,34 +103,43 @@ mod tests {
     fn tick_starts_refresh_for_stale_stop() {
         let mut app = make_app();
         let stop = app.current_stop().unwrap().name.clone();
-        app.cache.insert(stop.clone(), CachedData {
-            result: ShuttleServiceResult {
-                name: Some(stop.clone()),
-                caption: None,
-                shuttles: vec![],
-                timestamp: None,
+        app.cache.insert(
+            stop.clone(),
+            CachedData {
+                result: ShuttleServiceResult {
+                    name: Some(stop.clone()),
+                    caption: None,
+                    shuttles: vec![],
+                    timestamp: None,
+                },
+                fetched_at: old_instant(31),
+                error: None,
             },
-            fetched_at: old_instant(31),
-            error: None,
-        });
+        );
         app.handle_tick();
-        assert!(app.loading.contains(&stop), "stale cache should trigger a refresh fetch");
+        assert!(
+            app.loading.contains(&stop),
+            "stale cache should trigger a refresh fetch"
+        );
     }
 
     #[test]
     fn tick_does_not_refresh_fresh_stop() {
         let mut app = make_app();
         let stop = app.current_stop().unwrap().name.clone();
-        app.cache.insert(stop.clone(), CachedData {
-            result: ShuttleServiceResult {
-                name: Some(stop.clone()),
-                caption: None,
-                shuttles: vec![],
-                timestamp: None,
+        app.cache.insert(
+            stop.clone(),
+            CachedData {
+                result: ShuttleServiceResult {
+                    name: Some(stop.clone()),
+                    caption: None,
+                    shuttles: vec![],
+                    timestamp: None,
+                },
+                fetched_at: Instant::now(),
+                error: None,
             },
-            fetched_at: Instant::now(),
-            error: None,
-        });
+        );
         app.handle_tick();
         assert!(!app.loading.contains(&stop));
     }

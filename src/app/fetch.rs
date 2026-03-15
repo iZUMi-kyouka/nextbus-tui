@@ -96,7 +96,12 @@ mod tests {
     }
 
     fn empty_result(name: &str) -> ShuttleServiceResult {
-        ShuttleServiceResult { name: Some(name.to_string()), caption: None, shuttles: vec![], timestamp: None }
+        ShuttleServiceResult {
+            name: Some(name.to_string()),
+            caption: None,
+            shuttles: vec![],
+            timestamp: None,
+        }
     }
 
     #[test]
@@ -142,11 +147,14 @@ mod tests {
     fn handle_error_with_cache_keeps_data_updates_error() {
         let mut app = make_app();
         let stop = app.current_stop().unwrap().name.clone();
-        app.cache.insert(stop.clone(), CachedData {
-            result: empty_result(&stop),
-            fetched_at: Instant::now(),
-            error: None,
-        });
+        app.cache.insert(
+            stop.clone(),
+            CachedData {
+                result: empty_result(&stop),
+                fetched_at: Instant::now(),
+                error: None,
+            },
+        );
         app.loading.insert(stop.clone());
         app.handle_error(stop.clone(), "network error".to_string());
         let cached = app.cache.get(&stop).unwrap();
@@ -166,11 +174,14 @@ mod tests {
     fn ensure_data_skips_if_cached() {
         let mut app = make_app();
         let stop = app.current_stop().unwrap().name.clone();
-        app.cache.insert(stop.clone(), CachedData {
-            result: empty_result(&stop),
-            fetched_at: Instant::now(),
-            error: None,
-        });
+        app.cache.insert(
+            stop.clone(),
+            CachedData {
+                result: empty_result(&stop),
+                fetched_at: Instant::now(),
+                error: None,
+            },
+        );
         app.ensure_data();
         assert!(!app.loading.contains(&stop));
     }

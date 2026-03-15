@@ -61,7 +61,10 @@ pub(super) fn ellipsis(s: &str, max_width: usize) -> String {
     } else if max_width <= 1 {
         "\u{2026}".to_string()
     } else {
-        format!("{}\u{2026}", s.chars().take(max_width - 1).collect::<String>())
+        format!(
+            "{}\u{2026}",
+            s.chars().take(max_width - 1).collect::<String>()
+        )
     }
 }
 
@@ -83,12 +86,22 @@ mod tests {
             error: Color::Red,
             dim: Color::DarkGray,
             jump: Color::Cyan,
-            swatch: [Color::Red, Color::Green, Color::Yellow, Color::Blue, Color::Magenta],
+            swatch: [
+                Color::Red,
+                Color::Green,
+                Color::Yellow,
+                Color::Blue,
+                Color::Magenta,
+            ],
         }
     }
 
     fn make_route(name: &str, color: &str) -> Route {
-        Route { name: name.to_string(), color: color.to_string(), stops: vec![] }
+        Route {
+            name: name.to_string(),
+            color: color.to_string(),
+            stops: vec![],
+        }
     }
 
     // ── fmt_arrival ────────────────────────────────────────────────────────────
@@ -160,7 +173,10 @@ mod tests {
     #[test]
     fn route_color_found() {
         let routes = vec![make_route("D1", "#fe0000")];
-        assert_eq!(route_color("D1", &routes), Some(Color::Rgb(0xfe, 0x00, 0x00)));
+        assert_eq!(
+            route_color("D1", &routes),
+            Some(Color::Rgb(0xfe, 0x00, 0x00))
+        );
     }
 
     #[test]
