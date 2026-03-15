@@ -61,9 +61,12 @@ pub fn render(frame: &mut Frame, app: &mut App) {
 
 fn render_panels(frame: &mut Frame, area: ratatui::layout::Rect, app: &mut App) {
     let narrow = area.width < 100;
+    let very_narrow = area.width < 70;
     let cols = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints(if narrow {
+        .constraints(if very_narrow {
+            [Constraint::Percentage(50), Constraint::Percentage(50)]
+        } else if narrow {
             [Constraint::Percentage(40), Constraint::Percentage(60)]
         } else {
             [Constraint::Percentage(33), Constraint::Percentage(67)]
