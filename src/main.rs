@@ -72,7 +72,10 @@ fn run_loop(
         if event::poll(Duration::from_millis(50))? {
             match event::read()? {
                 Event::Key(key) => app.handle_key(key),
-                Event::Mouse(_) => {} // reserved for future use
+                Event::Mouse(mouse) => {
+                    let size = terminal.size()?;
+                    app.handle_mouse(mouse, size.width, size.height);
+                }
                 _ => {}
             }
         }
