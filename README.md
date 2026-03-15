@@ -1,0 +1,148 @@
+# nextbus-tui
+
+A terminal UI for NUS shuttle bus arrival times, built with Rust and [ratatui](https://github.com/ratatui-org/ratatui).
+
+![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-blue)
+![Language](https://img.shields.io/badge/language-Rust-orange)
+
+---
+
+## Installation
+
+### Option A — Build from source
+
+Requires [Rust](https://rustup.rs) (stable toolchain).
+
+```bash
+# Linux / macOS
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh && \
+  git clone https://github.com/iZUMi-kyouka/nextbus-tui && \
+  cd nextbus-tui && cargo build --release && ./target/release/nextbus-tui
+
+# Windows (PowerShell)
+winget install Rustlang.Rustup; `
+  git clone https://github.com/iZUMi-kyouka/nextbus-tui; `
+  cd nextbus-tui; cargo build --release; .\target\release\nextbus-tui.exe
+```
+
+### Option B — Download pre-built binary
+
+```bash
+# Linux (x86_64)
+curl -Lo nextbus-tui https://github.com/iZUMi-kyouka/nextbus-tui/releases/latest/download/nextbus-tui-linux-x86_64 \
+  && chmod +x nextbus-tui && ./nextbus-tui
+
+# macOS (Apple Silicon)
+curl -Lo nextbus-tui https://github.com/iZUMi-kyouka/nextbus-tui/releases/latest/download/nextbus-tui-macos-aarch64 \
+  && chmod +x nextbus-tui && ./nextbus-tui
+
+# macOS (Intel)
+curl -Lo nextbus-tui https://github.com/iZUMi-kyouka/nextbus-tui/releases/latest/download/nextbus-tui-macos-x86_64 \
+  && chmod +x nextbus-tui && ./nextbus-tui
+
+# Windows — download from the Releases page and run the .exe directly
+```
+
+---
+
+## Features
+
+- **33 NUS bus stops** with live arrival times from the NUS shuttle service API
+- **Auto-refresh** every 30 seconds
+- **Favourites** — star stops for quick access; a dedicated favourites view shows only your starred stops
+- **Search / filter** — spotlight-style overlay to filter stops by name
+- **Number jump** — type a stop number to jump directly to it
+- **Mouse support** — scroll, click to select stops, click footer buttons
+- **Themes** — 6 built-in colour schemes with a live theme picker
+
+---
+
+## Key Bindings
+
+### Navigation
+
+| Key | Action |
+|-----|--------|
+| `↑` / `k` | Move up |
+| `↓` / `j` | Move down |
+| `g` | Go to first stop |
+| `G` | Go to last stop |
+| `1`–`9`, `01`–`99` | Jump to stop by position number |
+
+### Actions
+
+| Key | Action |
+|-----|--------|
+| `f` | Toggle favourite on the current stop |
+| `F` | Toggle favourites-only view |
+| `r` | Force-refresh the current stop |
+| `/` | Open search overlay |
+| `q` / `Ctrl-C` | Quit |
+
+### Themes
+
+| Key | Action |
+|-----|--------|
+| `x` | Cycle to the next theme |
+| `X` | Open the theme picker popup |
+
+### Search overlay
+
+| Key | Action |
+|-----|--------|
+| Type | Filter stops in real time |
+| `↑` / `↓` | Navigate the filtered list |
+| `↵` | Confirm and close the overlay |
+| `Esc` | Cancel and clear the filter |
+
+### Theme picker
+
+| Key | Action |
+|-----|--------|
+| `↑` / `k`, `↓` / `j` | Navigate themes |
+| `↵` | Apply the selected theme |
+| `Esc` / `X` | Close without applying |
+
+---
+
+## Themes
+
+Six colour schemes are bundled (selectable with `x` / `X`):
+
+| Theme | Description |
+|-------|-------------|
+| **Default** | Explicit black background, standard terminal colours |
+| **Catppuccin Mocha** | Pastel dark theme |
+| **Dracula** | Classic purple-tinted dark theme |
+| **Gruvbox Dark** | Warm retro palette |
+| **Nord** | Cool arctic blue palette |
+| **Solarized Dark** | Precision colour palette |
+| **Tokyo Night** | Deep blue metropolitan theme |
+
+---
+
+## Architecture
+
+```
+src/
+├── main.rs          — Terminal setup and event loop
+├── theme.rs         — Theme/palette types and theme loader
+├── app/
+│   ├── mod.rs       — App struct and constructor
+│   ├── input.rs     — Keyboard event dispatch
+│   ├── mouse.rs     — Mouse event dispatch
+│   ├── list.rs      — Stop list navigation and filtering
+│   ├── jump.rs      — Number-jump logic
+│   ├── fetch.rs     — API fetch and cache management
+│   ├── tick.rs      — Auto-refresh and timer logic
+│   └── favourites.rs — Favourite management and persistence
+└── ui/
+    ├── mod.rs        — Root render function and layout
+    ├── title.rs      — Title bar
+    ├── stop_list.rs  — Stop list panel
+    ├── detail.rs     — Bus arrival detail panel
+    ├── footer.rs     — Footer hints
+    ├── search.rs     — Search overlay
+    ├── theme_picker.rs — Theme picker popup
+    └── helpers.rs    — Shared style/formatting utilities
+```
