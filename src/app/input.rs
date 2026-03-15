@@ -1,3 +1,5 @@
+#![cfg(not(target_arch = "wasm32"))]
+
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
 use super::App;

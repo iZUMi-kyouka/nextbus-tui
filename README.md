@@ -78,6 +78,36 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 - **Mouse support** — scroll, click to select stops, click footer buttons
 - **Themes** — 6 built-in colour schemes with a live theme picker
 - **Settings** — configure auto-refresh interval, default view, and more
+- **Experimental wasm web runtime** — browser test mode for app state, tick loop, and live fetch
+
+---
+
+## WASM status (experimental)
+
+- `wasm32-unknown-unknown` compiles and runs in a local browser test harness.
+- The shared `ratatui` UI is rendered onto an HTML `<canvas>` in wasm test mode.
+- Native desktop runtime remains the default, full-featured target.
+- For wasm builds, the default API base is `https://nusbus.flovt.net/ShuttleService` (same query param format: `?busstopname=<NAME>`).
+
+### Local testing
+
+```bash
+rustup target add wasm32-unknown-unknown
+cargo install trunk
+trunk serve --open
+```
+
+This serves `index.html` and starts the wasm runtime in your browser.
+
+### Native size-bloat guard
+
+To ensure wasm-only crates are never linked into native targets, run:
+
+```bash
+bash scripts/check-native-no-wasm.sh
+```
+
+The script checks Linux, Windows, and macOS native target dependency graphs.
 
 ---
 
@@ -162,18 +192,19 @@ Six colour schemes are bundled (selectable with `x` / `X`):
 
 ```
 src/
-├── main.rs          — Terminal setup and event loop
+├── main.rs          — Target-gated entrypoint (native terminal / wasm web)
+├── web.rs           — WASM runtime using ratzilla canvas backend
 ├── theme.rs         — Theme/palette types and theme loader
 ├── app/
 │   ├── mod.rs       — App struct, constructor, config snapshot
-│   ├── input.rs     — Keyboard event dispatch
-│   ├── mouse.rs     — Mouse event dispatch
-│   ├── list.rs      — Stop list navigation and filtering
+│   ├── input.rs     — Native keyboard event dispatch
+│   ├── mouse.rs     — Native mouse event dispatch
 │   ├── jump.rs      — Number-jump logic
 │   ├── fetch.rs     — API fetch and cache management
 │   ├── tick.rs      — Auto-refresh and timer logic
 │   ├── favourites.rs — Favourite management and persistence
-│   └── settings.rs  — Settings overlay key handling
+│   ├── nav.rs       — Stop list navigation and filtering
+│   └── overlay.rs   — Settings/theme/search overlay behavior
 └── ui/
     ├── mod.rs        — Root render function and layout
     ├── title.rs      — Title bar
