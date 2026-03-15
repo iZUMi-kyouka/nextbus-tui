@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Setup
+
+After cloning, install the project git hooks (pre-commit: fmt check; pre-push: fmt + tests):
+
+```bash
+bash scripts/install-hooks.sh
+```
+
 ## Commands
 
 ```bash

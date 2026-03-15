@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "→ Running cargo fmt check..."
+if ! cargo fmt --check; then
+    echo ""
+    echo "✗ Formatting check failed. Run 'cargo fmt' to fix, then re-stage."
+    exit 1
+fi
+
+echo "✓ Formatting OK"

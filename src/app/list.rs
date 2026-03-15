@@ -57,7 +57,9 @@ impl App {
 
     /// The currently highlighted bus stop, if any.
     pub fn current_stop(&self) -> Option<&BusStop> {
-        self.sorted_indices.get(self.selected).map(|&i| &self.stops[i])
+        self.sorted_indices
+            .get(self.selected)
+            .map(|&i| &self.stops[i])
     }
 
     pub fn move_up(&mut self) {

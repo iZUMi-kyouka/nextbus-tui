@@ -1,9 +1,9 @@
 use ratatui::{
+    Frame,
     layout::Rect,
     style::{Color, Modifier, Style},
     text::{Line, Span, Text},
     widgets::{Block, Borders, Paragraph, Wrap},
-    Frame,
 };
 
 use crate::app::App;
@@ -68,7 +68,13 @@ pub(super) fn render_detail(frame: &mut Frame, area: Rect, app: &App, show_plate
                     Style::default().fg(palette.dim),
                 )));
             } else {
-                render_shuttle_table(&mut lines, &cached.result.shuttles, app, show_plate, palette);
+                render_shuttle_table(
+                    &mut lines,
+                    &cached.result.shuttles,
+                    app,
+                    show_plate,
+                    palette,
+                );
             }
 
             // Refresh countdown footer.

@@ -8,9 +8,9 @@ pub(crate) mod theme_picker;
 pub(crate) mod title;
 
 use ratatui::{
+    Frame,
     layout::{Constraint, Direction, Layout},
     style::Style,
-    Frame,
 };
 
 use crate::app::App;
@@ -78,7 +78,7 @@ fn render_panels(frame: &mut Frame, area: ratatui::layout::Rect, app: &mut App) 
 mod tests {
     use super::render;
     use crate::app::App;
-    use ratatui::{backend::TestBackend, Terminal};
+    use ratatui::{Terminal, backend::TestBackend};
     use std::sync::mpsc;
 
     fn make_app() -> App {
@@ -124,7 +124,10 @@ mod tests {
         let mut app = make_app();
         terminal.draw(|f| render(f, &mut app)).unwrap();
         let text = buf_text(&terminal);
-        assert!(text.contains("NUS NextBus"), "Title should contain 'NUS NextBus'");
+        assert!(
+            text.contains("NUS NextBus"),
+            "Title should contain 'NUS NextBus'"
+        );
     }
 
     #[test]
@@ -133,7 +136,10 @@ mod tests {
         let mut app = make_app();
         terminal.draw(|f| render(f, &mut app)).unwrap();
         let text = buf_text(&terminal);
-        assert!(text.contains("Bus Stops"), "Should contain 'Bus Stops' header");
+        assert!(
+            text.contains("Bus Stops"),
+            "Should contain 'Bus Stops' header"
+        );
     }
 
     #[test]
@@ -153,7 +159,10 @@ mod tests {
         app.showing_theme_picker = true;
         terminal.draw(|f| render(f, &mut app)).unwrap();
         let text = buf_text(&terminal);
-        assert!(text.contains("Default"), "Theme picker should list 'Default' theme");
+        assert!(
+            text.contains("Default"),
+            "Theme picker should list 'Default' theme"
+        );
     }
 
     #[test]
@@ -164,7 +173,10 @@ mod tests {
         app.rebuild_list();
         terminal.draw(|f| render(f, &mut app)).unwrap();
         let text = buf_text(&terminal);
-        assert!(text.contains("Favourites"), "Fav view should show 'Favourites' title");
+        assert!(
+            text.contains("Favourites"),
+            "Fav view should show 'Favourites' title"
+        );
     }
 
     #[test]
@@ -183,7 +195,10 @@ mod tests {
         app.searching = true;
         terminal.draw(|f| render(f, &mut app)).unwrap();
         let text = buf_text(&terminal);
-        assert!(text.contains("Cancel"), "Search footer should show 'Cancel'");
+        assert!(
+            text.contains("Cancel"),
+            "Search footer should show 'Cancel'"
+        );
     }
 
     #[test]
