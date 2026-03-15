@@ -1,0 +1,533 @@
+[[routes]]
+name = "A1"
+color = "#fe0000"
+
+[[routes.stops]]
+seq = 1
+stop_name = "Kent Ridge Bus Terminal"
+busstopcode = "KRB"
+
+[[routes.stops]]
+seq = 2
+stop_name = "LT 13"
+busstopcode = "LT13"
+
+[[routes.stops]]
+seq = 3
+stop_name = "AS 5"
+busstopcode = "AS5"
+
+[[routes.stops]]
+seq = 4
+stop_name = "BIZ 2"
+busstopcode = "BIZ2"
+
+[[routes.stops]]
+seq = 5
+stop_name = "Opp TCOMS"
+busstopcode = "TCOMS-OPP"
+
+[[routes.stops]]
+seq = 6
+stop_name = "Prince George's Park"
+busstopcode = "PGP"
+
+[[routes.stops]]
+seq = 7
+stop_name = "Kent Ridge MRT"
+busstopcode = "KR-MRT"
+
+[[routes.stops]]
+seq = 8
+stop_name = "LT 27"
+busstopcode = "LT27"
+
+[[routes.stops]]
+seq = 9
+stop_name = "University Hall"
+busstopcode = "UHALL"
+
+[[routes.stops]]
+seq = 10
+stop_name = "Opp University Health Centre"
+busstopcode = "UHC-OPP"
+
+[[routes.stops]]
+seq = 11
+stop_name = "Yusof Ishak House"
+busstopcode = "YIH"
+
+[[routes.stops]]
+seq = 12
+stop_name = "Central Library"
+busstopcode = "CLB"
+
+[[routes.stops]]
+seq = 32767
+stop_name = "Kent Ridge Bus Terminal"
+busstopcode = "KRB"
+
+
+[[routes]]
+name = "A2"
+color = "#e2cd0b"
+
+[[routes.stops]]
+seq = 1
+stop_name = "Kent Ridge Bus Terminal"
+busstopcode = "KRB"
+
+[[routes.stops]]
+seq = 2
+stop_name = "Information Technology"
+busstopcode = "IT"
+
+[[routes.stops]]
+seq = 3
+stop_name = "Opp Yusof Ishak House"
+busstopcode = "YIH-OPP"
+
+[[routes.stops]]
+seq = 4
+stop_name = "Museum"
+busstopcode = "MUSEUM"
+
+[[routes.stops]]
+seq = 5
+stop_name = "University Health Centre"
+busstopcode = "UHC"
+
+[[routes.stops]]
+seq = 6
+stop_name = "Opp University Hall"
+busstopcode = "UHALL-OPP"
+
+[[routes.stops]]
+seq = 7
+stop_name = "S 17"
+busstopcode = "S17"
+
+[[routes.stops]]
+seq = 8
+stop_name = "Opp Kent Ridge MRT"
+busstopcode = "KR-MRT-OPP"
+
+[[routes.stops]]
+seq = 9
+stop_name = "Prince George's Park Foyer"
+busstopcode = "PGPR"
+
+[[routes.stops]]
+seq = 10
+stop_name = "TCOMS"
+busstopcode = "TCOMS"
+
+[[routes.stops]]
+seq = 11
+stop_name = "Opp HSSML"
+busstopcode = "HSSML-OPP"
+
+[[routes.stops]]
+seq = 12
+stop_name = "Opp NUSS"
+busstopcode = "NUSS-OPP"
+
+[[routes.stops]]
+seq = 13
+stop_name = "Ventus"
+busstopcode = "LT13-OPP"
+
+[[routes.stops]]
+seq = 32767
+stop_name = "Kent Ridge Bus Terminal"
+busstopcode = "KRB"
+
+
+[[routes]]
+name = "D1"
+color = "#d239e2"
+
+[[routes.stops]]
+seq = 1
+stop_name = "COM 3"
+busstopcode = "COM3"
+
+[[routes.stops]]
+seq = 2
+stop_name = "Opp HSSML"
+busstopcode = "HSSML-OPP"
+
+[[routes.stops]]
+seq = 3
+stop_name = "Opp NUSS"
+busstopcode = "NUSS-OPP"
+
+[[routes.stops]]
+seq = 4
+stop_name = "Ventus"
+busstopcode = "LT13-OPP"
+
+[[routes.stops]]
+seq = 5
+stop_name = "Information Technology"
+busstopcode = "IT"
+
+[[routes.stops]]
+seq = 6
+stop_name = "Opp Yusof Ishak House"
+busstopcode = "YIH-OPP"
+
+[[routes.stops]]
+seq = 7
+stop_name = "Museum"
+busstopcode = "MUSEUM"
+
+[[routes.stops]]
+seq = 8
+stop_name = "University Town"
+busstopcode = "UTOWN"
+
+[[routes.stops]]
+seq = 9
+stop_name = "Yusof Ishak House"
+busstopcode = "YIH"
+
+[[routes.stops]]
+seq = 10
+stop_name = "Central Library"
+busstopcode = "CLB"
+
+[[routes.stops]]
+seq = 11
+stop_name = "LT 13"
+busstopcode = "LT13"
+
+[[routes.stops]]
+seq = 12
+stop_name = "AS 5"
+busstopcode = "AS5"
+
+[[routes.stops]]
+seq = 13
+stop_name = "BIZ 2"
+busstopcode = "BIZ2"
+
+[[routes.stops]]
+seq = 32767
+stop_name = "COM 3"
+busstopcode = "COM3"
+
+
+[[routes]]
+name = "D2"
+color = "#6e1b6e"
+
+[[routes.stops]]
+seq = 1
+stop_name = "COM 3"
+busstopcode = "COM3"
+
+[[routes.stops]]
+seq = 2
+stop_name = "Opp TCOMS"
+busstopcode = "TCOMS-OPP"
+
+[[routes.stops]]
+seq = 3
+stop_name = "Prince George's Park"
+busstopcode = "PGP"
+
+[[routes.stops]]
+seq = 4
+stop_name = "Kent Ridge MRT"
+busstopcode = "KR-MRT"
+
+[[routes.stops]]
+seq = 5
+stop_name = "LT 27"
+busstopcode = "LT27"
+
+[[routes.stops]]
+seq = 6
+stop_name = "University Hall"
+busstopcode = "UHALL"
+
+[[routes.stops]]
+seq = 7
+stop_name = "Opp University Health Centre"
+busstopcode = "UHC-OPP"
+
+[[routes.stops]]
+seq = 8
+stop_name = "Museum"
+busstopcode = "MUSEUM"
+
+[[routes.stops]]
+seq = 9
+stop_name = "University Town"
+busstopcode = "UTOWN"
+
+[[routes.stops]]
+seq = 10
+stop_name = "University Health Centre"
+busstopcode = "UHC"
+
+[[routes.stops]]
+seq = 11
+stop_name = "Opp University Hall"
+busstopcode = "UHALL-OPP"
+
+[[routes.stops]]
+seq = 12
+stop_name = "S 17"
+busstopcode = "S17"
+
+[[routes.stops]]
+seq = 13
+stop_name = "Opp Kent Ridge MRT"
+busstopcode = "KR-MRT-OPP"
+
+[[routes.stops]]
+seq = 14
+stop_name = "Prince George's Park Foyer"
+busstopcode = "PGPR"
+
+[[routes.stops]]
+seq = 15
+stop_name = "TCOMS"
+busstopcode = "TCOMS"
+
+[[routes.stops]]
+seq = 32767
+stop_name = "COM 3"
+busstopcode = "COM3"
+
+
+[[routes]]
+name = "K"
+color = "#345a9b"
+
+[[routes.stops]]
+seq = 1
+stop_name = "Prince George's Park"
+busstopcode = "PGP"
+
+[[routes.stops]]
+seq = 2
+stop_name = "Kent Ridge MRT"
+busstopcode = "KR-MRT"
+
+[[routes.stops]]
+seq = 3
+stop_name = "LT 27"
+busstopcode = "LT27"
+
+[[routes.stops]]
+seq = 4
+stop_name = "University Hall"
+busstopcode = "UHALL"
+
+[[routes.stops]]
+seq = 5
+stop_name = "Opp University Health Centre"
+busstopcode = "UHC-OPP"
+
+[[routes.stops]]
+seq = 6
+stop_name = "Yusof Ishak House"
+busstopcode = "YIH"
+
+[[routes.stops]]
+seq = 7
+stop_name = "Central Library"
+busstopcode = "CLB"
+
+[[routes.stops]]
+seq = 8
+stop_name = "Opp SDE 3"
+busstopcode = "SDE3-OPP"
+
+[[routes.stops]]
+seq = 9
+stop_name = "The Japanese Primary School"
+busstopcode = "JP-SCH-16151"
+
+[[routes.stops]]
+seq = 10
+stop_name = "Kent Vale"
+busstopcode = "KV"
+
+[[routes.stops]]
+seq = 11
+stop_name = "Museum"
+busstopcode = "MUSEUM"
+
+[[routes.stops]]
+seq = 12
+stop_name = "University Health Centre"
+busstopcode = "UHC"
+
+[[routes.stops]]
+seq = 13
+stop_name = "Opp University Hall"
+busstopcode = "UHALL-OPP"
+
+[[routes.stops]]
+seq = 14
+stop_name = "S 17"
+busstopcode = "S17"
+
+[[routes.stops]]
+seq = 15
+stop_name = "Opp Kent Ridge MRT"
+busstopcode = "KR-MRT-OPP"
+
+[[routes.stops]]
+seq = 32767
+stop_name = "Prince George's Park Foyer"
+busstopcode = "PGPR"
+
+
+[[routes]]
+name = "P"
+color = "#bebebe"
+
+[[routes.stops]]
+seq = 1
+stop_name = "Kent Vale"
+busstopcode = "KV"
+
+[[routes.stops]]
+seq = 2
+stop_name = "College Green"
+busstopcode = "CG"
+
+[[routes.stops]]
+seq = 3
+stop_name = "Oei Tiong Ham Building"
+busstopcode = "OTH"
+
+[[routes.stops]]
+seq = 4
+stop_name = "Botanic Gardens MRT (PUDO)"
+busstopcode = "BG-MRT"
+
+[[routes.stops]]
+seq = 5
+stop_name = "Kent Ridge MRT"
+busstopcode = "KR-MRT"
+
+[[routes.stops]]
+seq = 6
+stop_name = "Opp University Health Centre"
+busstopcode = "UHC-OPP"
+
+[[routes.stops]]
+seq = 7
+stop_name = "University Town"
+busstopcode = "UTOWN"
+
+[[routes.stops]]
+seq = 32767
+stop_name = "Kent Vale"
+busstopcode = "KV"
+
+
+[[routes]]
+name = "R1"
+color = "#ee8136"
+
+[[routes.stops]]
+seq = 1
+stop_name = "Kent Vale"
+busstopcode = "KV"
+
+[[routes.stops]]
+seq = 2
+stop_name = "Museum"
+busstopcode = "MUSEUM"
+
+[[routes.stops]]
+seq = 3
+stop_name = "University Town"
+busstopcode = "UTOWN"
+
+[[routes.stops]]
+seq = 4
+stop_name = "Yusof Ishak House"
+busstopcode = "YIH"
+
+[[routes.stops]]
+seq = 5
+stop_name = "Central Library"
+busstopcode = "CLB"
+
+[[routes.stops]]
+seq = 6
+stop_name = "LT 13"
+busstopcode = "LT13"
+
+[[routes.stops]]
+seq = 7
+stop_name = "AS 5"
+busstopcode = "AS5"
+
+[[routes.stops]]
+seq = 8
+stop_name = "BIZ 2"
+busstopcode = "BIZ2"
+
+[[routes.stops]]
+seq = 32767
+stop_name = "Prince George's Park"
+busstopcode = "PGP"
+
+
+[[routes]]
+name = "R2"
+color = "#008000"
+
+[[routes.stops]]
+seq = 1
+stop_name = "Prince George's Park"
+busstopcode = "PGP"
+
+[[routes.stops]]
+seq = 2
+stop_name = "Opp HSSML"
+busstopcode = "HSSML-OPP"
+
+[[routes.stops]]
+seq = 3
+stop_name = "Opp NUSS"
+busstopcode = "NUSS-OPP"
+
+[[routes.stops]]
+seq = 4
+stop_name = "Ventus"
+busstopcode = "LT13-OPP"
+
+[[routes.stops]]
+seq = 5
+stop_name = "Information Technology"
+busstopcode = "IT"
+
+[[routes.stops]]
+seq = 6
+stop_name = "Opp Yusof Ishak House"
+busstopcode = "YIH-OPP"
+
+[[routes.stops]]
+seq = 7
+stop_name = "University Town"
+busstopcode = "UTOWN"
+
+[[routes.stops]]
+seq = 8
+stop_name = "Raffles Hall"
+busstopcode = "RAFFLES"
+
+[[routes.stops]]
+seq = 32767
+stop_name = "Kent Vale"
+busstopcode = "KV"
