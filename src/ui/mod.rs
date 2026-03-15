@@ -8,9 +8,9 @@ pub(crate) mod theme_picker;
 pub(crate) mod title;
 
 use ratatui::{
-    Frame,
     layout::{Constraint, Direction, Layout},
     style::Style,
+    Frame,
 };
 
 use crate::app::App;
@@ -75,7 +75,7 @@ fn render_panels(frame: &mut Frame, area: ratatui::layout::Rect, app: &mut App) 
 mod tests {
     use super::render;
     use crate::app::App;
-    use ratatui::{Terminal, backend::TestBackend};
+    use ratatui::{backend::TestBackend, Terminal};
     use std::sync::mpsc;
 
     fn make_app() -> App {

@@ -4,19 +4,20 @@ use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 use std::sync::mpsc;
 
-use wasm_bindgen::JsCast;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::wasm_bindgen;
+use wasm_bindgen::JsCast;
 
 use ratzilla::event::{KeyCode, KeyEvent};
 use ratzilla::web_sys;
-use ratzilla::{CanvasBackend, WebRenderer};
+use ratzilla::{WebGl2Backend, WebRenderer};
 
 use crate::app::App;
 use crate::message::Message;
 use crate::models::AppEvent;
 
 pub fn start() {
+    console_error_panic_hook::set_once();
     STARTED.with(|started| {
         if started.replace(true) {
             return;
@@ -59,7 +60,7 @@ fn bootstrap_runtime() {
         return;
     };
 
-    let backend = match CanvasBackend::new() {
+    let backend = match WebGl2Backend::new() {
         Ok(b) => b,
         Err(_) => return,
     };

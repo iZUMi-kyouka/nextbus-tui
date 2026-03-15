@@ -1,4 +1,4 @@
-use std::time::Instant;
+use crate::time::Instant;
 
 use crate::models::{AppEvent, ShuttleServiceResult};
 
@@ -98,8 +98,8 @@ impl App {
 mod tests {
     use super::{App, CachedData};
     use crate::models::ShuttleServiceResult;
+    use crate::time::Instant;
     use std::sync::mpsc;
-    use std::time::Instant;
 
     fn make_app() -> App {
         let (tx, _rx) = mpsc::channel();

@@ -1,13 +1,13 @@
 [package]
 name = "nextbus-tui"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [profile.release]
 opt-level     = "z"     # optimise for size, not speed
 lto           = "fat"   # whole-program LTO — removes more dead code across crates
 codegen-units = 1       # single CGU lets the optimiser see the whole program at once
-panic         = "abort" # drop panic-unwinding machinery (~10-15 % of binary)
+panic         = "unwind" # drop panic-unwinding machinery (~10-15 % of binary)
 strip         = true    # strip all symbols from the final binary
 
 [dependencies]
@@ -34,4 +34,4 @@ wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4"
 web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlCanvasElement", "CanvasRenderingContext2d", "Storage", "Response"] }
 js-sys = "0.3"
-
+console_error_panic_hook = "0.1"
