@@ -40,6 +40,7 @@ search-title   = 🔍 தேடல்
 theme-title    = 🎨 தீம்கள்
 settings-title = ⚙ அமைப்புகள்
 
+lang-picker-title = 🌐 மொழி
 # ── Settings rows ───────────────────────────────────────────────────────────────
 settings-interval-label   = தானியங்கி புதுப்பிப்பு இடைவெளி:
 settings-interval-value   = [{ $seconds }வி]

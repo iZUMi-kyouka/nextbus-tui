@@ -95,6 +95,24 @@ impl I18n {
         self.format(id, Some(args))
     }
 
+    /// Returns `(language_code, native_name)` pairs for all entries in `LANGUAGES`.
+    /// Used by the language picker popup.
+    pub fn all_native_names() -> Vec<(&'static str, String)> {
+        let config: I18nConfigFile =
+            toml::from_str(I18N_CONFIG).expect("assets/i18n/config.toml is invalid");
+        LANGUAGES
+            .iter()
+            .map(|&code| {
+                let name = config
+                    .languages
+                    .get(code)
+                    .map(|m| m.native_name.clone())
+                    .unwrap_or_else(|| code.to_owned());
+                (code, name)
+            })
+            .collect()
+    }
+
     /// Returns the language code that follows the current one in the cycle.
     pub fn next_lang(&self) -> &str {
         let pos = LANGUAGES.iter().position(|&l| l == self.lang).unwrap_or(0);

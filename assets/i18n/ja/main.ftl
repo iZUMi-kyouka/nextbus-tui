@@ -40,6 +40,7 @@ search-title   = 🔍 検索
 theme-title    = 🎨 テーマ
 settings-title = ⚙ 設定
 
+lang-picker-title = 🌐 言語
 # ── 設定行 ────────────────────────────────────────────────────────────────────
 settings-interval-label   = 自動更新間隔:
 settings-interval-value   = [{ $seconds }秒]

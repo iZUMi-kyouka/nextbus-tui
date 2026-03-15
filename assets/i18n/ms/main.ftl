@@ -40,6 +40,7 @@ search-title   = 🔍 Cari
 theme-title    = 🎨 Tema
 settings-title = ⚙ Tetapan
 
+lang-picker-title = 🌐 Bahasa
 # ── Settings rows ───────────────────────────────────────────────────────────────
 settings-interval-label   = Sela segar semula automatik:
 settings-interval-value   = [{ $seconds }s]

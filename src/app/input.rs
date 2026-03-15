@@ -7,7 +7,9 @@ use crate::message::Message;
 
 /// Pure function — reads app state, returns the intent. No mutation.
 pub fn key_to_message(key: KeyEvent, app: &App) -> Option<Message> {
-    if app.overlay.showing_settings {
+    if app.overlay.showing_lang_picker {
+        lang_picker_key(key)
+    } else if app.overlay.showing_settings {
         settings_key(key, app)
     } else if app.overlay.showing_theme_picker {
         picker_key(key)
@@ -15,6 +17,16 @@ pub fn key_to_message(key: KeyEvent, app: &App) -> Option<Message> {
         search_key(key)
     } else {
         normal_key(key, app)
+    }
+}
+
+fn lang_picker_key(key: KeyEvent) -> Option<Message> {
+    match key.code {
+        KeyCode::Esc => Some(Message::CloseLangPicker),
+        KeyCode::Enter => Some(Message::LangPickerApply),
+        KeyCode::Up | KeyCode::Char('k') => Some(Message::LangPickerUp),
+        KeyCode::Down | KeyCode::Char('j') => Some(Message::LangPickerDown),
+        _ => None,
     }
 }
 

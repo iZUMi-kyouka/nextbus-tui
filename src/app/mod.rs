@@ -139,6 +139,8 @@ pub struct OverlayState {
     pub theme_picker_cursor: usize,
     /// Theme index active when the picker was opened; restored if user cancels.
     pub original_theme_idx: usize,
+    pub showing_lang_picker: bool,
+    pub lang_picker_cursor: usize,
     pub showing_settings: bool,
     pub settings_cursor: usize,
     pub settings_edit_mode: bool,
@@ -398,6 +400,31 @@ impl App {
                 }
                 self.overlay.showing_theme_picker = false;
             }
+
+            // Language picker
+            Message::OpenLangPicker => {
+                let pos = crate::i18n::LANGUAGES
+                    .iter()
+                    .position(|&l| l == self.i18n.lang)
+                    .unwrap_or(0);
+                self.overlay.lang_picker_cursor = pos;
+                self.overlay.showing_lang_picker = true;
+            }
+            Message::CloseLangPicker => {
+                self.overlay.showing_lang_picker = false;
+            }
+            Message::LangPickerUp => {
+                if self.overlay.lang_picker_cursor > 0 {
+                    self.overlay.lang_picker_cursor -= 1;
+                }
+            }
+            Message::LangPickerDown => {
+                let n = crate::i18n::LANGUAGES.len();
+                if self.overlay.lang_picker_cursor + 1 < n {
+                    self.overlay.lang_picker_cursor += 1;
+                }
+            }
+            Message::LangPickerApply => self.apply_lang_picker(),
 
             // Settings overlay
             Message::OpenSettings => {

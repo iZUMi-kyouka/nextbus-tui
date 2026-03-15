@@ -40,6 +40,7 @@ search-title   = 🔍 搜索
 theme-title    = 🎨 主题
 settings-title = ⚙ 设置
 
+lang-picker-title = 🌐 语言
 # ── Settings rows ───────────────────────────────────────────────────────────────
 settings-interval-label   = 自动刷新间隔:
 settings-interval-value   = [{ $seconds }秒]
