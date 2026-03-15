@@ -1,5 +1,6 @@
 # solarized_dark.toml
 name = "Solarized Dark"
+mode = "dark"
 
 [colors.primary]
 background = "#002b36"

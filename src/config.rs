@@ -20,10 +20,5 @@ pub fn save(config: &Config) {
 }
 
 fn config_path() -> Option<PathBuf> {
-    std::env::var("HOME").ok().map(|home| {
-        PathBuf::from(home)
-            .join(".config")
-            .join("nextbus-tui")
-            .join("config.json")
-    })
+    dirs::config_dir().map(|base| base.join("nextbus-tui").join("config.json"))
 }

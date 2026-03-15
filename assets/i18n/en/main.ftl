@@ -49,6 +49,10 @@ settings-view-all         = [All stops]
 settings-view-favs        = [Favourites]
 settings-lang-label       = Language:
 settings-lang-value       = [{ $name }]
+settings-theme-mode-label = Theme mode:
+settings-theme-mode-dark  = [Dark]
+settings-theme-mode-light = [Light]
+settings-theme-mode-auto  = [Auto]
 settings-hint-nav         = [↑↓/j/k] Navigate   [↵/Space] Edit/Toggle   [Esc/s] Close
 settings-hint-edit        = [0-9] Type   [⌫] Delete   [↵] Confirm   [Esc] Cancel
 
@@ -61,3 +65,4 @@ status-view-set       = Default view set to: { $view }
 status-view-all       = All stops
 status-view-favs      = Favourites
 status-lang-set       = Language: { $name }
+status-theme-mode-set = Theme mode: { $mode }

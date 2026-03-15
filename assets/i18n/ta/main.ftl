@@ -49,6 +49,10 @@ settings-view-all         = [அனைத்து நிறுத்தங்�
 settings-view-favs        = [விருப்பமானவை]
 settings-lang-label       = மொழி:
 settings-lang-value       = [{ $name }]
+settings-theme-mode-label = தீம் முறை:
+settings-theme-mode-dark  = [இருண்ட]
+settings-theme-mode-light = [வெளிர்]
+settings-theme-mode-auto  = [தானியங்கு]
 settings-hint-nav         = [↑↓/j/k] தேர்வு   [↵/Space] மாற்று   [Esc/s] மூடு
 settings-hint-edit        = [0-9] உள்ளிடு   [⌫] நீக்கு   [↵] சரி   [Esc] ரத்து
 
@@ -61,3 +65,4 @@ status-view-set       = இயல்புநிலை காட்சி: { $vi
 status-view-all       = அனைத்து நிறுத்தங்கள்
 status-view-favs      = விருப்பமானவை
 status-lang-set       = மொழி: { $name }
+status-theme-mode-set = தீம் முறை: { $mode }

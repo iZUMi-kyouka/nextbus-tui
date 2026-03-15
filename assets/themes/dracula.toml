@@ -1,4 +1,5 @@
 name = "Dracula"
+mode = "dark"
 
 [colors.primary]
 background = "#282a36"

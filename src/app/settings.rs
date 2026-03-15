@@ -2,6 +2,7 @@ use crossterm::event::{KeyCode, KeyEvent};
 use fluent::FluentArgs;
 
 use super::App;
+use crate::theme::ThemeMode;
 
 const REFRESH_MIN: u64 = 5;
 const REFRESH_MAX: u64 = 300;
@@ -67,6 +68,25 @@ impl App {
                 let mut args = FluentArgs::new();
                 args.set("name", name.as_str());
                 let msg = self.i18n.t_args("status-lang-set", &args);
+                self.set_status(&msg);
+                crate::config::save(&self.config_snapshot());
+            }
+            3 => {
+                // Cycle through theme modes: Dark → Light → Auto → Dark.
+                self.theme_mode = match self.theme_mode {
+                    ThemeMode::Dark => ThemeMode::Light,
+                    ThemeMode::Light => ThemeMode::Auto,
+                    ThemeMode::Auto => ThemeMode::Dark,
+                };
+                let mode_key = match self.theme_mode {
+                    ThemeMode::Dark => "settings-theme-mode-dark",
+                    ThemeMode::Light => "settings-theme-mode-light",
+                    ThemeMode::Auto => "settings-theme-mode-auto",
+                };
+                let mode_str = self.i18n.t(mode_key);
+                let mut args = FluentArgs::new();
+                args.set("mode", mode_str.as_str());
+                let msg = self.i18n.t_args("status-theme-mode-set", &args);
                 self.set_status(&msg);
                 crate::config::save(&self.config_snapshot());
             }
@@ -281,10 +301,11 @@ mod tests {
         app.showing_settings = true;
         app.settings_cursor = 2;
         assert_eq!(app.i18n.lang, "en");
+        // First press moves to the next language in LANGUAGES order.
         app.handle_settings_key(key(KeyCode::Enter));
-        assert_eq!(app.i18n.lang, "ja");
-        // Second press wraps back to English.
+        assert_eq!(app.i18n.lang, crate::i18n::LANGUAGES[1]);
+        // Second press advances one more step.
         app.handle_settings_key(key(KeyCode::Enter));
-        assert_eq!(app.i18n.lang, "en");
+        assert_eq!(app.i18n.lang, crate::i18n::LANGUAGES[2]);
     }
 }

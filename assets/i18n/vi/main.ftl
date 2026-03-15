@@ -49,6 +49,10 @@ settings-view-all         = [Tất cả các trạm]
 settings-view-favs        = [Yêu thích]
 settings-lang-label       = Ngôn ngữ:
 settings-lang-value       = [{ $name }]
+settings-theme-mode-label = Chế độ giao diện:
+settings-theme-mode-dark  = [Tối]
+settings-theme-mode-light = [Sáng]
+settings-theme-mode-auto  = [Tự động]
 settings-hint-nav         = [↑↓/j/k] Điều hướng   [↵/Space] Chỉnh sửa/Chuyển đổi   [Esc/s] Đóng
 settings-hint-edit        = [0-9] Gõ   [⌫] Xóa   [↵] Xác nhận   [Esc] Hủy
 
@@ -61,3 +65,4 @@ status-view-set       = Chế độ xem mặc định được đặt thành: { 
 status-view-all       = Tất cả các trạm
 status-view-favs      = Yêu thích
 status-lang-set       = Ngôn ngữ: { $name }
+status-theme-mode-set = Chế độ giao diện: { $mode }

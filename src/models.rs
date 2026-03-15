@@ -2,6 +2,8 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::theme::ThemeMode;
+
 /// A bus stop as defined in stops.toml
 #[derive(Debug, Clone, Deserialize)]
 pub struct BusStop {
@@ -91,6 +93,10 @@ fn default_language() -> String {
     "en".to_owned()
 }
 
+fn default_theme_mode() -> ThemeMode {
+    ThemeMode::Dark
+}
+
 /// Persisted user configuration
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
@@ -105,6 +111,9 @@ pub struct Config {
     /// UI language code, e.g. "en" or "ja".
     #[serde(default = "default_language")]
     pub language: String,
+    /// Theme mode: dark, light, or auto (switches based on local time).
+    #[serde(default = "default_theme_mode")]
+    pub theme_mode: ThemeMode,
 }
 
 impl Default for Config {
@@ -114,6 +123,7 @@ impl Default for Config {
             refresh_interval_secs: default_refresh_interval(),
             default_fav_view: false,
             language: default_language(),
+            theme_mode: default_theme_mode(),
         }
     }
 }

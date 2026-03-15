@@ -49,6 +49,10 @@ settings-view-all         = [全バス停]
 settings-view-favs        = [お気に入り]
 settings-lang-label       = 言語:
 settings-lang-value       = [{ $name }]
+settings-theme-mode-label = テーマモード:
+settings-theme-mode-dark  = [ダーク]
+settings-theme-mode-light = [ライト]
+settings-theme-mode-auto  = [自動]
 settings-hint-nav         = [↑↓/j/k] 移動   [↵/Space] 編集/切替   [Esc/s] 閉じる
 settings-hint-edit        = [0-9] 入力   [⌫] 削除   [↵] 確定   [Esc] キャンセル
 
@@ -61,3 +65,4 @@ status-view-set     = デフォルト表示を変更しました: { $view }
 status-view-all     = 全バス停
 status-view-favs    = お気に入り
 status-lang-set     = 言語: { $name }
+status-theme-mode-set = テーマモード: { $mode }

@@ -8,7 +8,7 @@ pub(crate) mod settings;
 pub(crate) mod tick;
 
 use crate::i18n::I18n;
-use crate::theme::Theme;
+use crate::theme::{Theme, ThemeMode};
 
 use std::collections::{HashMap, HashSet};
 use std::sync::mpsc;
@@ -18,8 +18,8 @@ use ratatui::widgets::ListState;
 
 use crate::models::{AppEvent, BusStop, Route, ShuttleServiceResult};
 
-/// Number of interactive rows in the settings overlay (interval / view / language).
-pub const SETTINGS_ROW_COUNT: usize = 3;
+/// Number of interactive rows in the settings overlay (interval / view / language / theme mode).
+pub const SETTINGS_ROW_COUNT: usize = 4;
 
 static STOPS_TOML: &str = include_str!("../../assets/stops.toml");
 static ROUTES_TOML: &str = include_str!("../../assets/routes.toml");
@@ -85,6 +85,8 @@ pub struct App {
     pub auto_refresh_secs: u64,
     /// Whether new sessions open in favourites-only view (persisted in config).
     pub default_fav_view: bool,
+    /// Theme mode preference: Dark, Light, or Auto (time-based).
+    pub theme_mode: ThemeMode,
     /// Active i18n bundle — drives all user-visible strings.
     pub i18n: I18n,
     /// Set to true to exit the event loop.
@@ -113,6 +115,7 @@ impl App {
         let favourites: HashSet<String> = config.favourites.into_iter().collect();
         let auto_refresh_secs = config.refresh_interval_secs;
         let default_fav_view = config.default_fav_view;
+        let theme_mode = config.theme_mode;
         let i18n = I18n::new(&config.language);
 
         let mut app = App {
@@ -137,6 +140,7 @@ impl App {
             settings_edit_buf: String::new(),
             auto_refresh_secs,
             default_fav_view,
+            theme_mode,
             i18n,
             should_quit: false,
             status_msg: None,
@@ -150,7 +154,27 @@ impl App {
     }
 
     pub fn theme(&self) -> &Theme {
-        &self.themes[self.theme_idx]
+        match self.theme_mode {
+            ThemeMode::Dark => &self.themes[self.theme_idx],
+            ThemeMode::Light => self
+                .themes
+                .iter()
+                .find(|t| t.mode == ThemeMode::Light)
+                .unwrap_or(&self.themes[self.theme_idx]),
+            ThemeMode::Auto => {
+                use chrono::Timelike;
+                let hour = chrono::Local::now().hour();
+                let is_day = hour >= 6 && hour < 18;
+                if is_day {
+                    self.themes
+                        .iter()
+                        .find(|t| t.mode == ThemeMode::Light)
+                        .unwrap_or(&self.themes[self.theme_idx])
+                } else {
+                    &self.themes[self.theme_idx]
+                }
+            }
+        }
     }
 
     /// Build a serialisable snapshot of current config state for persistence.
@@ -162,6 +186,7 @@ impl App {
             refresh_interval_secs: self.auto_refresh_secs,
             default_fav_view: self.default_fav_view,
             language: self.i18n.lang.clone(),
+            theme_mode: self.theme_mode,
         }
     }
 }
