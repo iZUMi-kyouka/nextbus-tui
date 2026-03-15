@@ -8,7 +8,9 @@ impl App {
     pub fn push_jump_digit(&mut self, digit: char) {
         self.jump_buf.push(digit);
         self.jump_at = Some(Instant::now());
-        if self.jump_buf.len() == 2 {
+        // Commit immediately when 2 digits are entered, or when the list is
+        // short enough that a single digit uniquely identifies any stop.
+        if self.jump_buf.len() == 2 || self.sorted_indices.len() < 10 {
             self.commit_jump();
         }
     }
