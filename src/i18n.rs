@@ -18,9 +18,14 @@ struct I18nConfigFile {
 static I18N_CONFIG: &str = include_str!("../assets/i18n/config.toml");
 static FTL_EN: &str = include_str!("../assets/i18n/en/main.ftl");
 static FTL_JA: &str = include_str!("../assets/i18n/ja/main.ftl");
+static FTL_ZH_CN: &str = include_str!("../assets/i18n/zh-CN/main.ftl");
+static FTL_ZH_TW: &str = include_str!("../assets/i18n/zh-TW/main.ftl");
+static FTL_MS: &str = include_str!("../assets/i18n/ms/main.ftl");
+static FTL_TA: &str = include_str!("../assets/i18n/ta/main.ftl");
+static FTL_VI: &str = include_str!("../assets/i18n/vi/main.ftl");
 
 /// Language codes in selection order (used when cycling through languages).
-pub const LANGUAGES: &[&str] = &["en", "ja"];
+pub const LANGUAGES: &[&str] = &["en", "zh-CN", "zh-TW", "ja", "ms", "ta", "vi"];
 
 /// Active i18n bundle: holds the Fluent message bundle for the current language.
 pub struct I18n {
@@ -50,6 +55,11 @@ impl I18n {
 
         let ftl_src = match lang {
             "ja" => FTL_JA,
+            "zh-CN" => FTL_ZH_CN,
+            "zh-TW" => FTL_ZH_TW,
+            "ms" => FTL_MS,
+            "ta" => FTL_TA,
+            "vi" => FTL_VI,
             _ => FTL_EN,
         };
 

@@ -5,3 +5,18 @@ native_name = "English"
 
 [languages.ja]
 native_name = "日本語"
+
+[languages.zh-CN]
+native_name = "简体中文"
+
+[languages.zh-TW]
+native_name = "繁體中文"
+
+[languages.ms]
+native_name = "Bahasa Melayu"
+
+[languages.ta]
+native_name = "தமிழ்"
+
+[languages.vi]
+native_name = "Tiếng Việt"
