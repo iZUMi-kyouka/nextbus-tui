@@ -3,10 +3,12 @@ use ratatui::{
     layout::Rect,
     style::{Modifier, Style},
     text::{Line, Span},
-    widgets::{Block, Borders, Clear, Paragraph},
+    widgets::{Clear, Paragraph},
 };
 
 use crate::app::App;
+
+use super::helpers::{centered_popup, popup_block, render_hint_row};
 
 pub(super) fn render_theme_picker(frame: &mut Frame, app: &App) {
     let filtered = app.picker_theme_indices();
@@ -15,30 +17,9 @@ pub(super) fn render_theme_picker(frame: &mut Frame, app: &App) {
     let palette = &app.theme().palette;
 
     // Popup dimensions: enough rows for all visible themes + 1 blank + 1 hint + 2 borders.
-    let popup_h = (n as u16 + 4).min(area.height.saturating_sub(2));
-    let popup_w = 52u16.min(area.width.saturating_sub(2));
-    let popup = Rect {
-        x: area.x + (area.width.saturating_sub(popup_w)) / 2,
-        y: area.y + (area.height.saturating_sub(popup_h)) / 2,
-        width: popup_w,
-        height: popup_h,
-    };
-
+    let popup = centered_popup(area, 52, n as u16 + 4);
     frame.render_widget(Clear, popup);
-
-    let block = Block::default()
-        .borders(Borders::ALL)
-        .title(format!(" {} ", app.i18n.t("theme-title")))
-        .border_style(
-            Style::default()
-                .fg(palette.highlight)
-                .add_modifier(Modifier::BOLD),
-        )
-        .style(
-            Style::default()
-                .bg(palette.background)
-                .fg(palette.foreground),
-        );
+    let block = popup_block(format!(" {} ", app.i18n.t("theme-title")), palette);
     let inner = block.inner(popup);
     frame.render_widget(block, popup);
 
@@ -96,18 +77,5 @@ pub(super) fn render_theme_picker(frame: &mut Frame, app: &App) {
     }
 
     // Hint row at the bottom of the inner area.
-    let hint_y = inner.y + inner.height.saturating_sub(1);
-    let hint_area = Rect {
-        x: inner.x,
-        y: hint_y,
-        width: inner.width,
-        height: 1,
-    };
-    frame.render_widget(
-        Paragraph::new(Line::from(Span::styled(
-            format!(" {}", app.i18n.t("footer-theme-picker")),
-            Style::default().fg(palette.dim),
-        ))),
-        hint_area,
-    );
+    render_hint_row(frame, inner, &app.i18n.t("footer-theme-picker"), palette);
 }

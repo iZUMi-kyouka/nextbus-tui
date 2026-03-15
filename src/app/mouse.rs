@@ -35,30 +35,20 @@ fn footer_hit(x: u16, searching: bool) -> Option<FooterHit> {
     }
 }
 
-// ── Layout helpers ────────────────────────────────────────────────────────────
-
-fn list_x_end(term_w: u16) -> u16 {
-    if term_w < 100 {
-        term_w * 40 / 100
-    } else {
-        term_w * 33 / 100
-    }
-}
-
 // ── Public entry point ────────────────────────────────────────────────────────
 
 /// Pure function — reads app state and event, returns intent. No mutation.
 pub fn mouse_to_message(event: MouseEvent, app: &App, term_w: u16, term_h: u16) -> Option<Message> {
     match event.kind {
         MouseEventKind::ScrollUp => {
-            if event.column < list_x_end(term_w) {
+            if event.column < crate::layout::list_x_end(term_w) {
                 Some(Message::MoveUp)
             } else {
                 None
             }
         }
         MouseEventKind::ScrollDown => {
-            if event.column < list_x_end(term_w) {
+            if event.column < crate::layout::list_x_end(term_w) {
                 Some(Message::MoveDown)
             } else {
                 None
@@ -84,7 +74,7 @@ fn left_click_message(col: u16, row: u16, app: &App, term_w: u16, term_h: u16) -
         return Some(Message::CloseSearch { keep_filter: true });
     }
 
-    if col < list_x_end(term_w) {
+    if col < crate::layout::list_x_end(term_w) {
         list_click_message(row, app, term_h)
     } else {
         Some(Message::CancelJump)

@@ -2,6 +2,7 @@ mod api;
 mod app;
 mod config;
 mod i18n;
+mod layout;
 mod message;
 mod models;
 mod theme;

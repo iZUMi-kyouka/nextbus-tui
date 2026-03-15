@@ -4,11 +4,13 @@ use ratatui::{
     layout::Rect,
     style::{Modifier, Style},
     text::{Line, Span},
-    widgets::{Block, Borders, Clear, Paragraph},
+    widgets::{Clear, Paragraph},
 };
 
 use crate::app::App;
 use crate::theme::ThemeMode;
+
+use super::helpers::{centered_popup, popup_block, render_hint_row};
 
 pub(super) fn render_settings(frame: &mut Frame, app: &App) {
     let area = frame.area();
@@ -16,30 +18,9 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
 
     // 4 content rows (interval / view / language / theme mode) + 1 hint + 2 borders = 7.
     // Add 1 blank row between content and hint → popup_h = 8.
-    let popup_h = 8u16.min(area.height.saturating_sub(2));
-    let popup_w = 64u16.min(area.width.saturating_sub(4));
-    let popup = Rect {
-        x: area.x + (area.width.saturating_sub(popup_w)) / 2,
-        y: area.y + (area.height.saturating_sub(popup_h)) / 2,
-        width: popup_w,
-        height: popup_h,
-    };
-
+    let popup = centered_popup(area, 64, 8);
     frame.render_widget(Clear, popup);
-
-    let block = Block::default()
-        .borders(Borders::ALL)
-        .title(format!(" {} ", app.i18n.t("settings-title")))
-        .border_style(
-            Style::default()
-                .fg(palette.highlight)
-                .add_modifier(Modifier::BOLD),
-        )
-        .style(
-            Style::default()
-                .bg(palette.background)
-                .fg(palette.foreground),
-        );
+    let block = popup_block(format!(" {} ", app.i18n.t("settings-title")), palette);
     let inner = block.inner(popup);
     frame.render_widget(block, popup);
 
@@ -157,17 +138,5 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
     } else {
         "settings-hint-nav"
     };
-    let hint_y = inner.y + inner.height.saturating_sub(1);
-    frame.render_widget(
-        Paragraph::new(Line::from(Span::styled(
-            format!(" {}", app.i18n.t(hint_key)),
-            Style::default().fg(palette.dim),
-        ))),
-        Rect {
-            x: inner.x,
-            y: hint_y,
-            width: inner.width,
-            height: 1,
-        },
-    );
+    render_hint_row(frame, inner, &app.i18n.t(hint_key), palette);
 }
