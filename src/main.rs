@@ -2,6 +2,7 @@ mod api;
 mod app;
 mod config;
 mod models;
+mod theme;
 mod ui;
 
 use std::io;

@@ -1,9 +1,10 @@
 use ratatui::{
-    style::{Color, Modifier, Style},
+    style::{Modifier, Style},
     text::Span,
 };
 
 use crate::models::Route;
+use crate::theme::Palette;
 
 pub(super) fn col_header(label: &str, width: usize) -> Span<'static> {
     Span::styled(
@@ -23,16 +24,16 @@ pub(super) fn fmt_arrival(t: &str) -> String {
     }
 }
 
-pub(super) fn arrival_style(t: &str) -> Style {
+pub(super) fn arrival_style(t: &str, palette: &Palette) -> Style {
     match t {
         "Arr" => Style::default()
-            .fg(Color::Green)
+            .fg(palette.success)
             .add_modifier(Modifier::BOLD),
-        "-" | "N.A." | "" => Style::default().fg(Color::DarkGray),
+        "-" | "N.A." | "" => Style::default().fg(palette.dim),
         t => {
             if t.parse::<u32>().map(|n| n <= 3).unwrap_or(false) {
                 Style::default()
-                    .fg(Color::Yellow)
+                    .fg(palette.highlight)
                     .add_modifier(Modifier::BOLD)
             } else {
                 Style::default()
@@ -41,7 +42,8 @@ pub(super) fn arrival_style(t: &str) -> Style {
     }
 }
 
-pub(super) fn route_color(name: &str, routes: &[Route]) -> Option<Color> {
+pub(super) fn route_color(name: &str, routes: &[Route]) -> Option<ratatui::style::Color> {
+    use ratatui::style::Color;
     let hex = &routes.iter().find(|r| r.name == name)?.color;
     let hex = hex.strip_prefix('#')?;
     if hex.len() != 6 {

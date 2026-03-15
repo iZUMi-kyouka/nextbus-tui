@@ -8,10 +8,13 @@ use ratatui::{
 
 use crate::app::{App, AUTO_REFRESH_SECS};
 use crate::models::Shuttle;
+use crate::theme::Palette;
 
 use super::helpers::{arrival_style, col_header, fmt_arrival, route_color};
 
 pub(super) fn render_detail(frame: &mut Frame, area: Rect, app: &App, show_plate: bool) {
+    let palette = &app.theme().palette;
+
     let Some(stop) = app.current_stop() else {
         frame.render_widget(
             Paragraph::new("No stops to display.")
@@ -30,7 +33,7 @@ pub(super) fn render_detail(frame: &mut Frame, area: Rect, app: &App, show_plate
     let block = Block::default()
         .borders(Borders::ALL)
         .title(format!(" {}{} ", caption, spinner))
-        .border_style(Style::default().fg(Color::Cyan));
+        .border_style(Style::default().fg(palette.detail_border));
 
     let inner = block.inner(area);
     frame.render_widget(block, area);
@@ -41,20 +44,20 @@ pub(super) fn render_detail(frame: &mut Frame, area: Rect, app: &App, show_plate
         None if is_loading => {
             lines.push(Line::from(Span::styled(
                 "  Loading...",
-                Style::default().fg(Color::Yellow),
+                Style::default().fg(palette.highlight),
             )));
         }
         None => {
             lines.push(Line::from(Span::styled(
                 "  No data yet.  Press [r] to fetch.",
-                Style::default().fg(Color::DarkGray),
+                Style::default().fg(palette.dim),
             )));
         }
         Some(cached) => {
             if let Some(err) = &cached.error {
                 lines.push(Line::from(Span::styled(
                     format!("  ! {}", err),
-                    Style::default().fg(Color::Red),
+                    Style::default().fg(palette.error),
                 )));
                 lines.push(Line::from(""));
             }
@@ -62,10 +65,10 @@ pub(super) fn render_detail(frame: &mut Frame, area: Rect, app: &App, show_plate
             if cached.result.shuttles.is_empty() {
                 lines.push(Line::from(Span::styled(
                     "  No buses currently in service.",
-                    Style::default().fg(Color::DarkGray),
+                    Style::default().fg(palette.dim),
                 )));
             } else {
-                render_shuttle_table(&mut lines, &cached.result.shuttles, &app, show_plate);
+                render_shuttle_table(&mut lines, &cached.result.shuttles, app, show_plate, palette);
             }
 
             // Refresh countdown footer.
@@ -83,7 +86,7 @@ pub(super) fn render_detail(frame: &mut Frame, area: Rect, app: &App, show_plate
             };
             lines.push(Line::from(Span::styled(
                 footer_text,
-                Style::default().fg(Color::DarkGray),
+                Style::default().fg(palette.dim),
             )));
         }
     }
@@ -101,6 +104,7 @@ fn render_shuttle_table(
     shuttles: &[Shuttle],
     app: &App,
     show_plate: bool,
+    palette: &Palette,
 ) {
     // Compact column widths when narrow (no plate column):
     //   Next      = 9  ("Arriving" + 1)
@@ -122,7 +126,7 @@ fn render_shuttle_table(
     lines.push(Line::from(header));
     lines.push(Line::from(Span::styled(
         "\u{2500}".repeat(sep_len),
-        Style::default().fg(Color::DarkGray),
+        Style::default().fg(palette.dim),
     )));
 
     // Deduplicate: the API returns one entry per direction for routes that serve
@@ -145,7 +149,7 @@ fn render_shuttle_table(
     }
 
     for s in deduped {
-        lines.push(shuttle_row(s, app, show_plate, next_w, foll_w));
+        lines.push(shuttle_row(s, app, show_plate, next_w, foll_w, palette));
     }
 }
 
@@ -155,6 +159,7 @@ fn shuttle_row(
     show_plate: bool,
     next_w: usize,
     foll_w: usize,
+    palette: &Palette,
 ) -> Line<'static> {
     let next_text = fmt_arrival(&s.arrival_time);
     let following_text = fmt_arrival(&s.next_arrival_time);
@@ -180,18 +185,18 @@ fn shuttle_row(
         name_spans[1].clone(),
         Span::styled(
             format!("{:<next_w$}", next_text),
-            arrival_style(&s.arrival_time),
+            arrival_style(&s.arrival_time, palette),
         ),
         Span::styled(
             format!("{:<foll_w$}", following_text),
-            arrival_style(&s.next_arrival_time),
+            arrival_style(&s.next_arrival_time, palette),
         ),
     ];
 
     if show_plate {
         spans.push(Span::styled(
             format!("{:<12}", plate),
-            Style::default().fg(Color::DarkGray),
+            Style::default().fg(palette.dim),
         ));
     }
 

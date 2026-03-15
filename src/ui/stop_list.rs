@@ -1,6 +1,6 @@
 use ratatui::{
     layout::Rect,
-    style::{Color, Modifier, Style},
+    style::{Modifier, Style},
     widgets::{Block, Borders, List, ListItem},
     Frame,
 };
@@ -10,6 +10,7 @@ use crate::app::App;
 use super::helpers::ellipsis;
 
 pub(super) fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
+    let palette = &app.theme().palette;
     let fav_count = app.fav_count_in_list();
 
     let items: Vec<ListItem> = app
@@ -28,8 +29,9 @@ pub(super) fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
             let caption = ellipsis(&stop.caption, caption_width);
             let label = format!("{:>2} {}{}{}", pos + 1, star, caption, spin);
 
+            // In fav view every entry IS a favourite, so no yellow distinction needed.
             let style = if is_fav && !app.fav_view {
-                Style::default().fg(Color::Yellow)
+                Style::default().fg(palette.highlight)
             } else {
                 Style::default()
             };
@@ -50,13 +52,13 @@ pub(super) fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
     let block = Block::default()
         .borders(Borders::ALL)
         .title(title)
-        .border_style(Style::default().fg(Color::Blue));
+        .border_style(Style::default().fg(palette.border));
 
     let list = List::new(items)
         .block(block)
         .highlight_style(
             Style::default()
-                .bg(Color::DarkGray)
+                .bg(palette.dim)
                 .add_modifier(Modifier::BOLD),
         )
         .highlight_symbol(" > ");
