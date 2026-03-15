@@ -82,6 +82,7 @@ impl App {
             (KeyCode::Char('F'), _) => {
                 self.cancel_jump();
                 self.fav_view = !self.fav_view;
+                self.search_query.clear();
                 self.rebuild_list();
                 self.ensure_data();
             }
@@ -91,6 +92,8 @@ impl App {
             }
             (KeyCode::Char('/'), _) => {
                 self.cancel_jump();
+                self.search_query.clear();
+                self.rebuild_list();
                 self.searching = true;
             }
             (KeyCode::Char(c), _) if c.is_ascii_digit() => self.push_jump_digit(c),

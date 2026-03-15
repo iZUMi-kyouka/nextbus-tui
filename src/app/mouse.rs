@@ -150,7 +150,11 @@ impl App {
         match footer_hit(col, self.searching) {
             Some(FooterHit::Favourite) => self.toggle_favourite(),
             Some(FooterHit::Refresh) => self.refresh_current(),
-            Some(FooterHit::Search) => self.searching = true,
+            Some(FooterHit::Search) => {
+                self.search_query.clear();
+                self.rebuild_list();
+                self.searching = true;
+            }
             Some(FooterHit::GoFirst) => self.go_first(),
             Some(FooterHit::Quit) => self.should_quit = true,
             Some(FooterHit::ConfirmSearch) => {
