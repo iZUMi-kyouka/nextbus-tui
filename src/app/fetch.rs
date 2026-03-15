@@ -1,4 +1,3 @@
-use std::thread;
 use std::time::Instant;
 
 use crate::models::{AppEvent, ShuttleServiceResult};
@@ -32,7 +31,9 @@ impl App {
     pub(super) fn start_fetch(&mut self, stop_name: String) {
         self.fetch.loading.insert(stop_name.clone());
         let tx = self.fetch.tx.clone();
-        thread::spawn(move || {
+
+        #[cfg(not(target_arch = "wasm32"))]
+        std::thread::spawn(move || {
             let event = match crate::api::fetch_shuttle_service(&stop_name) {
                 Ok(data) => AppEvent::DataReceived { stop_name, data },
                 Err(e) => AppEvent::FetchError {
@@ -42,6 +43,20 @@ impl App {
             };
             let _ = tx.send(event);
         });
+
+        #[cfg(target_arch = "wasm32")]
+        {
+            wasm_bindgen_futures::spawn_local(async move {
+                let event = match crate::api::fetch_shuttle_service_async(&stop_name).await {
+                    Ok(data) => AppEvent::DataReceived { stop_name, data },
+                    Err(e) => AppEvent::FetchError {
+                        stop_name,
+                        error: e,
+                    },
+                };
+                let _ = tx.send(event);
+            });
+        }
     }
 
     pub fn handle_data(&mut self, stop_name: String, data: ShuttleServiceResult) {

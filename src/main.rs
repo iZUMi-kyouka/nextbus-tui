@@ -7,11 +7,17 @@ mod message;
 mod models;
 mod theme;
 mod ui;
+#[cfg(target_arch = "wasm32")]
+mod web;
 
+#[cfg(not(target_arch = "wasm32"))]
 use std::io;
+#[cfg(not(target_arch = "wasm32"))]
 use std::sync::mpsc;
+#[cfg(not(target_arch = "wasm32"))]
 use std::time::Duration;
 
+#[cfg(not(target_arch = "wasm32"))]
 use crossterm::{
     event::{
         self, DisableFocusChange, DisableMouseCapture, EnableFocusChange, EnableMouseCapture, Event,
@@ -19,14 +25,21 @@ use crossterm::{
     execute,
     terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
+#[cfg(not(target_arch = "wasm32"))]
 use ratatui::{Terminal, backend::CrosstermBackend};
 
+#[cfg(not(target_arch = "wasm32"))]
 use app::App;
+#[cfg(not(target_arch = "wasm32"))]
 use app::input::key_to_message;
+#[cfg(not(target_arch = "wasm32"))]
 use app::mouse::mouse_to_message;
+#[cfg(not(target_arch = "wasm32"))]
 use message::Message;
+#[cfg(not(target_arch = "wasm32"))]
 use models::AppEvent;
 
+#[cfg(not(target_arch = "wasm32"))]
 fn main() -> io::Result<()> {
     // Load .env if present; silently ignore if it doesn't exist.
     let _ = dotenvy::dotenv();
@@ -56,6 +69,12 @@ fn main() -> io::Result<()> {
     result
 }
 
+#[cfg(target_arch = "wasm32")]
+fn main() {
+    web::start();
+}
+
+#[cfg(not(target_arch = "wasm32"))]
 fn setup_terminal() -> io::Result<Terminal<CrosstermBackend<io::Stdout>>> {
     enable_raw_mode()?;
     let mut stdout = io::stdout();
@@ -69,6 +88,7 @@ fn setup_terminal() -> io::Result<Terminal<CrosstermBackend<io::Stdout>>> {
     Terminal::new(backend)
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn restore_terminal(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> io::Result<()> {
     disable_raw_mode()?;
     execute!(
@@ -80,6 +100,7 @@ fn restore_terminal(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> io
     terminal.show_cursor()
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn run_loop(
     terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
     app: &mut App,
