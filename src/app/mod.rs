@@ -12,9 +12,9 @@ use crate::message::Message;
 use crate::models::{AppEvent, BusStop, Route, ShuttleServiceResult};
 use crate::theme::{Theme, ThemeMode};
 
+use crate::time::Instant;
 use std::collections::{HashMap, HashSet};
 use std::sync::mpsc;
-use std::time::Instant;
 
 use ratatui::widgets::ListState;
 
@@ -241,8 +241,7 @@ impl App {
     fn effective_mode(&self) -> ThemeMode {
         match self.settings.theme_mode {
             ThemeMode::Auto => {
-                use chrono::Timelike;
-                let hour = chrono::Local::now().hour();
+                let hour = Self::current_hour();
                 if (6..18).contains(&hour) {
                     ThemeMode::Light
                 } else {
@@ -250,6 +249,18 @@ impl App {
                 }
             }
             mode => mode,
+        }
+    }
+
+    fn current_hour() -> u32 {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            use chrono::Timelike;
+            chrono::Local::now().hour()
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            js_sys::Date::new_0().get_hours() as u32
         }
     }
 

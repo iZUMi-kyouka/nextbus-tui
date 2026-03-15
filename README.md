@@ -99,6 +99,23 @@ trunk serve --open
 
 This serves `index.html` and starts the wasm runtime in your browser.
 
+### Deploying to `nusbus.flovt.net`
+
+The `proxy_api` Cloudflare Worker can now serve both:
+
+- `/` and other non-API paths: static Trunk output (`dist/`)
+- `/ShuttleService`: cached proxy to NUSMods
+
+Build and deploy from `proxy_api/`:
+
+```bash
+cd proxy_api
+npm install
+npm run deploy:web
+```
+
+This runs a release wasm build (`trunk build --release`) and deploys Worker + assets on the same hostname.
+
 ### Native size-bloat guard
 
 To ensure wasm-only crates are never linked into native targets, run:

@@ -1,10 +1,10 @@
 use fluent::FluentArgs;
 use ratatui::{
-    Frame,
     layout::Rect,
     style::{Modifier, Style},
     text::{Line, Span},
     widgets::{Block, Borders, Paragraph},
+    Frame,
 };
 use unicode_width::UnicodeWidthChar;
 use unicode_width::UnicodeWidthStr;

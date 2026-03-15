@@ -6,6 +6,7 @@ mod layout;
 mod message;
 mod models;
 mod theme;
+mod time;
 mod ui;
 #[cfg(target_arch = "wasm32")]
 mod web;
@@ -23,17 +24,17 @@ use crossterm::{
         self, DisableFocusChange, DisableMouseCapture, EnableFocusChange, EnableMouseCapture, Event,
     },
     execute,
-    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 #[cfg(not(target_arch = "wasm32"))]
-use ratatui::{Terminal, backend::CrosstermBackend};
+use ratatui::{backend::CrosstermBackend, Terminal};
 
-#[cfg(not(target_arch = "wasm32"))]
-use app::App;
 #[cfg(not(target_arch = "wasm32"))]
 use app::input::key_to_message;
 #[cfg(not(target_arch = "wasm32"))]
 use app::mouse::mouse_to_message;
+#[cfg(not(target_arch = "wasm32"))]
+use app::App;
 #[cfg(not(target_arch = "wasm32"))]
 use message::Message;
 #[cfg(not(target_arch = "wasm32"))]
@@ -51,12 +52,10 @@ fn main() -> io::Result<()> {
 
     // Background tick thread — drives auto-refresh countdown and status expiry.
     let tick_tx = tx.clone();
-    std::thread::spawn(move || {
-        loop {
-            std::thread::sleep(Duration::from_millis(500));
-            if tick_tx.send(AppEvent::Tick).is_err() {
-                break;
-            }
+    std::thread::spawn(move || loop {
+        std::thread::sleep(Duration::from_millis(500));
+        if tick_tx.send(AppEvent::Tick).is_err() {
+            break;
         }
     });
 

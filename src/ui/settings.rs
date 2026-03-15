@@ -1,10 +1,10 @@
 use fluent::FluentArgs;
 use ratatui::{
-    Frame,
     layout::Rect,
     style::{Modifier, Style},
     text::{Line, Span},
     widgets::{Clear, Paragraph},
+    Frame,
 };
 
 use crate::app::App;
