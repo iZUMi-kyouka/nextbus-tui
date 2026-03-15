@@ -56,6 +56,7 @@ impl App {
                 let indices = self.picker_theme_indices();
                 if let Some(&idx) = indices.get(self.theme_picker_cursor) {
                     self.theme_idx = idx;
+                    crate::config::save(&self.config_snapshot());
                 }
                 self.showing_theme_picker = false;
             }
@@ -136,6 +137,7 @@ impl App {
                         .position(|&i| i == self.theme_idx)
                         .unwrap_or(0);
                     self.theme_idx = indices[(pos + 1) % indices.len()];
+                    crate::config::save(&self.config_snapshot());
                 }
             }
             (KeyCode::Char('X'), _) => {
@@ -172,6 +174,8 @@ mod tests {
         let mut app = App::new(tx);
         app.favourites.clear();
         app.fav_view = false;
+        app.theme_mode = crate::theme::ThemeMode::Dark;
+        app.theme_idx = 0;
         app.i18n = crate::i18n::I18n::new("en");
         app.rebuild_list();
         app

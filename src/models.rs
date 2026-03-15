@@ -97,6 +97,10 @@ fn default_theme_mode() -> ThemeMode {
     ThemeMode::Dark
 }
 
+fn default_theme_idx() -> usize {
+    0
+}
+
 /// Persisted user configuration
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
@@ -114,6 +118,9 @@ pub struct Config {
     /// Theme mode: dark, light, or auto (switches based on local time).
     #[serde(default = "default_theme_mode")]
     pub theme_mode: ThemeMode,
+    /// Index of the active theme in the themes list.
+    #[serde(default = "default_theme_idx")]
+    pub theme_idx: usize,
 }
 
 impl Default for Config {
@@ -124,6 +131,7 @@ impl Default for Config {
             default_fav_view: false,
             language: default_language(),
             theme_mode: default_theme_mode(),
+            theme_idx: default_theme_idx(),
         }
     }
 }

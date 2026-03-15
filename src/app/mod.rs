@@ -116,6 +116,7 @@ impl App {
         let auto_refresh_secs = config.refresh_interval_secs;
         let default_fav_view = config.default_fav_view;
         let theme_mode = config.theme_mode;
+        let theme_idx = config.theme_idx;
         let i18n = I18n::new(&config.language);
 
         let mut app = App {
@@ -131,7 +132,7 @@ impl App {
             searching: false,
             fav_view: default_fav_view,
             themes: crate::theme::load_themes(),
-            theme_idx: 0,
+            theme_idx,
             showing_theme_picker: false,
             theme_picker_cursor: 0,
             showing_settings: false,
@@ -205,6 +206,7 @@ impl App {
             default_fav_view: self.default_fav_view,
             language: self.i18n.lang.clone(),
             theme_mode: self.theme_mode,
+            theme_idx: self.theme_idx,
         }
     }
 }

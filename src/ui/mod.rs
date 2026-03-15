@@ -89,6 +89,8 @@ mod tests {
         let mut app = App::new(tx);
         app.favourites.clear();
         app.fav_view = false;
+        app.theme_mode = crate::theme::ThemeMode::Dark;
+        app.theme_idx = 0;
         app.i18n = crate::i18n::I18n::new("en");
         app.rebuild_list();
         app
