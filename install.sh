@@ -234,6 +234,27 @@ if [[ "$OS" == "linux" ]]; then
     desktop_file="${applications_dir}/nextbus-tui.desktop"
     run mkdir -p "$applications_dir"
 
+    # Install the app icon to the XDG icon theme directory.
+    icon_dir="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor/256x256/apps"
+    icon_path="${icon_dir}/nextbus-tui.png"
+    icon_entry="nextbus-tui"
+    run mkdir -p "$icon_dir"
+    if [[ "$DRY_RUN" == "1" ]]; then
+      log "DRY RUN: download icon to $icon_path"
+    else
+      icon_url="https://raw.githubusercontent.com/${REPO}/master/assets/icon.png"
+      if curl -fsSL "$icon_url" -o "$icon_path" 2>/dev/null; then
+        log "Icon installed to $icon_path"
+        # Refresh icon cache if gtk-update-icon-cache is available.
+        if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+          gtk-update-icon-cache -f -t "${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor" 2>/dev/null || true
+        fi
+      else
+        log "Icon download failed — desktop entry will use no icon."
+        icon_entry=""
+      fi
+    fi
+
     if [[ "$DRY_RUN" == "1" ]]; then
       log "DRY RUN: write $desktop_file"
     else
@@ -243,6 +264,7 @@ Type=Application
 Name=nextbus-tui
 Comment=NUS shuttle bus arrival TUI
 Exec=$install_path
+Icon=$icon_entry
 Terminal=true
 Categories=Utility;
 EOF
