@@ -30,7 +30,8 @@ pub(super) fn render_search_overlay(frame: &mut Frame, app: &App) {
             Style::default()
                 .fg(p.highlight)
                 .add_modifier(Modifier::BOLD),
-        );
+        )
+        .style(Style::default().bg(p.background).fg(p.foreground));
 
     let input = Paragraph::new(Line::from(vec![
         Span::raw(&app.search_query[..]),

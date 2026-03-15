@@ -9,11 +9,12 @@ use ratatui::{
 use crate::app::App;
 
 pub(super) fn render_theme_picker(frame: &mut Frame, app: &App) {
-    let n = app.themes.len();
+    let filtered = app.picker_theme_indices();
+    let n = filtered.len();
     let area = frame.area();
     let palette = &app.theme().palette;
 
-    // Popup dimensions: enough rows for all themes + 1 blank + 1 hint + 2 borders.
+    // Popup dimensions: enough rows for all visible themes + 1 blank + 1 hint + 2 borders.
     let popup_h = (n as u16 + 4).min(area.height.saturating_sub(2));
     let popup_w = 52u16.min(area.width.saturating_sub(2));
     let popup = Rect {
@@ -32,6 +33,11 @@ pub(super) fn render_theme_picker(frame: &mut Frame, app: &App) {
             Style::default()
                 .fg(palette.highlight)
                 .add_modifier(Modifier::BOLD),
+        )
+        .style(
+            Style::default()
+                .bg(palette.background)
+                .fg(palette.foreground),
         );
     let inner = block.inner(popup);
     frame.render_widget(block, popup);
@@ -44,10 +50,11 @@ pub(super) fn render_theme_picker(frame: &mut Frame, app: &App) {
         0
     };
 
-    for (i, theme) in app.themes.iter().enumerate().skip(offset).take(entry_rows) {
-        let row_y = inner.y + (i - offset) as u16;
+    for (list_pos, &theme_global_idx) in filtered.iter().enumerate().skip(offset).take(entry_rows) {
+        let theme = &app.themes[theme_global_idx];
+        let row_y = inner.y + (list_pos - offset) as u16;
 
-        let is_selected = i == app.theme_picker_cursor;
+        let is_selected = list_pos == app.theme_picker_cursor;
         let cursor_str = if is_selected { " > " } else { "   " };
 
         let mut spans = vec![Span::styled(
