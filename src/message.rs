@@ -65,6 +65,10 @@ pub enum Message {
     /// Scroll the list viewport down without moving the selection.
     ScrollListDown,
 
+    // ── Focus ─────────────────────────────────────────────────────────────────
+    FocusGained,
+    FocusLost,
+
     // ── Control ──────────────────────────────────────────────────────────────
     RefreshCurrent,
     Quit,

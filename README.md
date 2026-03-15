@@ -71,7 +71,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 ## Features
 
 - **33 NUS bus stops** with live arrival times from the NUS shuttle service API
-- **Auto-refresh** every 30 seconds (configurable 5–300 s)
+- **Auto-refresh** every 20 seconds (configurable 5–300 s)
 - **Favourites** — star stops for quick access; a dedicated favourites view shows only your starred stops
 - **Search / filter** — spotlight-style overlay to filter stops by name
 - **Number jump** — type a stop number to jump directly to it
