@@ -18,7 +18,10 @@ toml = "0.8"
 fluent = "0.16"
 unic-langid = "0.9"
 unicode-width = "0.2"
+unicode-segmentation = "1"
 chrono = "0.4"
+beamterm-data = "0.7"
+fontdue = "0.9"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 ratatui = { version = "0.29", default-features = false, features = ["crossterm"] }
@@ -32,6 +35,6 @@ ratatui = { version = "0.29", default-features = false }
 ratzilla = "0.2"
 wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4"
-web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlCanvasElement", "CanvasRenderingContext2d", "Storage", "Response"] }
+web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlCanvasElement", "CanvasRenderingContext2d", "Storage", "Response", "WheelEvent", "TouchEvent", "Touch", "TouchList"] }
 js-sys = "0.3"
 console_error_panic_hook = "0.1"

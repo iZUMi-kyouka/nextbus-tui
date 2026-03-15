@@ -10,11 +10,16 @@ use wasm_bindgen::JsCast;
 
 use ratzilla::event::{KeyCode, KeyEvent};
 use ratzilla::web_sys;
-use ratzilla::{WebGl2Backend, WebRenderer};
+use ratzilla::WebRenderer;
 
 use crate::app::App;
 use crate::message::Message;
 use crate::models::AppEvent;
+use crate::web_atlas;
+
+const WEB_FONT_LINK_ID: &str = "nextbus-web-fonts";
+const WEB_FONT_STYLESHEET_URL: &str = "https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+SC:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Sans+Tamil:wght@400;700&display=swap";
+const WEB_FONT_STACK: &str = "'Noto Sans Mono', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans JP', 'Noto Sans Tamil', monospace";
 
 pub fn start() {
     console_error_panic_hook::set_once();
@@ -59,10 +64,28 @@ fn bootstrap_runtime() {
     let Some(window) = web_sys::window() else {
         return;
     };
+    let Some(document) = window.document() else {
+        return;
+    };
 
-    let backend = match WebGl2Backend::new() {
+    // Prevent the browser's native find-in-page dialog when "/" is pressed,
+    // since it is used as the search shortcut in this app.
+    let prevent_slash: Closure<dyn FnMut(web_sys::KeyboardEvent)> =
+        Closure::wrap(Box::new(|event: web_sys::KeyboardEvent| {
+            if event.key() == "/" {
+                event.prevent_default();
+            }
+        }));
+    let _ = document
+        .add_event_listener_with_callback("keydown", prevent_slash.as_ref().unchecked_ref());
+    prevent_slash.forget();
+
+    let backend = match web_atlas::create_backend() {
         Ok(b) => b,
-        Err(_) => return,
+        Err(e) => {
+            eprintln!("{e}");
+            return;
+        }
     };
     let terminal = match ratzilla::ratatui::Terminal::new(backend) {
         Ok(t) => t,
@@ -77,6 +100,8 @@ fn bootstrap_runtime() {
         app_ref.ensure_data();
     }
 
+    apply_web_font_css();
+
     terminal.on_key_event({
         let app_ref = Rc::clone(&app);
         move |key| {
@@ -86,6 +111,7 @@ fn bootstrap_runtime() {
             };
             if let Some(msg) = msg {
                 app_ref.borrow_mut().update(msg);
+                apply_web_font_css();
             }
         }
     });
@@ -114,6 +140,61 @@ fn bootstrap_runtime() {
             let mut app = app_ref.borrow_mut();
             crate::ui::render(f, &mut app);
         });
+    }
+}
+
+fn apply_web_font_css() {
+    let Some(window) = web_sys::window() else {
+        return;
+    };
+    let Some(document) = window.document() else {
+        return;
+    };
+
+    ensure_web_fonts_loaded(&document);
+
+    // Keep CSS font stack on document and canvas in sync for non-WebGL text contexts.
+    if let Some(body) = document.body() {
+        append_font_family_style(&body, WEB_FONT_STACK);
+    }
+    if let Ok(Some(canvas)) = document.query_selector("canvas") {
+        if let Ok(canvas) = canvas.dyn_into::<web_sys::HtmlCanvasElement>() {
+            append_font_family_style(&canvas, WEB_FONT_STACK);
+        }
+    }
+}
+
+fn append_font_family_style<T>(element: &T, font_stack: &str)
+where
+    T: AsRef<web_sys::Element>,
+{
+    let element = element.as_ref();
+    let existing = element.get_attribute("style").unwrap_or_default();
+    if existing.contains("font-family") {
+        return;
+    }
+    let style = if existing.trim().is_empty() {
+        format!("font-family: {font_stack};")
+    } else {
+        format!("{} font-family: {font_stack};", existing.trim_end())
+    };
+    let _ = element.set_attribute("style", &style);
+}
+
+fn ensure_web_fonts_loaded(document: &web_sys::Document) {
+    if document.get_element_by_id(WEB_FONT_LINK_ID).is_some() {
+        return;
+    }
+
+    let Ok(link) = document.create_element("link") else {
+        return;
+    };
+    let _ = link.set_attribute("id", WEB_FONT_LINK_ID);
+    let _ = link.set_attribute("rel", "stylesheet");
+    let _ = link.set_attribute("href", WEB_FONT_STYLESHEET_URL);
+
+    if let Some(body) = document.body() {
+        let _ = body.append_child(&link);
     }
 }
 
