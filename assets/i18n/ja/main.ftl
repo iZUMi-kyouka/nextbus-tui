@@ -67,3 +67,35 @@ status-view-all     = 全バス停
 status-view-favs    = お気に入り
 status-lang-set     = 言語: { $name }
 status-theme-mode-set = テーマモード: { $mode }
+
+# ── SG Public Bus mode ──────────────────────────────────────────────────────────
+title-mode-sg            = SG バス
+title-switch-hint-sg     = [Tab] SG バス
+title-switch-hint-nus    = [Tab] NUS キャンパス
+
+sg-panel-stops-title    = SG バス停
+sg-panel-stops          = バス停 ({ $count })
+sg-panel-favs           = ★ お気に入り ({ $count })
+sg-stops-loading        = バス停を読み込み中... ({ $count } 件読み込み済み)
+sg-stops-error          = 読み込みに失敗しました: { $message }
+
+sg-detail-no-service    = このバス停に運行中のバスはありません。
+sg-detail-loading       = 到着情報を取得中...
+sg-detail-no-data       = データなし。[r] を押して更新してください。
+sg-detail-error         = ! { $message }
+
+sg-col-bus   = バス
+sg-col-opr   = 運営
+sg-col-next  = 次
+sg-col-2nd   = 次々
+sg-col-load  = 混雑
+sg-col-type  = 種別
+
+settings-mode-label  = デフォルトモード:
+settings-mode-nus    = [NUS キャンパス]
+settings-mode-sg     = [SG バス]
+
+status-mode-sg  = SG バスモードに切替
+status-mode-nus = NUS キャンパスモードに切替
+
+footer-normal-sg = [↑↓/j/k] 移動   [f] お気に入り   [r] 更新   [/] 検索   [Tab] NUS   [s] 設定   [q] 終了

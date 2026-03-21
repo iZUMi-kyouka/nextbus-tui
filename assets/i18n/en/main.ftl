@@ -67,3 +67,35 @@ status-view-all       = All stops
 status-view-favs      = Favourites
 status-lang-set       = Language: { $name }
 status-theme-mode-set = Theme mode: { $mode }
+
+# ── SG Public Bus mode ──────────────────────────────────────────────────────────
+title-mode-sg            = SG Public Bus
+title-switch-hint-sg     = [Tab] SG Public Bus
+title-switch-hint-nus    = [Tab] NUS Campus
+
+sg-panel-stops-title    = SG Bus Stops
+sg-panel-stops          = Bus Stops ({ $count })
+sg-panel-favs           = ★ Favourites ({ $count })
+sg-stops-loading        = Loading bus stops... ({ $count } loaded)
+sg-stops-error          = Failed to load stops: { $message }
+
+sg-detail-no-service    = No buses in service at this stop.
+sg-detail-loading       = Fetching arrivals...
+sg-detail-no-data       = No data yet.  Press [r] to refresh.
+sg-detail-error         = ! { $message }
+
+sg-col-bus   = Bus
+sg-col-opr   = Opr
+sg-col-next  = Next
+sg-col-2nd   = 2nd
+sg-col-load  = Load
+sg-col-type  = Type
+
+settings-mode-label  = Default mode:
+settings-mode-nus    = [NUS Campus]
+settings-mode-sg     = [SG Public Bus]
+
+status-mode-sg  = Switched to SG Public Bus
+status-mode-nus = Switched to NUS Campus
+
+footer-normal-sg = [↑↓/j/k] Move   [f] Fav   [r] Refresh   [/] Search   [Tab] NUS   [s] Settings   [q] Quit

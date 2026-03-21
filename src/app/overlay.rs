@@ -1,6 +1,7 @@
 use fluent::FluentArgs;
 
 use super::App;
+use crate::models::AppMode;
 use crate::theme::ThemeMode;
 
 pub const REFRESH_MIN: u64 = 5;
@@ -53,6 +54,20 @@ impl App {
                 args.set("mode", mode_str.as_str());
                 let msg = self.i18n.t_args("status-theme-mode-set", &args);
                 self.set_status(&msg);
+                self.settings.persist(&self.i18n.lang);
+            }
+            4 => {
+                // Toggle default mode
+                self.settings.default_mode = match self.settings.default_mode {
+                    AppMode::NusCampus => AppMode::SgPublicBus,
+                    AppMode::SgPublicBus => AppMode::NusCampus,
+                };
+                let msg_key = match self.settings.default_mode {
+                    AppMode::NusCampus => "settings-mode-nus",
+                    AppMode::SgPublicBus => "settings-mode-sg",
+                };
+                let mode_str = self.i18n.t(msg_key);
+                self.set_status(&mode_str);
                 self.settings.persist(&self.i18n.lang);
             }
             _ => {}

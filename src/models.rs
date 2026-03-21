@@ -55,6 +55,86 @@ pub struct Shuttle {
     pub next_passengers: Option<String>,
 }
 
+/// App mode: NUS campus shuttles or SG public bus.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum AppMode {
+    #[default]
+    NusCampus,
+    SgPublicBus,
+}
+
+/// A SG public bus stop from the LTA DataMall BusStops endpoint.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SgBusStop {
+    pub code: String,
+    pub road_name: String,
+    pub description: String,
+    pub latitude: f64,
+    pub longitude: f64,
+}
+
+/// Crowding level of an incoming bus.
+#[derive(Debug, Clone, PartialEq)]
+pub enum BusLoad {
+    SeatsAvailable,
+    StandingAvailable,
+    LimitedStanding,
+    Unknown,
+}
+
+/// Deck configuration of an incoming bus.
+#[derive(Debug, Clone, PartialEq)]
+pub enum BusType {
+    SingleDeck,
+    DoubleDeck,
+    Bendy,
+    Unknown,
+}
+
+/// Accessibility feature of an incoming bus.
+#[derive(Debug, Clone, PartialEq)]
+pub enum BusFeature {
+    WheelchairAccessible,
+    Standard,
+}
+
+/// Bus operator identifier.
+#[derive(Debug, Clone, PartialEq)]
+pub enum BusOperator {
+    Sbst,
+    Smrt,
+    Tts,
+    Gas,
+    Unknown(String),
+}
+
+/// Real-time arrival info for one incoming bus.
+#[derive(Debug, Clone)]
+pub struct SgBusArrival {
+    pub estimated_arrival: Option<chrono::DateTime<chrono::FixedOffset>>,
+    pub monitored: bool,
+    pub load: BusLoad,
+    pub feature: BusFeature,
+    pub bus_type: BusType,
+}
+
+/// One service (route) at a bus stop, with up to three incoming buses.
+#[derive(Debug, Clone)]
+pub struct SgService {
+    pub service_no: String,
+    pub operator: BusOperator,
+    pub next: Option<SgBusArrival>,
+    pub next2: Option<SgBusArrival>,
+    pub next3: Option<SgBusArrival>,
+}
+
+/// Full arrival result for one bus stop code.
+#[derive(Debug, Clone)]
+pub struct SgArrivalResult {
+    pub bus_stop_code: String,
+    pub services: Vec<SgService>,
+}
+
 /// Internal event bus between background threads and the main loop
 pub enum AppEvent {
     Tick,
@@ -64,6 +144,20 @@ pub enum AppEvent {
     },
     FetchError {
         stop_name: String,
+        error: String,
+    },
+    SgDataReceived {
+        stop_code: String,
+        data: SgArrivalResult,
+    },
+    SgFetchError {
+        stop_code: String,
+        error: String,
+    },
+    SgStopsLoaded {
+        stops: Vec<SgBusStop>,
+    },
+    SgStopsError {
         error: String,
     },
 }
@@ -101,11 +195,17 @@ fn default_theme_idx() -> usize {
     0
 }
 
+fn default_app_mode() -> AppMode {
+    AppMode::NusCampus
+}
+
 /// Persisted user configuration
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
     #[serde(default)]
     pub favourites: Vec<String>,
+    #[serde(default)]
+    pub sg_favourites: Vec<String>,
     /// Auto-refresh interval in seconds (5–300).
     #[serde(default = "default_refresh_interval")]
     pub refresh_interval_secs: u64,
@@ -121,17 +221,22 @@ pub struct Config {
     /// Index of the active theme in the themes list.
     #[serde(default = "default_theme_idx")]
     pub theme_idx: usize,
+    /// Default app mode on startup.
+    #[serde(default = "default_app_mode")]
+    pub default_mode: AppMode,
 }
 
 impl Default for Config {
     fn default() -> Self {
         Self {
             favourites: Vec::new(),
+            sg_favourites: Vec::new(),
             refresh_interval_secs: default_refresh_interval(),
             default_fav_view: false,
             language: default_language(),
             theme_mode: default_theme_mode(),
             theme_idx: default_theme_idx(),
+            default_mode: default_app_mode(),
         }
     }
 }

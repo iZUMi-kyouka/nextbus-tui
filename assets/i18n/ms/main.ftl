@@ -67,3 +67,35 @@ status-view-all       = Semua hentian
 status-view-favs      = Kegemaran
 status-lang-set       = Bahasa: { $name }
 status-theme-mode-set = Mod tema: { $mode }
+
+# ── SG Bas Awam ─────────────────────────────────────────────────────────────────
+title-mode-sg            = SG Bas Awam
+title-switch-hint-sg     = [Tab] SG Bas Awam
+title-switch-hint-nus    = [Tab] NUS Kampus
+
+sg-panel-stops-title    = Hentian Bas SG
+sg-panel-stops          = Hentian Bas ({ $count })
+sg-panel-favs           = ★ Kegemaran ({ $count })
+sg-stops-loading        = Memuatkan hentian bas... ({ $count } dimuatkan)
+sg-stops-error          = Gagal memuat hentian: { $message }
+
+sg-detail-no-service    = Tiada bas beroperasi di hentian ini.
+sg-detail-loading       = Mendapatkan maklumat ketibaan...
+sg-detail-no-data       = Tiada data lagi. Tekan [r] untuk menyegar semula.
+sg-detail-error         = ! { $message }
+
+sg-col-bus   = Bas
+sg-col-opr   = Pengendali
+sg-col-next  = Seterusnya
+sg-col-2nd   = Berikutnya
+sg-col-load  = Muatan
+sg-col-type  = Jenis
+
+settings-mode-label  = Mod lalai:
+settings-mode-nus    = [NUS Kampus]
+settings-mode-sg     = [SG Bas Awam]
+
+status-mode-sg  = Beralih ke SG Bas Awam
+status-mode-nus = Beralih ke NUS Kampus
+
+footer-normal-sg = [↑↓/j/k] Gerak   [f] Kegemaran   [r] Segar   [/] Cari   [Tab] NUS   [s] Tetapan   [q] Keluar

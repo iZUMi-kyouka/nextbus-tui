@@ -13,7 +13,7 @@ pub fn key_to_message(key: KeyEvent, app: &App) -> Option<Message> {
         settings_key(key, app)
     } else if app.overlay.showing_theme_picker {
         picker_key(key)
-    } else if app.nav.searching {
+    } else if app.nav.searching || app.sg_nav.searching {
         search_key(key)
     } else {
         normal_key(key, app)
@@ -108,6 +108,7 @@ fn normal_key(key: KeyEvent, app: &App) -> Option<Message> {
         (KeyCode::Char('s'), _) | (KeyCode::Char('S'), _) => Some(Message::OpenSettings),
         (KeyCode::Char(c), _) if c.is_ascii_digit() => Some(Message::JumpDigit(c)),
         (KeyCode::Enter, _) if !app.nav.jump_buf.is_empty() => Some(Message::CommitJump),
+        (KeyCode::Tab, _) => Some(Message::SwitchMode),
         _ => Some(Message::CancelJump),
     }
 }

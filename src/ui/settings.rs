@@ -8,6 +8,7 @@ use ratatui::{
 };
 
 use crate::app::App;
+use crate::models::AppMode;
 use crate::theme::ThemeMode;
 
 use super::helpers::{centered_popup, popup_block, render_hint_row};
@@ -16,9 +17,10 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
     let area = frame.area();
     let palette = &app.theme().palette;
 
-    // 4 content rows (interval / view / language / theme mode) + 1 hint + 2 borders = 7.
-    // Add 1 blank row between content and hint → popup_h = 8.
-    let popup = centered_popup(area, 64, 8);
+    // 5 content rows (interval / view / language / theme mode / default mode)
+    // + 1 hint + 2 borders = 8.
+    // Add 1 blank row between content and hint → popup_h = 9.
+    let popup = centered_popup(area, 64, 9);
     frame.render_widget(Clear, popup);
     let block = popup_block(format!(" {} ", app.i18n.t("settings-title")), palette);
     let inner = block.inner(popup);
@@ -58,10 +60,16 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
         ThemeMode::Auto => app.i18n.t("settings-theme-mode-auto"),
     };
 
+    let default_mode_display = match app.settings.default_mode {
+        AppMode::NusCampus => app.i18n.t("settings-mode-nus"),
+        AppMode::SgPublicBus => app.i18n.t("settings-mode-sg"),
+    };
+
     let interval_label = app.i18n.t("settings-interval-label");
     let view_label = app.i18n.t("settings-view-label");
     let lang_label = app.i18n.t("settings-lang-label");
     let theme_mode_label = app.i18n.t("settings-theme-mode-label");
+    let default_mode_label = app.i18n.t("settings-mode-label");
 
     // (label, value, is_interactive)
     let rows: &[(&str, &str, bool)] = &[
@@ -69,6 +77,7 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
         (&view_label, &view_display, true),
         (&lang_label, &lang_display, true),
         (&theme_mode_label, &theme_mode_display, true),
+        (&default_mode_label, &default_mode_display, true),
     ];
 
     // ── Render rows ───────────────────────────────────────────────────────────
@@ -79,7 +88,7 @@ pub(super) fn render_settings(frame: &mut Frame, app: &App) {
             break; // leave the last row for the hint
         }
 
-        // Only interactive rows (0–2) can be selected by the cursor.
+        // Only interactive rows (0–4) can be selected by the cursor.
         let is_selected = *is_interactive && i == app.overlay.settings_cursor;
         let cursor_str = if is_selected { " > " } else { "   " };
 

@@ -4,6 +4,8 @@ pub(crate) mod helpers;
 pub(crate) mod lang_picker;
 pub(crate) mod search;
 pub(crate) mod settings;
+pub(crate) mod sg_detail;
+pub(crate) mod sg_stop_list;
 pub(crate) mod stop_list;
 pub(crate) mod theme_picker;
 pub(crate) mod title;
@@ -21,6 +23,8 @@ use footer::render_footer;
 use lang_picker::render_lang_picker;
 use search::render_search_overlay;
 use settings::render_settings;
+use sg_detail::render_sg_detail;
+use sg_stop_list::render_sg_list;
 use stop_list::render_list;
 use theme_picker::render_theme_picker;
 use title::render_title;
@@ -48,7 +52,7 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     render_panels(frame, root[1], app);
     render_footer(frame, root[2], app);
 
-    if app.nav.searching {
+    if app.nav.searching || app.sg_nav.searching {
         render_search_overlay(frame, app);
     }
 
@@ -73,8 +77,17 @@ fn render_panels(frame: &mut Frame, area: ratatui::layout::Rect, app: &mut App) 
         .constraints([Constraint::Length(list_end), Constraint::Min(0)])
         .split(area);
 
-    render_list(frame, cols[0], app);
-    render_detail(frame, cols[1], app, !narrow);
+    match app.mode {
+        crate::models::AppMode::SgPublicBus => {
+            render_sg_list(frame, cols[0], app);
+            render_sg_detail(frame, cols[1], app);
+            let _ = narrow;
+        }
+        crate::models::AppMode::NusCampus => {
+            render_list(frame, cols[0], app);
+            render_detail(frame, cols[1], app, !narrow);
+        }
+    }
 }
 
 #[cfg(test)]
@@ -210,5 +223,13 @@ mod tests {
             let mut terminal = make_terminal(120, 30);
             terminal.draw(|f| render(f, &mut app)).unwrap();
         }
+    }
+
+    #[test]
+    fn render_sg_mode_does_not_panic() {
+        let mut terminal = make_terminal(120, 30);
+        let mut app = make_app();
+        app.mode = crate::models::AppMode::SgPublicBus;
+        terminal.draw(|f| render(f, &mut app)).unwrap();
     }
 }

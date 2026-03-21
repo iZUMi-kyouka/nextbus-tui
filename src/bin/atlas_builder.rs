@@ -168,6 +168,7 @@ struct FontSet {
 }
 
 impl FontSet {
+    #[allow(clippy::too_many_arguments)]
     fn load(
         regular: &str,
         bold: &str,

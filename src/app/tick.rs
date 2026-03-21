@@ -13,7 +13,7 @@ impl App {
             }
         }
 
-        // Commit a pending single-digit jump after 1 s with no second digit.
+        // Commit a pending single-digit NUS jump after 1 s with no second digit.
         if !self.nav.jump_buf.is_empty()
             && self
                 .nav
@@ -24,23 +24,57 @@ impl App {
             self.commit_jump();
         }
 
+        // Commit a pending single-digit SG jump after 1 s with no second digit.
+        if !self.sg_nav.jump_buf.is_empty()
+            && self
+                .sg_nav
+                .jump_at
+                .map(|t| t.elapsed() >= Duration::from_secs(1))
+                .unwrap_or(false)
+        {
+            self.sg_commit_jump();
+        }
+
         // Auto-refresh the current stop if its cache entry is stale.
         // Skip when the terminal is in the background — no point making
         // network requests that the user cannot see.
         if self.focused {
-            if let Some(stop) = self.current_stop() {
-                let name = stop.name.clone();
-                let stale = self
-                    .fetch
-                    .cache
-                    .get(&name)
-                    .map(|c| {
-                        c.fetched_at.elapsed()
-                            >= Duration::from_secs(self.settings.auto_refresh_secs)
-                    })
-                    .unwrap_or(false);
-                if stale && !self.fetch.loading.contains(&name) {
-                    self.start_fetch(name);
+            // NUS auto-refresh
+            if self.mode == crate::models::AppMode::NusCampus {
+                if let Some(stop) = self.current_stop() {
+                    let name = stop.name.clone();
+                    let stale = self
+                        .fetch
+                        .cache
+                        .get(&name)
+                        .map(|c| {
+                            c.fetched_at.elapsed()
+                                >= Duration::from_secs(self.settings.auto_refresh_secs)
+                        })
+                        .unwrap_or(false);
+                    if stale && !self.fetch.loading.contains(&name) {
+                        self.start_fetch(name);
+                    }
+                }
+            }
+
+            // SG auto-refresh
+            #[cfg(not(target_arch = "wasm32"))]
+            if self.mode == crate::models::AppMode::SgPublicBus {
+                if let Some(stop) = self.current_sg_stop() {
+                    let code = stop.code.clone();
+                    let stale = self
+                        .sg_fetch
+                        .cache
+                        .get(&code)
+                        .map(|c| {
+                            c.fetched_at.elapsed()
+                                >= Duration::from_secs(self.settings.auto_refresh_secs.max(20))
+                        })
+                        .unwrap_or(false);
+                    if stale && !self.sg_fetch.loading.contains(&code) {
+                        self.start_sg_fetch(code);
+                    }
                 }
             }
         }
