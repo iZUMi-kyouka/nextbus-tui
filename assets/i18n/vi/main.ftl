@@ -67,3 +67,35 @@ status-view-all       = Tất cả các trạm
 status-view-favs      = Yêu thích
 status-lang-set       = Ngôn ngữ: { $name }
 status-theme-mode-set = Chế độ giao diện: { $mode }
+
+# ── SG Xe buýt công cộng ────────────────────────────────────────────────────────
+title-mode-sg            = SG Xe buýt
+title-switch-hint-sg     = [Tab] SG Xe buýt
+title-switch-hint-nus    = [Tab] NUS Campus
+
+sg-panel-stops-title    = Trạm Xe Buýt SG
+sg-panel-stops          = Trạm xe buýt ({ $count })
+sg-panel-favs           = ★ Yêu thích ({ $count })
+sg-stops-loading        = Đang tải trạm xe buýt... (đã tải { $count })
+sg-stops-error          = Tải trạm thất bại: { $message }
+
+sg-detail-no-service    = Không có xe buýt phục vụ tại trạm này.
+sg-detail-loading       = Đang lấy thông tin đến...
+sg-detail-no-data       = Chưa có dữ liệu.  Nhấn [r] để làm mới.
+sg-detail-error         = ! { $message }
+
+sg-col-bus   = Xe buýt
+sg-col-opr   = Hãng
+sg-col-next  = Kế tiếp
+sg-col-2nd   = Tiếp theo
+sg-col-load  = Tải
+sg-col-type  = Loại
+
+settings-mode-label  = Chế độ mặc định:
+settings-mode-nus    = [NUS Campus]
+settings-mode-sg     = [SG Xe buýt]
+
+status-mode-sg  = Đã chuyển sang SG Xe buýt
+status-mode-nus = Đã chuyển sang NUS Campus
+
+footer-normal-sg = [↑↓/j/k] Di chuyển   [f] Yêu thích   [r] Làm mới   [/] Tìm kiếm   [Tab] NUS   [s] Cài đặt   [q] Thoát

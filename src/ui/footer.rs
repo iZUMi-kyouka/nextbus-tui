@@ -8,6 +8,7 @@ use ratatui::{
 };
 
 use crate::app::App;
+use crate::models::AppMode;
 
 pub(super) fn render_footer(frame: &mut Frame, area: Rect, app: &App) {
     let p = &app.theme().palette;
@@ -34,14 +35,18 @@ pub(super) fn render_footer(frame: &mut Frame, area: Rect, app: &App) {
             format!("  {}", app.i18n.t(hint_key)),
             Style::default().fg(p.highlight),
         )
-    } else if app.nav.searching {
+    } else if app.nav.searching || app.sg_nav.searching {
         Span::styled(
             format!("  {}", app.i18n.t("footer-search")),
             Style::default().fg(p.highlight),
         )
     } else {
+        let hint_key = match app.mode {
+            AppMode::SgPublicBus => "footer-normal-sg",
+            AppMode::NusCampus => "footer-normal",
+        };
         Span::styled(
-            format!("  {}", app.i18n.t("footer-normal")),
+            format!("  {}", app.i18n.t(hint_key)),
             Style::default().fg(p.dim),
         )
     };

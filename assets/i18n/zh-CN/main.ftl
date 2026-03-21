@@ -67,3 +67,35 @@ status-view-all       = 所有站点
 status-view-favs      = 收藏夹
 status-lang-set       = 语言: { $name }
 status-theme-mode-set = 主题模式: { $mode }
+
+# ── SG 公共巴士模式 ──────────────────────────────────────────────────────────────
+title-mode-sg            = SG 公共巴士
+title-switch-hint-sg     = [Tab] SG 公共巴士
+title-switch-hint-nus    = [Tab] NUS 校园
+
+sg-panel-stops-title    = SG 巴士站
+sg-panel-stops          = 巴士站 ({ $count })
+sg-panel-favs           = ★ 收藏 ({ $count })
+sg-stops-loading        = 正在加载巴士站... (已加载 { $count } 个)
+sg-stops-error          = 加载失败: { $message }
+
+sg-detail-no-service    = 此站暂无巴士服务。
+sg-detail-loading       = 正在获取到站信息...
+sg-detail-no-data       = 暂无数据。按 [r] 刷新。
+sg-detail-error         = ! { $message }
+
+sg-col-bus   = 巴士
+sg-col-opr   = 运营
+sg-col-next  = 下一班
+sg-col-2nd   = 后续
+sg-col-load  = 载客
+sg-col-type  = 类型
+
+settings-mode-label  = 默认模式:
+settings-mode-nus    = [NUS 校园]
+settings-mode-sg     = [SG 公共巴士]
+
+status-mode-sg  = 已切换至 SG 公共巴士
+status-mode-nus = 已切换至 NUS 校园
+
+footer-normal-sg = [↑↓/j/k] 移动   [f] 收藏   [r] 刷新   [/] 搜索   [Tab] NUS   [s] 设置   [q] 退出

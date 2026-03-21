@@ -7,6 +7,7 @@ use ratatui::{
 };
 
 use crate::app::App;
+use crate::models::AppMode;
 use crate::theme::ThemeMode;
 
 pub(super) fn render_title(frame: &mut Frame, area: Rect, app: &App) {
@@ -19,18 +20,32 @@ pub(super) fn render_title(frame: &mut Frame, area: Rect, app: &App) {
         ThemeMode::Light => p.background,
         _ => p.foreground,
     };
+
+    // Mode-specific title and switch hint
+    let (app_name, switch_hint) = match app.mode {
+        AppMode::NusCampus => (
+            app.i18n.t("title-app-name"),
+            format!(
+                "  {}  {}",
+                app.i18n.t("title-subtitle"),
+                app.i18n.t("title-switch-hint-sg")
+            ),
+        ),
+        AppMode::SgPublicBus => (
+            app.i18n.t("title-mode-sg"),
+            format!("  {}", app.i18n.t("title-switch-hint-nus")),
+        ),
+    };
+
     let line = Line::from(vec![
         Span::styled(
-            format!(" {} ", app.i18n.t("title-app-name")),
+            format!(" {} ", app_name),
             Style::default()
                 .bg(p.border)
                 .fg(badge_fg)
                 .add_modifier(Modifier::BOLD),
         ),
-        Span::styled(
-            format!("  {}", app.i18n.t("title-subtitle")),
-            Style::default().fg(p.dim),
-        ),
+        Span::styled(switch_hint, Style::default().fg(p.dim)),
     ]);
     frame.render_widget(Paragraph::new(line), area);
 }

@@ -10,7 +10,7 @@ use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;
 
 use crate::i18n::I18n;
-use crate::models::Route;
+use crate::models::{BusLoad, BusOperator, BusType, Route, SgBusArrival};
 use crate::theme::Palette;
 
 /// Center a popup of at most `max_w × max_h` within `area`, clamping to terminal edges.
@@ -148,6 +148,73 @@ pub(super) fn ellipsis(s: &str, max_cols: usize) -> String {
         w += gw;
     }
     format!("{}\u{2026}", result)
+}
+
+/// Format SG bus arrival time relative to `now`.
+pub(super) fn sg_fmt_arrival(
+    bus: &Option<SgBusArrival>,
+    now: chrono::DateTime<chrono::Local>,
+    palette: &Palette,
+) -> (String, Style) {
+    let Some(b) = bus else {
+        return ("-".to_string(), Style::default().fg(palette.dim));
+    };
+    let Some(eta) = b.estimated_arrival else {
+        return ("N/A".to_string(), Style::default().fg(palette.dim));
+    };
+    let secs = (eta.with_timezone(&chrono::Local) - now).num_seconds();
+    let (text, style) = match secs {
+        s if s < 60 => (
+            "Arr".to_string(),
+            Style::default()
+                .fg(palette.success)
+                .add_modifier(Modifier::BOLD),
+        ),
+        s if s < 300 => (
+            format!("{} min", s / 60),
+            Style::default()
+                .fg(palette.highlight)
+                .add_modifier(Modifier::BOLD),
+        ),
+        s => (format!("{} min", s / 60), Style::default()),
+    };
+    // Dim if schedule-based (not GPS-monitored)
+    if !b.monitored {
+        (text, style.add_modifier(Modifier::DIM))
+    } else {
+        (text, style)
+    }
+}
+
+/// Color for bus load indicator.
+pub(super) fn load_color(load: &BusLoad, palette: &Palette) -> ratatui::style::Color {
+    match load {
+        BusLoad::SeatsAvailable => palette.success,
+        BusLoad::StandingAvailable => palette.highlight,
+        BusLoad::LimitedStanding => palette.error,
+        BusLoad::Unknown => palette.dim,
+    }
+}
+
+/// Short label for bus type.
+pub(super) fn bus_type_label(bus_type: &BusType) -> &'static str {
+    match bus_type {
+        BusType::SingleDeck => "SD",
+        BusType::DoubleDeck => "DD",
+        BusType::Bendy => "BD",
+        BusType::Unknown => "  ",
+    }
+}
+
+/// Short abbreviation for bus operator.
+pub(super) fn operator_abbr(op: &BusOperator) -> String {
+    match op {
+        BusOperator::Sbst => "SBST".to_string(),
+        BusOperator::Smrt => "SMRT".to_string(),
+        BusOperator::Tts => "TTS ".to_string(),
+        BusOperator::Gas => "GAS ".to_string(),
+        BusOperator::Unknown(s) => format!("{:<4}", &s[..s.len().min(4)]),
+    }
 }
 
 #[cfg(test)]
@@ -330,6 +397,31 @@ mod tests {
     #[test]
     fn route_color_empty_routes() {
         assert_eq!(route_color("D1", &[]), None);
+    }
+
+    // ── sg_fmt_arrival ─────────────────────────────────────────────────────────
+
+    #[test]
+    fn sg_fmt_arrival_none_returns_dash() {
+        let p = test_palette();
+        let (text, _) = sg_fmt_arrival(&None, chrono::Local::now(), &p);
+        assert_eq!(text, "-");
+    }
+
+    #[test]
+    fn sg_fmt_arrival_arriving_when_past() {
+        use crate::models::{BusFeature, BusLoad, BusType};
+        let p = test_palette();
+        let eta = chrono::Local::now() - chrono::Duration::seconds(5);
+        let bus = SgBusArrival {
+            estimated_arrival: Some(eta.fixed_offset()),
+            monitored: true,
+            load: BusLoad::SeatsAvailable,
+            feature: BusFeature::Standard,
+            bus_type: BusType::SingleDeck,
+        };
+        let (text, _) = sg_fmt_arrival(&Some(bus), chrono::Local::now(), &p);
+        assert_eq!(text, "Arr");
     }
 
     // ── arrival_style ──────────────────────────────────────────────────────────

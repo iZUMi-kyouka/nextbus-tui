@@ -36,7 +36,6 @@ pub enum Message {
     ThemePickerApply,
 
     // ── Language picker ──────────────────────────────────────────────────────
-    OpenLangPicker,
     CloseLangPicker,
     LangPickerUp,
     LangPickerDown,
@@ -53,6 +52,9 @@ pub enum Message {
     SettingsEditCancel,
     SettingsEditCommit,
 
+    // ── Mode switching ────────────────────────────────────────────────────────
+    SwitchMode,
+
     // ── Background events ────────────────────────────────────────────────────
     Tick,
     DataReceived {
@@ -61,6 +63,22 @@ pub enum Message {
     },
     FetchError {
         stop_name: String,
+        error: String,
+    },
+
+    // ── SG background events ─────────────────────────────────────────────────
+    SgDataReceived {
+        stop_code: String,
+        data: crate::models::SgArrivalResult,
+    },
+    SgFetchError {
+        stop_code: String,
+        error: String,
+    },
+    SgStopsLoaded {
+        stops: Vec<crate::models::SgBusStop>,
+    },
+    SgStopsError {
         error: String,
     },
 
@@ -91,6 +109,14 @@ impl From<crate::models::AppEvent> for Message {
             crate::models::AppEvent::FetchError { stop_name, error } => {
                 Message::FetchError { stop_name, error }
             }
+            crate::models::AppEvent::SgDataReceived { stop_code, data } => {
+                Message::SgDataReceived { stop_code, data }
+            }
+            crate::models::AppEvent::SgFetchError { stop_code, error } => {
+                Message::SgFetchError { stop_code, error }
+            }
+            crate::models::AppEvent::SgStopsLoaded { stops } => Message::SgStopsLoaded { stops },
+            crate::models::AppEvent::SgStopsError { error } => Message::SgStopsError { error },
         }
     }
 }

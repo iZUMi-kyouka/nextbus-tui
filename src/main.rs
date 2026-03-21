@@ -5,6 +5,8 @@ mod i18n;
 mod layout;
 mod message;
 mod models;
+#[cfg(not(target_arch = "wasm32"))]
+mod sg_api;
 mod theme;
 mod time;
 mod ui;

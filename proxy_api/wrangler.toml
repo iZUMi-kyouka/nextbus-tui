@@ -33,3 +33,6 @@ not_found_handling = "single-page-application"
 # binding = "DB"
 # database_name = "my-database"
 # database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+# [secrets]
+# LTA_ACCOUNT_KEY = "set via: wrangler secret put LTA_ACCOUNT_KEY"

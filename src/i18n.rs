@@ -113,12 +113,6 @@ impl I18n {
             .collect()
     }
 
-    /// Returns the language code that follows the current one in the cycle.
-    pub fn next_lang(&self) -> &str {
-        let pos = LANGUAGES.iter().position(|&l| l == self.lang).unwrap_or(0);
-        LANGUAGES[(pos + 1) % LANGUAGES.len()]
-    }
-
     fn format(&self, id: &str, args: Option<&FluentArgs<'_>>) -> String {
         let msg = match self.bundle.get_message(id) {
             Some(m) => m,
