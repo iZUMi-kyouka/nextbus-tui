@@ -141,18 +141,6 @@ impl App {
         }
     }
 
-    pub fn sg_fav_count_in_list(&self) -> usize {
-        self.sg_nav
-            .sorted_indices
-            .iter()
-            .filter(|&&i| {
-                self.settings
-                    .sg_favourites
-                    .contains(&self.domain.sg_stops[i].code)
-            })
-            .count()
-    }
-
     /// Push a jump digit for SG navigation.
     pub fn sg_push_jump_digit(&mut self, c: char) {
         // Reuse NUS jump logic if list < 10 items

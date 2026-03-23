@@ -92,7 +92,7 @@ impl App {
         self.sg_nav.stops_load_progress = stops.len();
 
         // If the total is not a multiple of 500, or is 0, loading is complete.
-        let is_final = stops.len() % 500 != 0 || stops.is_empty();
+        let is_final = !stops.len().is_multiple_of(500) || stops.is_empty();
         if is_final {
             self.sg_nav.stops_loading = false;
             self.sg_nav.stops_error = None;
