@@ -33,8 +33,13 @@ pub(super) fn render_search_overlay(frame: &mut Frame, app: &App) {
         )
         .style(Style::default().bg(p.background).fg(p.foreground));
 
+    let query: &str = if app.mode == crate::models::AppMode::SgPublicBus {
+        &app.sg_nav.search_query
+    } else {
+        &app.nav.search_query
+    };
     let input = Paragraph::new(Line::from(vec![
-        Span::raw(&app.nav.search_query[..]),
+        Span::raw(query),
         Span::styled("\u{2588}", Style::default().fg(p.highlight)),
     ]))
     .block(block);
