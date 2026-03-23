@@ -116,7 +116,6 @@ fn normal_key(key: KeyEvent, app: &App) -> Option<Message> {
 #[cfg(test)]
 mod tests {
     use super::{key_to_message, App};
-    use crate::message::Message;
     use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
     use std::sync::mpsc;
 

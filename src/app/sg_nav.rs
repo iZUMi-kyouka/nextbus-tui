@@ -203,6 +203,16 @@ mod tests {
     #[test]
     fn sg_fav_count_no_favourites() {
         let app = make_app();
-        assert_eq!(app.sg_fav_count_in_list(), 0);
+        assert_eq!(
+            app.sg_nav
+                .sorted_indices
+                .iter()
+                .filter(|&&i| app
+                    .settings
+                    .sg_favourites
+                    .contains(&app.domain.sg_stops[i].code))
+                .count(),
+            0
+        );
     }
 }
