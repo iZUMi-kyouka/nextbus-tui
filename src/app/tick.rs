@@ -35,6 +35,23 @@ impl App {
             self.sg_commit_jump();
         }
 
+        // Debounce NUS navigation: fire the fetch 300 ms after the last move.
+        if let Some(t) = self.nav.last_nav_at {
+            if t.elapsed() >= Duration::from_millis(300) {
+                self.nav.last_nav_at = None;
+                self.ensure_data();
+            }
+        }
+
+        // Debounce SG navigation: fire the fetch 300 ms after the last move.
+        #[cfg(not(target_arch = "wasm32"))]
+        if let Some(t) = self.sg_nav.last_nav_at {
+            if t.elapsed() >= Duration::from_millis(300) {
+                self.sg_nav.last_nav_at = None;
+                self.ensure_sg_data();
+            }
+        }
+
         // Auto-refresh the current stop if its cache entry is stale.
         // Skip when the terminal is in the background — no point making
         // network requests that the user cannot see.
