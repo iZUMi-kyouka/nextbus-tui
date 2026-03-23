@@ -7,5 +7,20 @@ if ! cargo fmt --check; then
     echo "✗ Formatting check failed. Run 'cargo fmt' to fix, then re-stage."
     exit 1
 fi
-
 echo "✓ Formatting OK"
+
+echo "→ Running cargo clippy..."
+if ! cargo clippy -- -D warnings 2>&1; then
+    echo ""
+    echo "✗ Linter check failed. Fix all warnings before committing."
+    exit 1
+fi
+echo "✓ Clippy OK"
+
+echo "→ Running cargo test..."
+if ! cargo test; then
+    echo ""
+    echo "✗ Tests failed. Fix failing tests before committing."
+    exit 1
+fi
+echo "✓ All tests passed"
