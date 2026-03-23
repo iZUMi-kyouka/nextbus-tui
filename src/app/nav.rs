@@ -62,12 +62,15 @@ impl App {
             self.nav.sorted_indices = favs;
         }
 
-        // Clamp selection so it stays in bounds after filtering.
-        self.nav.selected = if self.nav.sorted_indices.is_empty() {
-            0
-        } else {
-            self.nav.selected.min(self.nav.sorted_indices.len() - 1)
-        };
+        // When a search filter is active, always snap to the top of the results so
+        // the user sees the first match rather than an arbitrary mid-list position.
+        // When no filter is active, clamp so the cursor stays in bounds.
+        self.nav.selected =
+            if !self.nav.search_query.is_empty() || self.nav.sorted_indices.is_empty() {
+                0
+            } else {
+                self.nav.selected.min(self.nav.sorted_indices.len() - 1)
+            };
         self.update_nav_offset();
     }
 

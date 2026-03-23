@@ -46,13 +46,17 @@ impl App {
             self.sg_nav.sorted_indices = fav_idx;
         }
 
-        self.sg_nav.selected = if self.sg_nav.sorted_indices.is_empty() {
-            0
-        } else {
-            self.sg_nav
-                .selected
-                .min(self.sg_nav.sorted_indices.len() - 1)
-        };
+        // When a search filter is active, always snap to the top of the results so
+        // the user sees the first match rather than an arbitrary mid-list position.
+        // When no filter is active, clamp so the cursor stays in bounds.
+        self.sg_nav.selected =
+            if !self.sg_nav.search_query.is_empty() || self.sg_nav.sorted_indices.is_empty() {
+                0
+            } else {
+                self.sg_nav
+                    .selected
+                    .min(self.sg_nav.sorted_indices.len() - 1)
+            };
         self.update_sg_nav_offset();
     }
 
@@ -236,5 +240,73 @@ mod tests {
                 .count(),
             0
         );
+    }
+
+    /// Inject some synthetic stops so we can exercise rebuild_sg_list properly.
+    fn make_app_with_stops(n: usize) -> App {
+        let (tx, _rx) = mpsc::channel();
+        let mut app = App::new_test(tx);
+        app.domain.sg_stops = (0..n)
+            .map(|i| crate::models::SgBusStop {
+                code: format!("{:05}", i),
+                road_name: format!("Road {}", i),
+                description: format!("Stop {}", i),
+                latitude: 0.0,
+                longitude: 0.0,
+            })
+            .collect();
+        app.rebuild_sg_list();
+        app
+    }
+
+    #[test]
+    fn rebuild_sg_list_search_snaps_to_top() {
+        let mut app = make_app_with_stops(100);
+        // Simulate user being deep in the list
+        app.sg_nav.selected = 80;
+        // Set list_height so update_sg_nav_offset has non-zero height
+        app.sg_nav.list_height = 20;
+        // Type a search query — should snap to top
+        app.sg_nav.search_query = "Stop 1".to_string();
+        app.rebuild_sg_list();
+        assert_eq!(
+            app.sg_nav.selected, 0,
+            "search should snap selection to top"
+        );
+        assert_eq!(
+            app.sg_nav.list_state.offset(),
+            0,
+            "search should reset viewport offset to 0"
+        );
+    }
+
+    #[test]
+    fn rebuild_sg_list_no_search_clamps_selection() {
+        let mut app = make_app_with_stops(50);
+        app.sg_nav.selected = 40;
+        app.sg_nav.list_height = 20;
+        // No search query — selection should be clamped, not reset
+        app.rebuild_sg_list();
+        assert_eq!(app.sg_nav.selected, 40);
+    }
+
+    #[test]
+    fn toggle_sg_favourite_adds_and_removes() {
+        let mut app = make_app_with_stops(5);
+        assert!(app.domain.sg_stops[0].code == "00000");
+        // Select first stop
+        app.sg_nav.selected = 0;
+        // Toggle on
+        app.toggle_sg_favourite();
+        assert!(
+            app.settings
+                .sg_favourites
+                .contains(&app.domain.sg_stops[0].code)
+                || app.settings.sg_favourites.contains("00000")
+        );
+        // Toggle off — need to re-select position 0 (fav may have moved)
+        app.sg_nav.selected = 0;
+        app.toggle_sg_favourite();
+        assert!(app.settings.sg_favourites.is_empty());
     }
 }
