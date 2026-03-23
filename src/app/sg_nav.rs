@@ -102,7 +102,7 @@ impl App {
     /// 300 ms pause), so single keypresses are instant. During rapid cycling
     /// only `last_nav_at` is updated; the tick fires one final fetch after
     /// the cursor has been still for ≥ 300 ms.
-    fn on_sg_nav_move(&mut self) {
+    pub(super) fn on_sg_nav_move(&mut self) {
         use std::time::Duration;
         let is_first_move = self
             .sg_nav

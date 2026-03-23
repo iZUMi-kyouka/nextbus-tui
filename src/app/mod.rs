@@ -704,16 +704,13 @@ impl App {
                 if self.mode == AppMode::SgPublicBus {
                     if target < self.sg_nav.sorted_indices.len() {
                         self.sg_nav.selected = target;
-                        self.sg_nav.list_state.select(Some(target));
-                        #[cfg(not(target_arch = "wasm32"))]
-                        self.ensure_sg_data();
+                        self.update_sg_nav_offset();
+                        self.on_sg_nav_move();
                     }
-                } else {
-                    if target < self.nav.sorted_indices.len() {
-                        self.nav.selected = target;
-                        self.nav.list_state.select(Some(target));
-                        self.ensure_data();
-                    }
+                } else if target < self.nav.sorted_indices.len() {
+                    self.nav.selected = target;
+                    self.update_nav_offset();
+                    self.on_nav_move();
                 }
             }
             Message::ScrollListUp => {

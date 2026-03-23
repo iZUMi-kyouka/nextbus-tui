@@ -4,6 +4,7 @@ use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
 
 use super::App;
 use crate::message::Message;
+use crate::models::AppMode;
 
 // ── Footer button hit regions ─────────────────────────────────────────────────
 
@@ -65,14 +66,19 @@ pub fn mouse_to_message(event: MouseEvent, app: &App, term_w: u16, term_h: u16) 
 
 fn left_click_message(col: u16, row: u16, app: &App, term_w: u16, term_h: u16) -> Option<Message> {
     let footer_y = term_h.saturating_sub(1);
+    // Use the active mode's search state so SG search interacts correctly.
+    let searching = if app.mode == AppMode::SgPublicBus {
+        app.sg_nav.searching
+    } else {
+        app.nav.searching
+    };
 
     if row == footer_y {
-        return footer_click_message(col, app.nav.searching);
+        return footer_click_message(col, searching);
     }
 
-    // Any click outside footer cancels jump.
     // If search overlay is open, click outside footer closes it.
-    if app.nav.searching {
+    if searching {
         return Some(Message::CloseSearch { keep_filter: true });
     }
 
@@ -92,9 +98,18 @@ fn list_click_message(row: u16, app: &App, term_h: u16) -> Option<Message> {
     }
 
     let visual_row = (row - inner_top) as usize;
-    let target = app.nav.list_state.offset() + visual_row;
+    // Use the active mode's offset and list length so SG clicks land on the right stop.
+    let (offset, len) = if app.mode == AppMode::SgPublicBus {
+        (
+            app.sg_nav.list_state.offset(),
+            app.sg_nav.sorted_indices.len(),
+        )
+    } else {
+        (app.nav.list_state.offset(), app.nav.sorted_indices.len())
+    };
+    let target = offset + visual_row;
 
-    if target < app.nav.sorted_indices.len() {
+    if target < len {
         Some(Message::ListClick(target))
     } else {
         Some(Message::CancelJump)
