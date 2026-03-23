@@ -13,8 +13,8 @@ use super::helpers::ellipsis;
 
 pub(super) fn render_sg_list(frame: &mut Frame, area: Rect, app: &mut App) {
     app.sg_nav.list_height = area.height.saturating_sub(2);
-    // Clear the ratatui selection so it never auto-scrolls the offset.
-    app.sg_nav.list_state.select(None);
+    // selected_mut() avoids the select(None) side-effect that resets offset to 0 in ratatui 0.29.
+    *app.sg_nav.list_state.selected_mut() = None;
 
     let palette = &app.theme().palette;
 

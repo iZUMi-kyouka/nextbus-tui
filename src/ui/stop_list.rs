@@ -13,8 +13,8 @@ use super::helpers::ellipsis;
 pub(super) fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
     // Track inner height for viewport offset management.
     app.nav.list_height = area.height.saturating_sub(2); // subtract top+bottom borders
-                                                         // Clear the ratatui selection so it never auto-scrolls the offset.
-    app.nav.list_state.select(None);
+                                                         // selected_mut() avoids the select(None) side-effect that resets offset to 0 in ratatui 0.29.
+    *app.nav.list_state.selected_mut() = None;
 
     let selected = app.nav.selected;
     let fav_view = app.nav.fav_view;
