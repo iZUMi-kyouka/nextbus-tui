@@ -82,6 +82,16 @@ pub enum Message {
         error: String,
     },
 
+    // ── Train service alert ──────────────────────────────────────────────────
+    TrainAlertsReceived {
+        disrupted: bool,
+        summary: String,
+    },
+    TrainAlertsFetchError {
+        error: String,
+    },
+    DismissAlert,
+
     // ── Mouse ────────────────────────────────────────────────────────────────
     /// Click on an item at visual position `target` in the list.
     ListClick(usize),
@@ -117,6 +127,12 @@ impl From<crate::models::AppEvent> for Message {
             }
             crate::models::AppEvent::SgStopsLoaded { stops } => Message::SgStopsLoaded { stops },
             crate::models::AppEvent::SgStopsError { error } => Message::SgStopsError { error },
+            crate::models::AppEvent::TrainAlertsReceived { disrupted, summary } => {
+                Message::TrainAlertsReceived { disrupted, summary }
+            }
+            crate::models::AppEvent::TrainAlertsFetchError { error } => {
+                Message::TrainAlertsFetchError { error }
+            }
         }
     }
 }

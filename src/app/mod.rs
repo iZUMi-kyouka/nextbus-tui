@@ -196,6 +196,28 @@ pub struct OverlayState {
     pub status_msg: Option<(String, Instant)>,
 }
 
+/// State for the LTA train service alert banner.
+#[derive(Default)]
+pub struct TrainAlertState {
+    /// True when LTA reports a major disruption (Status == 2).
+    pub disrupted: bool,
+    /// Short human-readable summary, e.g. "NSL (towards Jurong East)".
+    pub summary: String,
+    /// Whether the user has dismissed the current alert.
+    pub dismissed: bool,
+    /// When the last successful fetch completed (drives the 120 s poll).
+    pub last_fetched: Option<Instant>,
+    /// Whether a background fetch is currently in flight.
+    pub fetching: bool,
+}
+
+impl TrainAlertState {
+    /// True when the banner should be rendered.
+    pub fn is_visible(&self) -> bool {
+        self.disrupted && !self.dismissed
+    }
+}
+
 /// Network fetch runtime state (NUS).
 pub struct FetchState {
     pub cache: HashMap<String, CachedData>,
@@ -240,6 +262,7 @@ pub struct App {
     pub overlay: OverlayState,
     pub fetch: FetchState,
     pub sg_fetch: SgFetchState,
+    pub train_alert: TrainAlertState,
     pub mode: AppMode,
     pub i18n: I18n,
     pub should_quit: bool,
@@ -284,6 +307,7 @@ impl App {
             overlay: OverlayState::default(),
             fetch,
             sg_fetch,
+            train_alert: TrainAlertState::default(),
             mode: default_mode,
             i18n,
             should_quit: false,
@@ -307,6 +331,7 @@ impl App {
             overlay: OverlayState::default(),
             fetch: FetchState::new(tx),
             sg_fetch,
+            train_alert: TrainAlertState::default(),
             mode: AppMode::NusCampus,
             i18n: I18n::new("en"),
             should_quit: false,
@@ -393,6 +418,10 @@ impl App {
                 self.start_sg_stops_fetch();
             } else {
                 self.ensure_sg_data();
+            }
+            // Fetch train alerts immediately when entering SG mode if no data yet
+            if self.train_alert.last_fetched.is_none() && !self.train_alert.fetching {
+                self.start_train_alert_fetch();
             }
         }
     }
@@ -695,6 +724,27 @@ impl App {
                 {
                     let _ = error;
                 }
+            }
+
+            // Train alert events
+            Message::TrainAlertsReceived { disrupted, summary } => {
+                #[cfg(not(target_arch = "wasm32"))]
+                self.handle_train_alerts_received(disrupted, summary);
+                #[cfg(target_arch = "wasm32")]
+                {
+                    let _ = (disrupted, summary);
+                }
+            }
+            Message::TrainAlertsFetchError { error } => {
+                #[cfg(not(target_arch = "wasm32"))]
+                self.handle_train_alert_error(error);
+                #[cfg(target_arch = "wasm32")]
+                {
+                    let _ = error;
+                }
+            }
+            Message::DismissAlert => {
+                self.train_alert.dismissed = true;
             }
 
             // Mouse

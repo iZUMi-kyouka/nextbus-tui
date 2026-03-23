@@ -1,3 +1,4 @@
+pub(crate) mod alert_banner;
 pub(crate) mod detail;
 pub(crate) mod footer;
 pub(crate) mod helpers;
@@ -18,6 +19,7 @@ use ratatui::{
 
 use crate::app::App;
 
+use alert_banner::render_alert_banner;
 use detail::render_detail;
 use footer::render_footer;
 use lang_picker::render_lang_picker;
@@ -39,18 +41,40 @@ pub fn render(frame: &mut Frame, app: &mut App) {
         frame.buffer_mut().set_style(area, base);
     }
 
-    let root = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([
-            Constraint::Length(1), // title bar
-            Constraint::Min(0),    // main panels
-            Constraint::Length(1), // status / key hints
-        ])
-        .split(frame.area());
+    let show_banner =
+        app.mode == crate::models::AppMode::SgPublicBus && app.train_alert.is_visible();
 
-    render_title(frame, root[0], app);
-    render_panels(frame, root[1], app);
-    render_footer(frame, root[2], app);
+    let root = if show_banner {
+        Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([
+                Constraint::Length(1), // title bar
+                Constraint::Length(1), // alert banner
+                Constraint::Min(0),    // main panels
+                Constraint::Length(1), // status / key hints
+            ])
+            .split(frame.area())
+    } else {
+        Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([
+                Constraint::Length(1), // title bar
+                Constraint::Min(0),    // main panels
+                Constraint::Length(1), // status / key hints
+            ])
+            .split(frame.area())
+    };
+
+    if show_banner {
+        render_title(frame, root[0], app);
+        render_alert_banner(frame, root[1], app);
+        render_panels(frame, root[2], app);
+        render_footer(frame, root[3], app);
+    } else {
+        render_title(frame, root[0], app);
+        render_panels(frame, root[1], app);
+        render_footer(frame, root[2], app);
+    }
 
     if app.nav.searching || app.sg_nav.searching {
         render_search_overlay(frame, app);
@@ -231,5 +255,43 @@ mod tests {
         let mut app = make_app();
         app.mode = crate::models::AppMode::SgPublicBus;
         terminal.draw(|f| render(f, &mut app)).unwrap();
+    }
+
+    #[test]
+    fn render_train_alert_banner_shows_disruption() {
+        let mut terminal = make_terminal(120, 30);
+        let mut app = make_app();
+        app.mode = crate::models::AppMode::SgPublicBus;
+        app.train_alert.disrupted = true;
+        app.train_alert.summary = "NSL towards Jurong East".to_string();
+        terminal.draw(|f| render(f, &mut app)).unwrap();
+        let text = buf_text(&terminal);
+        assert!(
+            text.contains("NSL"),
+            "Banner should display the disrupted line"
+        );
+    }
+
+    #[test]
+    fn render_train_alert_banner_hidden_when_dismissed() {
+        let mut terminal = make_terminal(120, 30);
+        let mut app = make_app();
+        app.mode = crate::models::AppMode::SgPublicBus;
+        app.train_alert.disrupted = true;
+        app.train_alert.dismissed = true;
+        app.train_alert.summary = "NSL towards Jurong East".to_string();
+        terminal.draw(|f| render(f, &mut app)).unwrap();
+        // Banner is hidden; the screen should still render without panic
+    }
+
+    #[test]
+    fn render_train_alert_banner_hidden_in_nus_mode() {
+        let mut terminal = make_terminal(120, 30);
+        let mut app = make_app();
+        app.mode = crate::models::AppMode::NusCampus;
+        app.train_alert.disrupted = true;
+        app.train_alert.summary = "NSL disruption".to_string();
+        terminal.draw(|f| render(f, &mut app)).unwrap();
+        // Banner should not appear in NUS mode
     }
 }

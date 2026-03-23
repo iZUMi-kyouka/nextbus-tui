@@ -33,6 +33,16 @@ pub fn fetch_sg_stops(skip: usize) -> Result<Vec<SgBusStop>, String> {
     parse_stops_response(reader)
 }
 
+/// Fetch current train service alert status (disrupted = Status 2).
+/// Returns `(disrupted, summary)` where summary is a short human-readable string.
+pub fn fetch_train_alerts() -> Result<(bool, String), String> {
+    let url = format!("{}/TrainServiceAlerts", sg_api_base());
+    let response = ureq::get(&url)
+        .call()
+        .map_err(|e| format!("Network error: {e}"))?;
+    parse_train_alert_response(response.into_reader())
+}
+
 /// Paginate and fetch all bus stops, sending progress events via the channel.
 pub fn fetch_all_sg_stops(tx: mpsc::Sender<AppEvent>) {
     let mut all: Vec<SgBusStop> = Vec::new();
@@ -160,6 +170,38 @@ fn parse_stops_response<R: std::io::Read>(reader: R) -> Result<Vec<SgBusStop>, S
         }
     }
     Ok(stops)
+}
+
+fn parse_train_alert_response<R: std::io::Read>(reader: R) -> Result<(bool, String), String> {
+    let v: serde_json::Value =
+        serde_json::from_reader(reader).map_err(|e| format!("Parse error: {e}"))?;
+
+    // Status 2 = disrupted / major delays; 1 = normal / minor delays
+    let status = v.get("Status").and_then(|s| s.as_i64()).unwrap_or(1);
+    if status != 2 {
+        return Ok((false, String::new()));
+    }
+
+    // Build a compact summary from AffectedSegments
+    let mut parts: Vec<String> = Vec::new();
+    if let Some(segs) = v.get("AffectedSegments").and_then(|a| a.as_array()) {
+        for seg in segs {
+            let line = seg.get("Line").and_then(|s| s.as_str()).unwrap_or("?");
+            let dir = seg.get("Direction").and_then(|s| s.as_str()).unwrap_or("");
+            if dir.is_empty() || dir.eq_ignore_ascii_case("both") {
+                parts.push(line.to_string());
+            } else {
+                parts.push(format!("{line} {dir}"));
+            }
+        }
+    }
+
+    let summary = if parts.is_empty() {
+        "MRT service disruption".to_string()
+    } else {
+        parts.join(" · ")
+    };
+    Ok((true, summary))
 }
 
 fn parse_load(s: &str) -> BusLoad {
@@ -294,6 +336,51 @@ mod tests {
         assert_eq!(next.feature, BusFeature::WheelchairAccessible);
         assert_eq!(next.bus_type, BusType::SingleDeck);
         assert!(next.estimated_arrival.is_some());
+    }
+
+    #[test]
+    fn parse_train_alert_status_normal() {
+        let json = r#"{"Status": 1, "AffectedSegments": [], "Message": []}"#;
+        let (disrupted, _) = parse_train_alert_response(json.as_bytes()).unwrap();
+        assert!(!disrupted);
+    }
+
+    #[test]
+    fn parse_train_alert_status_disrupted() {
+        let json = r#"{
+            "Status": 2,
+            "AffectedSegments": [
+                {
+                    "Line": "NSL",
+                    "Direction": "towards Jurong East",
+                    "Stations": "NS1,NS4,NS5,NS7",
+                    "FreePublicBus": "",
+                    "FreeMRTShuttle": ""
+                }
+            ],
+            "Message": []
+        }"#;
+        let (disrupted, summary) = parse_train_alert_response(json.as_bytes()).unwrap();
+        assert!(disrupted);
+        assert!(summary.contains("NSL"));
+        assert!(summary.contains("towards Jurong East"));
+    }
+
+    #[test]
+    fn parse_train_alert_multiple_lines() {
+        let json = r#"{
+            "Status": 2,
+            "AffectedSegments": [
+                {"Line": "NSL", "Direction": "Both", "Stations": "", "FreePublicBus": "", "FreeMRTShuttle": ""},
+                {"Line": "EWL", "Direction": "towards Joo Koon", "Stations": "", "FreePublicBus": "", "FreeMRTShuttle": ""}
+            ],
+            "Message": []
+        }"#;
+        let (disrupted, summary) = parse_train_alert_response(json.as_bytes()).unwrap();
+        assert!(disrupted);
+        assert!(summary.contains("NSL"));
+        assert!(summary.contains("EWL"));
+        assert!(summary.contains("·"));
     }
 
     #[test]

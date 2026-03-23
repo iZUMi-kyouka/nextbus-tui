@@ -75,6 +75,19 @@ impl App {
                 }
             }
 
+            // Train alert polling (SG mode, every 120 s)
+            #[cfg(not(target_arch = "wasm32"))]
+            if self.mode == crate::models::AppMode::SgPublicBus {
+                let needs_fetch = self
+                    .train_alert
+                    .last_fetched
+                    .map(|t| t.elapsed() >= Duration::from_secs(120))
+                    .unwrap_or(true);
+                if needs_fetch && !self.train_alert.fetching {
+                    self.start_train_alert_fetch();
+                }
+            }
+
             // SG auto-refresh
             #[cfg(not(target_arch = "wasm32"))]
             if self.mode == crate::models::AppMode::SgPublicBus {

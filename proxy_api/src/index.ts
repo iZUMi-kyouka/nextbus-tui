@@ -38,6 +38,10 @@ export default {
 			return handleLtaProxy(request, env, ctx, '/ltaodataservice/BusStops');
 		}
 
+		if (url.pathname === '/TrainServiceAlerts') {
+			return handleLtaProxy(request, env, ctx, '/ltaodataservice/TrainServiceAlerts');
+		}
+
 		// Serve the wasm bundle and static files at the root domain.
 		return env.ASSETS.fetch(request);
 	},

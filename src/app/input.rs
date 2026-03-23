@@ -106,6 +106,7 @@ fn normal_key(key: KeyEvent, app: &App) -> Option<Message> {
         (KeyCode::Char('x'), _) => Some(Message::CycleTheme),
         (KeyCode::Char('X'), _) => Some(Message::OpenThemePicker),
         (KeyCode::Char('s'), _) | (KeyCode::Char('S'), _) => Some(Message::OpenSettings),
+        (KeyCode::Char('d'), _) if app.train_alert.is_visible() => Some(Message::DismissAlert),
         (KeyCode::Char(c), _) if c.is_ascii_digit() => Some(Message::JumpDigit(c)),
         (KeyCode::Enter, _) if !app.nav.jump_buf.is_empty() => Some(Message::CommitJump),
         (KeyCode::Tab, _) => Some(Message::SwitchMode),

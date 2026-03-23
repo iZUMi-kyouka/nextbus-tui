@@ -160,6 +160,13 @@ pub enum AppEvent {
     SgStopsError {
         error: String,
     },
+    TrainAlertsReceived {
+        disrupted: bool,
+        summary: String,
+    },
+    TrainAlertsFetchError {
+        error: String,
+    },
 }
 
 /// A single stop along a bus route

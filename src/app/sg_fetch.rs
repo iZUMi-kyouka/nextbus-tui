@@ -112,6 +112,43 @@ impl App {
         self.sg_nav.stops_error = Some(error);
     }
 
+    /// Spawn a background thread to fetch the LTA train service alert status.
+    pub fn start_train_alert_fetch(&mut self) {
+        if self.train_alert.fetching {
+            return;
+        }
+        self.train_alert.fetching = true;
+        let tx = self.sg_fetch.tx.clone();
+        std::thread::spawn(move || {
+            let event = match crate::sg_api::fetch_train_alerts() {
+                Ok((disrupted, summary)) => {
+                    crate::models::AppEvent::TrainAlertsReceived { disrupted, summary }
+                }
+                Err(error) => crate::models::AppEvent::TrainAlertsFetchError { error },
+            };
+            let _ = tx.send(event);
+        });
+    }
+
+    pub fn handle_train_alerts_received(&mut self, disrupted: bool, summary: String) {
+        // Undismiss only when a new disruption is first detected
+        if disrupted && !self.train_alert.disrupted {
+            self.train_alert.dismissed = false;
+        }
+        self.train_alert.disrupted = disrupted;
+        if disrupted {
+            self.train_alert.summary = summary;
+        }
+        self.train_alert.last_fetched = Some(Instant::now());
+        self.train_alert.fetching = false;
+    }
+
+    pub fn handle_train_alert_error(&mut self, _error: String) {
+        // Keep existing disruption state; just update timestamp to avoid tight retry loops
+        self.train_alert.last_fetched = Some(Instant::now());
+        self.train_alert.fetching = false;
+    }
+
     /// How many seconds until the SG auto-refresh fires for the current stop.
     pub fn sg_seconds_until_refresh(&self) -> Option<u64> {
         let code = self.current_sg_stop()?.code.clone();
