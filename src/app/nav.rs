@@ -83,7 +83,7 @@ impl App {
         if self.nav.selected > 0 {
             self.nav.selected -= 1;
             self.update_nav_offset();
-            self.nav.last_nav_at = Some(Instant::now());
+            self.on_nav_move();
         }
     }
 
@@ -91,7 +91,7 @@ impl App {
         if self.nav.selected + 1 < self.nav.sorted_indices.len() {
             self.nav.selected += 1;
             self.update_nav_offset();
-            self.nav.last_nav_at = Some(Instant::now());
+            self.on_nav_move();
         }
     }
 
@@ -99,7 +99,7 @@ impl App {
         if !self.nav.sorted_indices.is_empty() {
             self.nav.selected = 0;
             self.update_nav_offset();
-            self.nav.last_nav_at = Some(Instant::now());
+            self.on_nav_move();
         }
     }
 
@@ -121,7 +121,26 @@ impl App {
         if !self.nav.sorted_indices.is_empty() {
             self.nav.selected = self.nav.sorted_indices.len() - 1;
             self.update_nav_offset();
-            self.nav.last_nav_at = Some(Instant::now());
+            self.on_nav_move();
+        }
+    }
+
+    /// Leading-edge + trailing debounce for NUS navigation.
+    ///
+    /// Fires `ensure_data()` immediately when the user first moves (or resumes
+    /// after a 300 ms pause), so single keypresses are instant. During rapid
+    /// cycling, only `last_nav_at` is updated; the tick fires one final fetch
+    /// after the cursor has been still for ≥ 300 ms.
+    pub(super) fn on_nav_move(&mut self) {
+        use std::time::Duration;
+        let is_first_move = self
+            .nav
+            .last_nav_at
+            .map(|t| t.elapsed() >= Duration::from_millis(300))
+            .unwrap_or(true);
+        self.nav.last_nav_at = Some(Instant::now());
+        if is_first_move {
+            self.ensure_data();
         }
     }
 

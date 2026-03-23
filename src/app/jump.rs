@@ -18,7 +18,7 @@ impl App {
             if n > 0 && n <= self.nav.sorted_indices.len() {
                 self.nav.selected = n - 1;
                 self.update_nav_offset();
-                self.nav.last_nav_at = Some(Instant::now());
+                self.on_nav_move();
             }
         }
         self.nav.jump_buf.clear();

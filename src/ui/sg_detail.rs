@@ -120,23 +120,23 @@ fn render_arrival_table(
     app: &App,
     palette: &Palette,
 ) {
-    // Column widths: Bus=6, Opr=5, Next=8, 2nd=8, Load=4, Type=4
+    // Column widths: Bus=6, Next=8, 2nd=8, Load=4, Type=4, Opr=5
     let bus_w = 6usize;
-    let opr_w = 5usize;
     let next_w = 8usize;
     let nd2_w = 8usize;
     let load_w = 4usize;
     let type_w = 4usize;
-    let sep_len = bus_w + opr_w + next_w + nd2_w + load_w + type_w + 2;
+    let opr_w = 5usize;
+    let sep_len = bus_w + next_w + nd2_w + load_w + type_w + opr_w + 2;
 
     // Header
     let header = vec![
         col_header(&app.i18n.t("sg-col-bus"), bus_w),
-        col_header(&app.i18n.t("sg-col-opr"), opr_w),
         col_header(&app.i18n.t("sg-col-next"), next_w),
         col_header(&app.i18n.t("sg-col-2nd"), nd2_w),
         col_header(&app.i18n.t("sg-col-load"), load_w),
         col_header(&app.i18n.t("sg-col-type"), type_w),
+        col_header(&app.i18n.t("sg-col-opr"), opr_w),
     ];
     lines.push(Line::from(header));
     lines.push(Line::from(Span::styled(
@@ -182,17 +182,22 @@ fn render_arrival_table(
 
         let spans = vec![
             Span::raw(pad_right(&svc.service_no, bus_w)),
-            Span::styled(
-                pad_right(&operator_abbr(&svc.operator), opr_w),
-                Style::default().fg(palette.dim),
-            ),
             Span::styled(pad_right(&next_text, next_w), next_style),
             Span::styled(pad_right(&nd2_text, nd2_w), nd2_style),
             Span::styled(
                 pad_right(load_text, load_w),
                 Style::default().fg(lc).add_modifier(Modifier::BOLD),
             ),
-            Span::raw(format!("{}{}", type_text, wab_indicator)),
+            Span::raw(format!(
+                "{:<width$}{}",
+                type_text,
+                wab_indicator,
+                width = type_w
+            )),
+            Span::styled(
+                pad_right(&operator_abbr(&svc.operator), opr_w),
+                Style::default().fg(palette.dim),
+            ),
         ];
         lines.push(Line::from(spans));
     }

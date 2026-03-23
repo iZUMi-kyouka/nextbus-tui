@@ -68,7 +68,7 @@ impl App {
         if self.sg_nav.selected > 0 {
             self.sg_nav.selected -= 1;
             self.update_sg_nav_offset();
-            self.sg_nav.last_nav_at = Some(Instant::now());
+            self.on_sg_nav_move();
         }
     }
 
@@ -76,7 +76,7 @@ impl App {
         if self.sg_nav.selected + 1 < self.sg_nav.sorted_indices.len() {
             self.sg_nav.selected += 1;
             self.update_sg_nav_offset();
-            self.sg_nav.last_nav_at = Some(Instant::now());
+            self.on_sg_nav_move();
         }
     }
 
@@ -84,7 +84,7 @@ impl App {
         if !self.sg_nav.sorted_indices.is_empty() {
             self.sg_nav.selected = 0;
             self.update_sg_nav_offset();
-            self.sg_nav.last_nav_at = Some(Instant::now());
+            self.on_sg_nav_move();
         }
     }
 
@@ -92,7 +92,27 @@ impl App {
         if !self.sg_nav.sorted_indices.is_empty() {
             self.sg_nav.selected = self.sg_nav.sorted_indices.len() - 1;
             self.update_sg_nav_offset();
-            self.sg_nav.last_nav_at = Some(Instant::now());
+            self.on_sg_nav_move();
+        }
+    }
+
+    /// Leading-edge + trailing debounce for SG navigation.
+    ///
+    /// Fires `ensure_sg_data()` immediately on the first move (or after a
+    /// 300 ms pause), so single keypresses are instant. During rapid cycling
+    /// only `last_nav_at` is updated; the tick fires one final fetch after
+    /// the cursor has been still for ≥ 300 ms.
+    fn on_sg_nav_move(&mut self) {
+        use std::time::Duration;
+        let is_first_move = self
+            .sg_nav
+            .last_nav_at
+            .map(|t| t.elapsed() >= Duration::from_millis(300))
+            .unwrap_or(true);
+        self.sg_nav.last_nav_at = Some(Instant::now());
+        if is_first_move {
+            #[cfg(not(target_arch = "wasm32"))]
+            self.ensure_sg_data();
         }
     }
 
@@ -150,7 +170,7 @@ impl App {
             if target < self.sg_nav.sorted_indices.len() {
                 self.sg_nav.selected = target;
                 self.update_sg_nav_offset();
-                self.sg_nav.last_nav_at = Some(Instant::now());
+                self.on_sg_nav_move();
             }
             return;
         }
@@ -172,7 +192,7 @@ impl App {
             let target = target.min(self.sg_nav.sorted_indices.len().saturating_sub(1));
             self.sg_nav.selected = target;
             self.update_sg_nav_offset();
-            self.sg_nav.last_nav_at = Some(Instant::now());
+            self.on_sg_nav_move();
         }
         self.sg_nav.jump_buf.clear();
         self.sg_nav.jump_at = None;
