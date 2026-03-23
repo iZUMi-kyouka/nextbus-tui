@@ -1,5 +1,6 @@
 use super::App;
 use crate::models::SgBusStop;
+use crate::time::Instant;
 
 impl App {
     /// Rebuild `sg_nav.sorted_indices` with fav-first sort and search filter.
@@ -52,7 +53,7 @@ impl App {
                 .selected
                 .min(self.sg_nav.sorted_indices.len() - 1)
         };
-        self.sg_nav.list_state.select(Some(self.sg_nav.selected));
+        self.update_sg_nav_offset();
     }
 
     /// The currently highlighted SG bus stop.
@@ -66,67 +67,60 @@ impl App {
     pub fn sg_move_up(&mut self) {
         if self.sg_nav.selected > 0 {
             self.sg_nav.selected -= 1;
-            self.sg_nav.list_state.select(Some(self.sg_nav.selected));
-            #[cfg(not(target_arch = "wasm32"))]
-            self.ensure_sg_data();
+            self.update_sg_nav_offset();
+            self.sg_nav.last_nav_at = Some(Instant::now());
         }
     }
 
     pub fn sg_move_down(&mut self) {
         if self.sg_nav.selected + 1 < self.sg_nav.sorted_indices.len() {
             self.sg_nav.selected += 1;
-            self.sg_nav.list_state.select(Some(self.sg_nav.selected));
-            #[cfg(not(target_arch = "wasm32"))]
-            self.ensure_sg_data();
+            self.update_sg_nav_offset();
+            self.sg_nav.last_nav_at = Some(Instant::now());
         }
     }
 
     pub fn sg_go_first(&mut self) {
         if !self.sg_nav.sorted_indices.is_empty() {
             self.sg_nav.selected = 0;
-            self.sg_nav.list_state.select(Some(0));
-            #[cfg(not(target_arch = "wasm32"))]
-            self.ensure_sg_data();
+            self.update_sg_nav_offset();
+            self.sg_nav.last_nav_at = Some(Instant::now());
         }
     }
 
     pub fn sg_go_last(&mut self) {
         if !self.sg_nav.sorted_indices.is_empty() {
             self.sg_nav.selected = self.sg_nav.sorted_indices.len() - 1;
-            self.sg_nav.list_state.select(Some(self.sg_nav.selected));
-            #[cfg(not(target_arch = "wasm32"))]
-            self.ensure_sg_data();
+            self.update_sg_nav_offset();
+            self.sg_nav.last_nav_at = Some(Instant::now());
         }
     }
 
+    /// Scroll the viewport up by 3 rows without moving the selection.
     pub fn sg_scroll_up(&mut self) {
         let off = self.sg_nav.list_state.offset();
-        let new_off = off.saturating_sub(3);
-        *self.sg_nav.list_state.offset_mut() = new_off;
-        self.sg_nav.list_state.select(Some(self.sg_nav.selected));
-        let h = self.sg_nav.list_height as usize;
-        if h > 0 && self.sg_nav.selected >= new_off + h {
-            let last_visible =
-                (new_off + h - 1).min(self.sg_nav.sorted_indices.len().saturating_sub(1));
-            self.sg_nav.selected = last_visible;
-            self.sg_nav.list_state.select(Some(last_visible));
-            #[cfg(not(target_arch = "wasm32"))]
-            self.ensure_sg_data();
-        }
+        *self.sg_nav.list_state.offset_mut() = off.saturating_sub(3);
     }
 
+    /// Scroll the viewport down by 3 rows without moving the selection.
     pub fn sg_scroll_down(&mut self) {
         let len = self.sg_nav.sorted_indices.len();
         let off = self.sg_nav.list_state.offset();
         let new_off = (off + 3).min(len.saturating_sub(1));
         *self.sg_nav.list_state.offset_mut() = new_off;
-        if self.sg_nav.selected < new_off {
-            self.sg_nav.selected = new_off;
-            self.sg_nav.list_state.select(Some(new_off));
-            #[cfg(not(target_arch = "wasm32"))]
-            self.ensure_sg_data();
-        } else {
-            self.sg_nav.list_state.select(Some(self.sg_nav.selected));
+    }
+
+    pub(super) fn update_sg_nav_offset(&mut self) {
+        let h = self.sg_nav.list_height as usize;
+        if h == 0 {
+            return;
+        }
+        let sel = self.sg_nav.selected;
+        let off = self.sg_nav.list_state.offset();
+        if sel < off {
+            *self.sg_nav.list_state.offset_mut() = sel;
+        } else if sel >= off + h {
+            *self.sg_nav.list_state.offset_mut() = sel + 1 - h;
         }
     }
 
@@ -167,9 +161,8 @@ impl App {
             let target = if n == 0 { 9 } else { n - 1 };
             if target < self.sg_nav.sorted_indices.len() {
                 self.sg_nav.selected = target;
-                self.sg_nav.list_state.select(Some(target));
-                #[cfg(not(target_arch = "wasm32"))]
-                self.ensure_sg_data();
+                self.update_sg_nav_offset();
+                self.sg_nav.last_nav_at = Some(Instant::now());
             }
             return;
         }
@@ -190,9 +183,8 @@ impl App {
             };
             let target = target.min(self.sg_nav.sorted_indices.len().saturating_sub(1));
             self.sg_nav.selected = target;
-            self.sg_nav.list_state.select(Some(target));
-            #[cfg(not(target_arch = "wasm32"))]
-            self.ensure_sg_data();
+            self.update_sg_nav_offset();
+            self.sg_nav.last_nav_at = Some(Instant::now());
         }
         self.sg_nav.jump_buf.clear();
         self.sg_nav.jump_at = None;

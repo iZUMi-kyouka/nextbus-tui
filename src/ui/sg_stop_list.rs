@@ -13,6 +13,8 @@ use super::helpers::ellipsis;
 
 pub(super) fn render_sg_list(frame: &mut Frame, area: Rect, app: &mut App) {
     app.sg_nav.list_height = area.height.saturating_sub(2);
+    // Clear the ratatui selection so it never auto-scrolls the offset.
+    app.sg_nav.list_state.select(None);
 
     let palette = &app.theme().palette;
 
@@ -68,6 +70,9 @@ pub(super) fn render_sg_list(frame: &mut Frame, area: Rect, app: &mut App) {
         return;
     }
 
+    let selected = app.sg_nav.selected;
+    let fav_view = app.sg_nav.fav_view;
+
     let items: Vec<ListItem> = app
         .sg_nav
         .sorted_indices
@@ -82,9 +87,22 @@ pub(super) fn render_sg_list(frame: &mut Frame, area: Rect, app: &mut App) {
             let spin = if is_loading { " ..." } else { "" };
             let desc_width = (area.width as usize).saturating_sub(14 + spin.len());
             let desc = ellipsis(&stop.description, desc_width);
-            let label = format!("{:>3} {} {:5} {}{}", pos + 1, star, stop.code, desc, spin);
+            let cursor = if pos == selected { " > " } else { "   " };
+            let label = format!(
+                "{}{:>3} {} {:5} {}{}",
+                cursor,
+                pos + 1,
+                star,
+                stop.code,
+                desc,
+                spin
+            );
 
-            let style = if is_fav && !app.sg_nav.fav_view {
+            let style = if pos == selected {
+                Style::default()
+                    .bg(palette.dim)
+                    .add_modifier(Modifier::BOLD)
+            } else if is_fav && !fav_view {
                 Style::default().fg(palette.highlight)
             } else {
                 Style::default()
@@ -110,14 +128,7 @@ pub(super) fn render_sg_list(frame: &mut Frame, area: Rect, app: &mut App) {
         .title(title)
         .border_style(Style::default().fg(palette.border));
 
-    let list = List::new(items)
-        .block(block)
-        .highlight_style(
-            Style::default()
-                .bg(palette.dim)
-                .add_modifier(Modifier::BOLD),
-        )
-        .highlight_symbol(" > ");
+    let list = List::new(items).block(block);
 
     frame.render_stateful_widget(list, area, &mut app.sg_nav.list_state);
 }
