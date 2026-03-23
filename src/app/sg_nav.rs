@@ -123,11 +123,13 @@ impl App {
     }
 
     /// Scroll the viewport down by 3 rows without moving the selection.
+    /// The offset is capped so the last item never scrolls above the viewport bottom.
     pub fn sg_scroll_down(&mut self) {
         let len = self.sg_nav.sorted_indices.len();
+        let h = self.sg_nav.list_height as usize;
+        let max_off = len.saturating_sub(h.max(1));
         let off = self.sg_nav.list_state.offset();
-        let new_off = (off + 3).min(len.saturating_sub(1));
-        *self.sg_nav.list_state.offset_mut() = new_off;
+        *self.sg_nav.list_state.offset_mut() = (off + 3).min(max_off);
     }
 
     pub(super) fn update_sg_nav_offset(&mut self) {
