@@ -154,6 +154,8 @@ pub struct NavState {
     pub fav_view: bool,
     pub jump_buf: String,
     pub jump_at: Option<Instant>,
+    /// Set when the user navigates; cleared by the tick debounce after 300 ms.
+    pub last_nav_at: Option<Instant>,
     /// Inner height of the rendered list panel (rows available for items).
     /// Set by `render_list` each frame; used to clamp scroll when near the bottom.
     pub list_height: u16,
@@ -170,6 +172,8 @@ pub struct SgNavState {
     pub fav_view: bool,
     pub jump_buf: String,
     pub jump_at: Option<Instant>,
+    /// Set when the user navigates; cleared by the tick debounce after 300 ms.
+    pub last_nav_at: Option<Instant>,
     pub list_height: u16,
     pub stops_loading: bool,
     pub stops_error: Option<String>,

@@ -11,9 +11,13 @@ use crate::app::App;
 use super::helpers::ellipsis;
 
 pub(super) fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
-    // Track inner height so scroll logic can clamp the selection correctly.
+    // Track inner height for viewport offset management.
     app.nav.list_height = area.height.saturating_sub(2); // subtract top+bottom borders
+                                                         // Clear the ratatui selection so it never auto-scrolls the offset.
+    app.nav.list_state.select(None);
 
+    let selected = app.nav.selected;
+    let fav_view = app.nav.fav_view;
     let palette = &app.theme().palette;
     let fav_count = app.fav_count_in_list();
 
@@ -31,9 +35,14 @@ pub(super) fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
             let spin = if is_loading { " ..." } else { "" };
             let caption_width = (area.width as usize).saturating_sub(10 + spin.len());
             let caption = ellipsis(&stop.caption, caption_width);
-            let label = format!("{:>2} {}{}{}", pos + 1, star, caption, spin);
+            let cursor = if pos == selected { " > " } else { "   " };
+            let label = format!("{}{:>2} {}{}{}", cursor, pos + 1, star, caption, spin);
 
-            let style = if is_fav && !app.nav.fav_view {
+            let style = if pos == selected {
+                Style::default()
+                    .bg(palette.dim)
+                    .add_modifier(Modifier::BOLD)
+            } else if is_fav && !fav_view {
                 Style::default().fg(palette.highlight)
             } else {
                 Style::default()
@@ -60,14 +69,7 @@ pub(super) fn render_list(frame: &mut Frame, area: Rect, app: &mut App) {
         .title(title)
         .border_style(Style::default().fg(palette.border));
 
-    let list = List::new(items)
-        .block(block)
-        .highlight_style(
-            Style::default()
-                .bg(palette.dim)
-                .add_modifier(Modifier::BOLD),
-        )
-        .highlight_symbol(" > ");
+    let list = List::new(items).block(block);
 
     frame.render_stateful_widget(list, area, &mut app.nav.list_state);
 }

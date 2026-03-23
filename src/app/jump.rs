@@ -17,8 +17,8 @@ impl App {
         if let Ok(n) = self.nav.jump_buf.parse::<usize>() {
             if n > 0 && n <= self.nav.sorted_indices.len() {
                 self.nav.selected = n - 1;
-                self.nav.list_state.select(Some(self.nav.selected));
-                self.ensure_data();
+                self.update_nav_offset();
+                self.nav.last_nav_at = Some(Instant::now());
             }
         }
         self.nav.jump_buf.clear();
